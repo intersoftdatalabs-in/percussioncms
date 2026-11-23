@@ -239,7 +239,9 @@ test.describe("EditorHost workflow comment NUL", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
         "Draft",
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+      // NUL refusal claims no success (#7134): the result region stays
+      // mounted but empty.
+      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
@@ -343,7 +345,8 @@ test.describe("EditorHost workflow comment NUL", () => {
         await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
           "Draft",
         );
-        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+        // No success claimed (#7134): the result region stays mounted but empty.
+        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
         expect(pageErrors, pageErrors.join("\n")).toEqual([]);
       }
     },

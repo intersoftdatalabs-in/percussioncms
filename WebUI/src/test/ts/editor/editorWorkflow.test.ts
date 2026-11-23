@@ -22,7 +22,9 @@ import {
   canRunEditorTransition,
   confirmEditorAssignees,
   focusWorkflowComment,
+  focusWorkflowDone,
   focusWorkflowTrigger,
+  isTransitionFocusInside,
   formatDelegatedAssigneeList,
   formatDelegationNotice,
   workflowCommentContainsNul,
@@ -310,6 +312,36 @@ describe("editorWorkflow (#4539)", () => {
       '<button data-testid="editor-workflow-trigger-Submit">Submit</button>';
     expect(focusWorkflowTrigger("")).toBe(false);
     expect(focusWorkflowTrigger("Reject")).toBe(false);
+    document.body.innerHTML = "";
+  });
+
+  it("focusWorkflowDone focuses the announced result notice (#7134)", () => {
+    document.body.innerHTML =
+      '<span data-testid="editor-workflow-done" tabindex="-1"></span>';
+    const notice = document.querySelector(
+      '[data-testid="editor-workflow-done"]',
+    ) as HTMLElement;
+    expect(focusWorkflowDone()).toBe(true);
+    expect(document.activeElement).toBe(notice);
+    document.body.innerHTML = "";
+  });
+
+  it("focusWorkflowDone returns false when the notice is absent (#7134)", () => {
+    document.body.innerHTML = "";
+    expect(focusWorkflowDone()).toBe(false);
+  });
+
+  it("isTransitionFocusInside covers the panel and the assignee dialog (#7134)", () => {
+    document.body.innerHTML =
+      '<section data-testid="editor-workflow"><button id="t">Submit</button></section>' +
+      '<div data-testid="editor-workflow-assignee-dialog"><button id="c">Cancel</button></div>' +
+      '<button id="outside">Elsewhere</button>';
+    (document.getElementById("t") as HTMLElement).focus();
+    expect(isTransitionFocusInside()).toBe(true);
+    (document.getElementById("c") as HTMLElement).focus();
+    expect(isTransitionFocusInside()).toBe(true);
+    (document.getElementById("outside") as HTMLElement).focus();
+    expect(isTransitionFocusInside()).toBe(false);
     document.body.innerHTML = "";
   });
 

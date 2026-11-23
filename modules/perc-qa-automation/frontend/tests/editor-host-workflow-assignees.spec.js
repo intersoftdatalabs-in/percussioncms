@@ -183,7 +183,9 @@ test.describe("React Content Editor ad-hoc assignees", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
         "Draft",
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+      // Cancel claims no success (#7134): the persistently-mounted result
+      // region stays empty instead of unmounting.
+      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
 
       await page.getByTestId("editor-workflow-assignee-cancel").click();
       await expect(page.getByTestId("editor-workflow-assignee-dialog")).toHaveCount(0);
@@ -256,7 +258,9 @@ test.describe("React Content Editor ad-hoc assignees", () => {
         await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
           "Draft",
         );
-        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+        // HTTP failures claim no success (#7134): the result region stays
+        // mounted but empty while the dialog shows the alert.
+        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
         expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       }
     },

@@ -303,7 +303,9 @@ import {
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
   focusWorkflowComment,
+  focusWorkflowDone,
   focusWorkflowTrigger,
+  isTransitionFocusInside,
 } from "./editorWorkflow";
 import {
   createEditorItem,
@@ -1346,6 +1348,14 @@ export function EditorHost({
   const [workflowLoadErrorDetail, setWorkflowLoadErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const [workflowDone, setWorkflowDone] = useState(false);
+  /**
+   * Deferred focus onto the announced transition result (#7134). Set when
+   * a user-initiated run completes; consumed by the effect below after
+   * the result renders (and, on the assignee-dialog path, after the
+   * dialog closes so its opener-restore layout effect cannot overwrite
+   * the move).
+   */
+  const [workflowDoneFocusPending, setWorkflowDoneFocusPending] = useState(false);
   /**
    * Assignees the last successful transition delegated to (#5890). Set only
    * after the transition call succeeds; cleared when a new run starts so a
@@ -2984,8 +2994,10 @@ export function EditorHost({
       setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_COMMENT_NUL);
       return false;
     }
+    // A new run clears any earlier completion state (#7134).
     setWorkflowBusy(true);
     setWorkflowDone(false);
+    setWorkflowDoneFocusPending(false);
     setWorkflowDelegatedTo([]);
     setWorkflowChanged(false);
     setWorkflowErrorKey(null);
@@ -3011,6 +3023,10 @@ export function EditorHost({
       }
       setWorkflowDone(true);
       setWorkflowDelegatedTo(names);
+      // Defer the completion focus to the effect below (#7134): the
+      // assignee dialog's opener-restore layout effect would overwrite a
+      // direct move when the dialog closes after this returns.
+      setWorkflowDoneFocusPending(true);
       return true;
     } catch (err) {
       if (!isSessionRedirectError(err)) {
@@ -3149,6 +3165,27 @@ export function EditorHost({
     }
     setAssigneeCancelFocus(null);
   }, [assigneeCancelFocus, workflowAssigneeDialog]);
+
+  /**
+   * Land on the announced transition result after a user-initiated run
+   * completes (#7134). Passive, so it runs after the assignee dialog's
+   * opener-restore layout effect on close; held while that dialog is
+   * still open. Intent is rechecked here — not at run start — so tabbing
+   * elsewhere mid-run is never yanked back. HTTP failures keep the
+   * existing role=alert error path without a focus move.
+   */
+  useEffect(() => {
+    if (!workflowDoneFocusPending || workflowAssigneeDialog != null) {
+      return;
+    }
+    setWorkflowDoneFocusPending(false);
+    if (
+      typeof document !== "undefined" &&
+      (document.activeElement === document.body || isTransitionFocusInside())
+    ) {
+      focusWorkflowDone();
+    }
+  }, [workflowDoneFocusPending, workflowAssigneeDialog]);
 
   /**
    * Quick Approve/Reject action bar (#6483). Opens the comment confirm for
@@ -5222,12 +5259,21 @@ export function EditorHost({
               {message(EDITOR_MSG.SAVED)}
             </span>
           ) : null}
-          {workflowDone ? (
-            <span className={styles.meta} data-testid="editor-workflow-done">
-              {message(EDITOR_MSG.WORKFLOW_DONE)}
-            </span>
-          ) : null}
-          {workflowDone && workflowDelegatedTo.length > 0 ? (
+          {/*
+            Transition result (#7134, parent #4532): the status region
+            stays mounted and only its text changes. A live region mounted
+            together with its text is missed by most SR/browser combos, so
+            the completion announcement would be unreliable (same pattern
+            as the publish/takedown loading rows, #7087/#7125).
+          */}
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-workflow-done"
+          >
+            {workflowDone ? message(EDITOR_MSG.WORKFLOW_DONE) : ""}
+          </span>          {workflowDone && workflowDelegatedTo.length > 0 ? (
             <span className={styles.meta} data-testid="editor-workflow-delegated">
               {formatDelegationNotice(
                 message(EDITOR_MSG.WORKFLOW_DELEGATED),
@@ -6699,6 +6745,7 @@ export function EditorHost({
                 assigneeRequiredTriggers={assigneeRequiredTriggers}
                 onTransition={(t) => void handleTransition(t)}
                 busy={workflowBusy || saving || workflowAssigneeDialog != null}
+                transitionRunning={workflowBusy}
                 errorKey={workflowAssigneeDialog ? null : workflowErrorKey}
                 errorDetail={workflowAssigneeDialog ? "" : workflowErrorDetail}
                 commentInvalid={

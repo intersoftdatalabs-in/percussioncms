@@ -19,6 +19,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { renderA11yGate } from "../contentExplorer/a11y";
 import { AppRoutes } from "../../../main/ts/app/routes";
 import {
   EditorHost,
@@ -10322,6 +10323,89 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
   });
 
+  it("announces the run on the same live-region nodes and lands focus on the result (#7134)", async () => {
+    let resolveRun!: (value: unknown) => void;
+    const runTransition = vi
+      .fn()
+      .mockImplementation(
+        () => new Promise((resolve) => void (resolveRun = resolve)),
+      );
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow")).toBeTruthy();
+    });
+    // Both live regions stay mounted; only their text swaps.
+    const done = screen.getByTestId("editor-workflow-done");
+    expect(done.getAttribute("role")).toBe("status");
+    expect(done.textContent).toBe("");
+    const running = screen.getByTestId("editor-workflow-running");
+    expect(running.getAttribute("role")).toBe("status");
+    expect(running.textContent).toBe("");
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", "ready");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-running").textContent).toMatch(
+        /Running transition/,
+      );
+    });
+    resolveRun({});
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done").textContent).toMatch(
+        /completed/i,
+      );
+    });
+    // Same nodes: text swapped, not remounted.
+    expect(screen.getByTestId("editor-workflow-done")).toBe(done);
+    expect(screen.getByTestId("editor-workflow-running")).toBe(running);
+    expect(screen.getByTestId("editor-workflow-running").textContent).toBe("");
+    // Keyboard flow: focus lands on the announced result.
+    await waitFor(() => {
+      expect(document.activeElement).toBe(done);
+    });
+    await renderA11yGate(screen.getByTestId("editor-workflow"));
+  });
+
+  it("leaves focus alone when the user tabs elsewhere mid-run (#7134)", async () => {
+    let resolveRun!: (value: unknown) => void;
+    const runTransition = vi
+      .fn()
+      .mockImplementation(
+        () => new Promise((resolve) => void (resolveRun = resolve)),
+      );
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow")).toBeTruthy();
+    });
+    const done = screen.getByTestId("editor-workflow-done");
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", "ready");
+    });
+    // The user tabs to a control outside the workflow surface mid-run.
+    const outside = document.createElement("button");
+    outside.textContent = "elsewhere";
+    document.body.appendChild(outside);
+    outside.focus();
+    resolveRun({});
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done").textContent).toMatch(
+        /completed/i,
+      );
+    });
+    // The result still announces, but focus is not yanked back.
+    expect(document.activeElement).toBe(outside);
+    expect(document.activeElement).not.toBe(done);
+    outside.remove();
+  });
+
   it("blocks comment-required Reject until a comment is present", async () => {
     const runTransition = vi.fn().mockResolvedValue({});
     renderEdit({ runTransition });
@@ -10621,7 +10705,9 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
     expect(runTransition).not.toHaveBeenCalled();
     expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
-    expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+    // Cancel claims no success (#7134): the persistently-mounted result
+    // region stays empty instead of unmounting.
+    expect(screen.getByTestId("editor-workflow-done").textContent).toBe("");
     fireEvent.click(screen.getByTestId("editor-workflow-assignee-cancel"));
     await waitFor(() => {
       expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
@@ -10669,6 +10755,49 @@ describe("EditorHost workflow transitions (#4539)", () => {
     expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
   });
 
+  it("lands focus on the result after an assignee-confirmed run (#7134)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+        assigneeRequiredTriggers: ["Submit"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+        assigneeRequiredTriggers: [],
+      });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "bob" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-confirm"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined, ["bob"]);
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+    });
+    const done = screen.getByTestId("editor-workflow-done");
+    await waitFor(() => {
+      expect(done.textContent).toMatch(/completed/i);
+    });
+    // The dialog's opener-restore must not overwrite the result focus.
+    await waitFor(() => {
+      expect(document.activeElement).toBe(done);
+    });
+  });
+
   it("keeps the state label on HTTP 400, 403, and 409 (#5163)", async () => {
     const statuses = [400, 403, 409];
     for (const status of statuses) {
@@ -10701,7 +10830,9 @@ describe("EditorHost workflow transitions (#4539)", () => {
       });
       expect(runTransition).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
-      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      // HTTP failures claim no success (#7134): the result region stays
+      // mounted but empty while the dialog shows the alert.
+      expect(screen.getByTestId("editor-workflow-done").textContent).toBe("");
       expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
       expect(loadTransitions).toHaveBeenCalledTimes(1);
     }
@@ -10790,7 +10921,9 @@ describe("EditorHost workflow transitions (#4539)", () => {
       });
       expect(runTransition).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
-      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      // HTTP failures claim no success (#7134): the result region stays
+      // mounted but empty while the dialog shows the alert.
+      expect(screen.getByTestId("editor-workflow-done").textContent).toBe("");
       expect(screen.queryByTestId("editor-workflow-delegated")).toBeNull();
       expect(loadTransitions).toHaveBeenCalledTimes(1);
     }
@@ -10860,7 +10993,9 @@ describe("EditorHost refuse a workflow comment NUL (#5443)", () => {
       /transition comment contains a character that cannot be saved/i,
     );
     expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
-    expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+    // NUL refusal claims no success (#7134): the result region stays
+    // mounted but empty.
+    expect(screen.getByTestId("editor-workflow-done").textContent).toBe("");
     expect(loadTransitions).toHaveBeenCalledTimes(1);
   });
 
@@ -10994,7 +11129,9 @@ describe("EditorHost refuse a workflow comment NUL (#5443)", () => {
       });
       expect(runTransition).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
-      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      // HTTP failures claim no success (#7134): the result region stays
+      // mounted but empty while the dialog shows the alert.
+      expect(screen.getByTestId("editor-workflow-done").textContent).toBe("");
       expect(loadTransitions).toHaveBeenCalledTimes(1);
     }
   });

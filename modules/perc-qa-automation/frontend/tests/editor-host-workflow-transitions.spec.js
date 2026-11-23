@@ -226,6 +226,20 @@ test.describe("React Content Editor workflow transitions", () => {
       expect(parsed.comment).toBe("needs work");
       expect(isTransitionWithCommentsUrl(transitionCalls[0])).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeVisible();
+      // Announced result (#7134, parent #4532): the result region stays
+      // mounted with role=status and only its text swaps; keyboard focus
+      // lands on the announced result when the run completes.
+      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveAttribute(
+        "role",
+        "status",
+      );
+      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeFocused();
+      // Running region (#7134): persistently mounted with role=status,
+      // empty again after the run completes.
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.running}"]`),
+      ).toHaveAttribute("role", "status");
+      await expect(page.locator(`[data-testid="${TEST_IDS.running}"]`)).toBeEmpty();
       // Success clears the invalid marking with the error (#6931).
       await expect(
         page.locator(`[data-testid="${TEST_IDS.comment}"]`),

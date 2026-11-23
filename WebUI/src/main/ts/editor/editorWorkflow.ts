@@ -201,6 +201,52 @@ export function focusWorkflowTrigger(trigger: string): boolean {
 }
 
 /**
+ * Move keyboard focus to the announced workflow-transition result
+ * (`editor-workflow-done`, #7134). The notice is a persistently-mounted
+ * `role="status"` region, so this only moves focus — the announcement
+ * itself does not depend on it. Mirrors the publish/takedown focus flow
+ * (#7087): callers move focus only when the user did not tab elsewhere
+ * mid-run. Returns false when the notice is not in the document.
+ */
+export function focusWorkflowDone(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const el = document.querySelector('[data-testid="editor-workflow-done"]');
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+  el.focus();
+  if (typeof el.scrollIntoView === "function") {
+    el.scrollIntoView({ block: "nearest" });
+  }
+  return true;
+}
+
+/**
+ * True when focus sits inside the workflow transition surface (panel or
+ * assignee dialog, #7134). Captured when a run starts so the completion
+ * path can honour the intent without yanking focus back from outside.
+ */
+export function isTransitionFocusInside(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const active = document.activeElement;
+  if (!(active instanceof HTMLElement)) {
+    return false;
+  }
+  const panel = document.querySelector('[data-testid="editor-workflow"]');
+  if (panel instanceof HTMLElement && panel.contains(active)) {
+    return true;
+  }
+  const dialog = document.querySelector(
+    '[data-testid="editor-workflow-assignee-dialog"]',
+  );
+  return dialog instanceof HTMLElement && dialog.contains(active);
+}
+
+/**
  * Whether the editor host may invoke {@code transitionWithComments}.
  *
  * <p>View / promote stay read-only. Triggers not in the loaded allowlist
