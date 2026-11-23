@@ -649,11 +649,14 @@ export function ItemTakedownPanel({
         </button>
       )}
       </div>
-      {(loading || submitting) && (
-        <p role="status" data-testid="item-takedown-loading">
-          {message(MSG.PUBLISH_LOADING)}
-        </p>
-      )}
+      {/*
+        Loading row (#7087): the status container stays mounted and only
+        its text changes, otherwise the in-progress announcement is
+        unreliable (see ItemPublishNowPanel).
+      */}
+      <p role="status" data-testid="item-takedown-loading">
+        {loading || submitting ? message(MSG.PUBLISH_LOADING) : ""}
+      </p>
       {error && (
         <p
           style={errorStyle}

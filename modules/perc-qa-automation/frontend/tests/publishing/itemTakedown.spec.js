@@ -367,10 +367,13 @@ test.describe("PublishingShell site-workspace takedown", () => {
         timeout: 20_000,
       });
 
-      // Lookup announces through a polite live region (#7087).
+      // Lookup announces through a polite live region (#7087): the
+      // region stays mounted and only its text changes, so assert the
+      // announcement text itself, not just visibility.
       const loading = page.locator('[data-testid="item-takedown-loading"]');
       await expect(loading).toBeVisible({ timeout: 10_000 });
       await expect(loading).toHaveAttribute("role", "status");
+      await expect(loading).toHaveText(/Loading/i);
       await expect(page.locator('[data-testid="item-takedown-busy"]')).toHaveAttribute(
         "aria-busy",
         "true",

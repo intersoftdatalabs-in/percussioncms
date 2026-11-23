@@ -563,11 +563,15 @@ export function ItemPublishNowPanel({
         </ul>
         )}
       </div>
-      {submitting && (
-        <p data-testid="item-publish-now-loading" role="status">
-          {message(MSG.PUBLISH_LOADING)}
-        </p>
-      )}
+      {/*
+        Loading row (#7087): the status region stays mounted and only its
+        text changes. A live region mounted together with its text is
+        missed by most SR/browser combos, so the in-progress announcement
+        would be unreliable.
+      */}
+      <p data-testid="item-publish-now-loading" role="status">
+        {submitting ? message(MSG.PUBLISH_LOADING) : ""}
+      </p>
       {error && (
         <p
           style={errorStyle}

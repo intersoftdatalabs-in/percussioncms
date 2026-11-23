@@ -358,10 +358,13 @@ test.describe("PublishingShell site-workspace publish now", () => {
       });
       await page.locator('[data-testid="item-publish-now-submit"]').click();
 
-      // Loading announces through a polite live region (#7087).
+      // Loading announces through a polite live region (#7087): the
+      // region stays mounted and only its text changes, so assert the
+      // announcement text itself, not just visibility.
       const loading = page.locator('[data-testid="item-publish-now-loading"]');
       await expect(loading).toBeVisible({ timeout: 10_000 });
       await expect(loading).toHaveAttribute("role", "status");
+      await expect(loading).toHaveText(/Loading/i);
       await expect(page.locator('[data-testid="item-publish-now-busy"]')).toHaveAttribute(
         "aria-busy",
         "true",

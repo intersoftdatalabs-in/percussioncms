@@ -214,11 +214,22 @@ describe("ItemPublishNowPanel loading announcements (#7087)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("item-publish-now-success")).toBeTruthy();
     });
-    expect(screen.queryByTestId("item-publish-now-loading")).toBeNull();
+    // The loading region stays mounted with empty text after the run so
+    // the next run announces as a text change, not a mount-with-text.
+    expect(screen.getByTestId("item-publish-now-loading")).toHaveTextContent(
+      "",
+    );
     expect(screen.getByTestId("item-publish-now-busy")).toHaveAttribute(
       "aria-busy",
       "false",
     );
+  });
+
+  it("keeps the loading live region mounted with empty text before the run", async () => {
+    render(<ItemPublishNowPanel />);
+    const loading = screen.getByTestId("item-publish-now-loading");
+    expect(loading).toHaveAttribute("role", "status");
+    expect(loading).toHaveTextContent("");
   });
 
   it("moves focus to the announced result when focus stayed in the panel", async () => {

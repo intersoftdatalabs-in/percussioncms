@@ -290,11 +290,22 @@ describe("ItemTakedownPanel loading announcements (#7087)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
     });
-    expect(screen.queryByTestId("item-takedown-loading")).toBeNull();
+    // The loading region stays mounted with empty text after the lookup
+    // so the next run announces as a text change, not a mount-with-text.
+    expect(screen.getByTestId("item-takedown-loading")).toHaveTextContent(
+      "",
+    );
     expect(screen.getByTestId("item-takedown-busy")).toHaveAttribute(
       "aria-busy",
       "false",
     );
+  });
+
+  it("keeps the loading live region mounted with empty text before the run", async () => {
+    render(<ItemTakedownPanel />);
+    const loading = screen.getByTestId("item-takedown-loading");
+    expect(loading).toHaveAttribute("role", "status");
+    expect(loading).toHaveTextContent("");
   });
 
   it("announces the take-down run and moves focus to the result", async () => {
