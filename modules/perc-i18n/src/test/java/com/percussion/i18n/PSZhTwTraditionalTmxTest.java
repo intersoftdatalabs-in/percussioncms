@@ -180,6 +180,35 @@ public class PSZhTwTraditionalTmxTest {
     assertTrue(offenders.isEmpty(), "Take Down mistranslations reintroduced: " + offenders);
   }
 
+  /**
+   * Regression guard for #7145 review: {@code zh-tw} must never use the animal measure word
+   * {@code 隻} for "read-only" ({@code 隻讀}). OpenCC script conversion ({@code s2tw}) maps
+   * Simplified {@code 只读} to Traditional {@code 隻讀}, but the correct Taiwan usage is
+   * {@code 唯讀} (or at least {@code 只讀}); {@code 隻} counts animals. A script-only check
+   * cannot catch this class (both forms are valid Traditional), so the literal is pinned here.
+   */
+  @Test
+  public void zhTwSegments_haveNoAnimalMeasureReadOnly() throws Exception {
+    List<String> offenders = new ArrayList<>();
+    for (String name : CATALOG_FILES) {
+      Path f = resolveCatalogTmx(name);
+      assertTrue(f != null, name + " not found");
+      Document doc = parse(f);
+      NodeList tus = doc.getElementsByTagName("tu");
+      for (int i = 0; i < tus.getLength(); i++) {
+        Element tu = (Element) tus.item(i);
+        Map<String, String> segs = segsByLang(tu);
+        String tw = segs.get("zh-tw");
+        if (tw != null && tw.contains("隻讀")) {
+          offenders.add(name + " :: " + tu.getAttribute("tuid"));
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "zh-tw uses animal measure word 隻讀 for read-only (use 唯讀): " + offenders);
+  }
+
   private static boolean containsSimplifiedOnly(String seg) {
     return seg.codePoints().anyMatch(SIMPLIFIED_ONLY::contains);
   }
