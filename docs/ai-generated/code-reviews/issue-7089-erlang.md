@@ -27,4 +27,4 @@ _No issues._
 
 No actionable defects were found in the changes against the specified merge base. The focused page-turn Vitest test passes; live-CMS Playwright verification was not run.
 
-Codex history: two earlier [P2]s (live region inside aria-busy root; mount-then-populate) were fixed in-diff before push — busy state now lives on table+pager only, and the status region stays mounted with text flipped on fetch start. Final Codex pass: no actionable defects.
+Codex history: two earlier [P2]s (live region inside aria-busy root; mount-then-populate) were fixed in-diff before push — busy state now lives on table+pager only, and the status region stays mounted with text flipped on fetch start. Final Codex pass: no actionable defects. (Codex's "Playwright was not run" is its own sandbox view — live-H2 Playwright ran separately: `test:surface -- --path tests/explorer-detail-list-states.spec.js`, 4 passed.)
