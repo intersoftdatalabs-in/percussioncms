@@ -66,6 +66,7 @@ async function stubBatchApis(page, opts = {}) {
     linkedCalls: [],
     failIds: opts.failIds || {},
     failLinkedIds: opts.failLinkedIds || {},
+    emptyLinkedIds: opts.emptyLinkedIds || {},
   };
   // The workspace shares one item id across every item panel: looking up ids
   // in the takedown panel also nudges the history, actions-menu, and
@@ -103,6 +104,14 @@ async function stubBatchApis(page, opts = {}) {
         status: 500,
         contentType: "application/json",
         body: JSON.stringify({ message: state.failLinkedIds[id] }),
+      });
+      return;
+    }
+    if (state.emptyLinkedIds[id]) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ArrayList: [] }),
       });
       return;
     }
@@ -190,7 +199,12 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-r
     page,
   }) => {
     const consoleErrors = trackConsoleErrors(page);
-    const state = await stubBatchApis(page);
+    const state = await stubBatchApis(page, {
+      // Folded from #6930 review: the second id has no linked pages, so the
+      // confirm must render its empty-linked state (was only covered by the
+      // now-dropped itemTakedownBatch.spec.js).
+      emptyLinkedIds: { [SECOND_ID]: true },
+    });
     const linkedReads = [];
     page.on("request", (req) => {
       if (isFindLinkedItemsUrl(req.url()) && req.method() === "GET") {
@@ -212,6 +226,9 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-r
     await expect(
       panel.getByTestId(`${TEST_IDS.batchGroupPrefix}${SECOND_ID}`),
     ).toBeVisible();
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchLinkedEmptyPrefix}${SECOND_ID}`),
+    ).toBeVisible();
     expect(linkedReads.length).toBeGreaterThanOrEqual(2);
     expect(state.takedownCalls).toEqual([]);
 
@@ -221,6 +238,7 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-r
       { timeout: 15000 },
     );
     await expect(panel.getByTestId(TEST_IDS.error)).toHaveCount(0);
+    await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0);
     const report = panel.getByTestId(TEST_IDS.batchReport);
     await expect(report).toBeVisible();
     await expect(
@@ -354,6 +372,12 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-r
     ).toContainText("/Sites/Demo/Home");
     await expect(panel.getByTestId(TEST_IDS.error)).toHaveCount(0);
     await expect(panel.getByTestId(TEST_IDS.confirm)).toBeVisible();
+    // Folded from #6930 review: the healed confirm submits to full success.
+    await panel.getByTestId(TEST_IDS.submit).click();
+    await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
+      /all 2 items/i,
+      { timeout: 15000 },
+    );
     await page.screenshot({
       path: "test-results/live-proof-6696-takedown-review-retry.png",
     });
