@@ -412,25 +412,39 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
     // releases its real server-side lock in its own finally cleanup, but
     // this test stays independent of that lock state either way.
     await expect(box).toBeDisabled();
-    await lockBtn.click();
-    await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
-    await expect(box).toBeEnabled();
-    await expect(box).toHaveAttribute(
-      "aria-describedby",
-      "developer-ct-search-indexing-load-error-text",
-    );
-
     try {
+      await lockBtn.click();
+      await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+      await expect(box).toBeEnabled();
+      await expect(box).toHaveAttribute(
+        "aria-describedby",
+        "developer-ct-search-indexing-load-error-text",
+      );
+
       await unlockBtn.click();
       await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
     } finally {
+      // Cleanup (#7120 review): the try opens right after lockBtn.click()
+      // so a failed assertion above cannot leak the real lock on
+      // percRawHtmlAsset into later specs and re-runs. Button path first,
+      // then the REST unlock fallback like the 409 test above.
+      // Best-effort: the assertions above already ran.
       try {
         if (await unlockBtn.isEnabled()) {
           await unlockBtn.click();
           await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
         }
       } catch (e) {
-        // Best-effort cleanup; the assertions above already ran.
+        try {
+          const lockedTypeName = (
+            await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+          ).trim();
+          await page.request.post(
+            `${BASE_URL}/Rhythmyx/services/contenttypes/${encodeURIComponent(lockedTypeName)}/unlock`,
+          );
+        } catch (e2) {
+          // Best-effort cleanup; the assertions above already ran.
+        }
       }
     }
 
