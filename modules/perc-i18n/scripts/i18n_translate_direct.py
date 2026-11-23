@@ -35,6 +35,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 import i18n_cache as _i18n_cache  # noqa: E402
+import i18n_glossary as _i18n_glossary  # noqa: E402
 
 # Windows terminals often default to cp1252 / cp65001; force UTF-8 so Arabic
 # and other non-Latin translations can be printed and written safely.
@@ -317,6 +318,20 @@ def translate(text: str, target: str, *, cache: dict[str, str] | None = None, fo
     """Translate text to target, honoring cache."""
     if is_identity_segment(text):
         return text
+    # Pinned product terms (issue #7131) win over cache and engine alike so
+    # a stale cached machine translation can never regress a reviewed term.
+    pinned = _i18n_glossary.lookup(text, target)
+    if pinned is not None:
+        if cache is None:
+            cache = load_cache()
+        key = cache_key(text, target)
+        if cache.get(key) != pinned:
+            cache[key] = pinned
+        print(
+            f'  [glossary] {_preview(text, 30)} -> {target} = {_preview(pinned)}',
+            flush=True,
+        )
+        return pinned
     if cache is None:
         cache = load_cache()
     key = cache_key(text, target)

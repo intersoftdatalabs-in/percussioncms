@@ -22,6 +22,9 @@ hand-maintained Python/shell scripts.
 | `test_resolve_tmx_conflicts.py`   | Unit tests for TMX merge-conflict resolver.                                                                                                        |
 | `repair_tmx_escape_artifacts.py`  | One-shot repair for ASCII escape artifacts (`u200c`/`u200b`) the engines embed in new segments; applies the #6173/#6276 rules, syncs the cache. |
 | `test_repair_tmx_escape_artifacts.py` | Unit tests for the escape-artifact repair (no network required).                                              |
+| `i18n_glossary.py`                    | Pinned product-term glossary (Take Down / Take Downs, issue #7131) consulted by both translate CLIs before cache/engine. |
+| `repair_zh_tw_takedown.py`            | One-shot repair for issue #7131: OpenCC `s2twp` conversion of identical `zh-cn`/`zh-tw` pairs + glossary application; syncs the cache. |
+| `test_i18n_glossary.py`               | Unit tests for the glossary, both translate hooks, and the repair plan/apply (no network required). |
 
 ## Louisiana Creole (`lou`) draft seed
 
@@ -242,6 +245,37 @@ python3 modules/perc-i18n/scripts/repair_tmx_escape_artifacts.py
 The script rewrites the matching entries in the checked-in
 `scripts/cache/i18n_translate.json` so cache and TMX stay in sync, and never
 touches `en-us` source segments.
+
+## Repairing zh-tw script + Take Down terms (`repair_zh_tw_takedown.py`)
+
+Issue #7131 found two systemic problems: `zh-tw` segments shipped as
+Simplified Chinese (byte-identical to `zh-cn`), and "Take Down" rendered
+literally ("write/knock down") instead of the product sense "remove from
+the live site". The repair is deterministic (no translation service):
+
+* Every byte-identical `zh-cn` / `zh-tw` pair is converted with OpenCC
+  `s2twp` (Taiwan phrasing). Pairs whose `zh-tw` already differs (human /
+  review-fixed) are left alone. Requires `pip install opencc`.
+* Existing mistranslated Take Down segments are replaced from the pinned
+  glossary (`i18n_glossary.py`). Only segments that already exist are
+  rewritten — missing TUVs stay missing (back-fill via
+  `i18n_translate.py`, which now consults the same glossary, e.g. the new
+  batch-helper TUs from PR #7116).
+
+```bash
+# Preview only
+python3 modules/perc-i18n/scripts/repair_zh_tw_takedown.py --dry-run
+
+# Apply to all canonical TMX files and sync the shared cache
+python3 modules/perc-i18n/scripts/repair_zh_tw_takedown.py
+```
+
+`i18n_translate.py` / `i18n_translate_direct.py` check the glossary before
+cache and engine, so a stale cached machine translation can never regress
+a pinned term. Compound / status strings (`not taken down`,
+`Take down failed`, `Takedown failed`, `Take down (unpublish)`) are
+intentionally not pinned — per-locale grammar a term table cannot supply —
+and stay owned by normal back-fill + review.
 
 ## Resolving TMX merge conflicts (`resolve_tmx_conflicts.py`)
 
