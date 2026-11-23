@@ -44,6 +44,11 @@ Subcommands (all write/refresh ``scratch/claims.json``):
   release-closed  release every claim whose issue is now CLOSED (merge-close
                   or otherwise) and clear the label from all CLOSED issues
                   still carrying it; keeps OPEN issues untouched
+  pre-pr-check    re-check issues immediately before `gh pr create`;
+                  CLOSED issues (or released claims) come back as ``skip``
+                  rows (#7132) — the caller stands down instead of
+                  opening the PR. Read-only: never touches labels,
+                  comments, or claims.json.
   sweep-stale     clear claims older than ``--stale-hours`` (default 24)
                   with no covering open PR; never touches assigned issues
                   or the current cycle's claims
@@ -509,6 +514,51 @@ class Claimer:
         return {"cycle_id": self.cycle, "released": released,
                 "cleared": cleared, "kept": kept}
 
+    def pre_pr_check(self, numbers: list[int]) -> dict:
+        """Re-check issues immediately before `gh pr create` (#7132).
+
+        A Work lane can spend an hour building before it pushes: meanwhile
+        the issue may have been closed (observed #7083, closed as a
+        duplicate at 23:25 while the lane still opened #7120 at 23:44) or
+        this cycle's claim may have been released (Report sweep, host
+        drop). The Work step must call this right before `gh pr create`
+        and stand down on any ``skip`` row instead of opening the PR.
+
+        Read-only by design: never touches labels, comments, or
+        ``claims.json`` — not even to initialize cycle state (a missing
+        claims file reports ``claim_released``, it never creates one).
+        The caller records ``skipped_issue_closed``
+        in ``scratch/work-<N>.json`` and releases via
+        ``release --reason work_skipped_issue_closed`` (so the label
+        drops only when no other runner holds a claim), then cleans up
+        the branch/seat without pushing.
+        """
+        if not self.cycle:
+            return {"cycle_id": "", "proceed": [],
+                    "skip": [{"issue": n, "reason": "claim_released",
+                              "detail": "no cycle in claims file " + str(self.path)}
+                             for n in numbers]}
+        proceed, skip = [], []
+        for n in numbers:
+            try:
+                issue = self.gh.issue(n)
+            except RuntimeError as exc:
+                skip.append({"issue": n, "reason": "lookup_failed", "detail": str(exc)[:200]})
+                continue
+            if str(issue.get("state", "OPEN")).upper() != "OPEN":
+                skip.append({"issue": n, "reason": "closed",
+                             "detail": "state=" + str(issue.get("state"))})
+                continue
+            mine = [a for a in active_claims(issue) if a["cycle"] == self.cycle]
+            rec = self.state.get("claims", {}).get(str(n), {})
+            if rec.get("state") not in ("claimed", "pr_opened") or not mine:
+                skip.append({"issue": n, "reason": "claim_released",
+                             "detail": "claims.json state=" + str(rec.get("state", "missing"))
+                             + ", active_marker=" + str(bool(mine))})
+                continue
+            proceed.append(n)
+        return {"cycle_id": self.cycle, "proceed": proceed, "skip": skip}
+
     # -- stale sweep
     def sweep_stale(self, stale_hours: int, max_clears: int = 40) -> dict:
         self._require_cycle()
@@ -589,6 +639,9 @@ def main(argv: list[str] | None = None, runner: Runner = default_runner) -> int:
     s.add_argument("--issues", help="comma-separated issue numbers (extra to the cycle's claims)")
     s.add_argument("--max-clears", type=int, default=40)
 
+    s = sub.add_parser("pre-pr-check")
+    s.add_argument("--issues", required=True, help="comma-separated issue numbers to re-check")
+
     s = sub.add_parser("sweep-stale")
     s.add_argument("--stale-hours", type=int, default=24)
     s.add_argument("--max-clears", type=int, default=40)
@@ -606,6 +659,13 @@ def main(argv: list[str] | None = None, runner: Runner = default_runner) -> int:
         out = c.release_unfinished(Path(args.work_dir))
     elif args.cmd == "release-closed":
         out = c.release_closed(parse_csv(args.issues), args.max_clears)
+    elif args.cmd == "pre-pr-check":
+        out = c.pre_pr_check(parse_csv(args.issues))
+        print(json.dumps(out, indent=2))
+        # Exit 3 (distinct from argparse's 2 and generic 1): at least one
+        # issue must NOT get a PR — the caller stands down, records
+        # `skipped_issue_closed`, and cleans up without pushing.
+        return 3 if out["skip"] else 0
     else:
         out = c.sweep_stale(max(1, args.stale_hours), args.max_clears)
     print(json.dumps(out, indent=2))

@@ -353,3 +353,93 @@ def test_cli_release_closed_round_trip():
         assert labels(gh, 70) == []
         state = json.loads(Path(claims).read_text())
         assert state["claims"]["70"]["state"] == "released"
+
+
+def test_pre_pr_check_proceeds_on_open_claimed():
+    gh = FakeGh()
+    gh.add(80)
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        c.claim([80])
+        before = len(gh.issues[80]["comments"])
+        out = c.pre_pr_check([80])
+        assert out["proceed"] == [80] and out["skip"] == []
+        # read-only: no extra comments, label and claim marker intact
+        assert len(gh.issues[80]["comments"]) == before
+        assert labels(gh, 80) == ["in progress"]
+        assert [a["cycle"] for a in nqc.active_claims(gh.issues[80])] == [c.cycle]
+
+
+def test_pre_pr_check_skips_closed_mid_cycle():
+    # Observed #7083 -> #7120: claimed while open, closed as a duplicate
+    # mid-cycle, lane opened the PR anyway. The guard must say skip.
+    gh = FakeGh()
+    gh.add(81)
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        c.claim([81])
+        before = len(gh.issues[81]["comments"])
+        gh.issues[81]["state"] = "CLOSED"  # closed mid-cycle
+        out = c.pre_pr_check([81])
+        assert out["proceed"] == []
+        assert [s["issue"] for s in out["skip"]] == [81]
+        assert out["skip"][0]["reason"] == "closed"
+        # read-only: label/comment/claims.json untouched — the agent records
+        # skipped_issue_closed and the release-closed sweep cleans up
+        assert len(gh.issues[81]["comments"]) == before
+        assert labels(gh, 81) == ["in progress"]
+        state = json.loads((Path(tmp) / "claims.json").read_text())
+        assert state["claims"]["81"]["state"] == "claimed"
+
+
+def test_pre_pr_check_skips_released_claim():
+    gh = FakeGh()
+    gh.add(82)
+    gh.add(83)
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        c.claim([82, 83])
+        c.release([82], "dropped_by_host")  # claim released mid-cycle
+        # foreign scope=all release wipes our marker without touching claims.json
+        gh.issues[83]["comments"].append(
+            {"body": "sweep\n\n" + nqc.marker("release", "other", "h", scope="all"),
+             "createdAt": "2026-11-20T22:30:00Z"})
+        out = c.pre_pr_check([82, 83])
+        assert out["proceed"] == []
+        reasons = {s["issue"]: s["reason"] for s in out["skip"]}
+        assert reasons == {82: "claim_released", 83: "claim_released"}
+
+
+def test_cli_pre_pr_check_round_trip():
+    gh = FakeGh()
+    gh.add(84)
+    with tempfile.TemporaryDirectory() as tmp:
+        claims = str(Path(tmp) / "claims.json")
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "--host", "h", "init"], runner=gh) == 0
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "claim", "--issues", "#84"], runner=gh) == 0
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "pre-pr-check",
+                         "--issues", "84"], runner=gh) == 0
+        gh.issues[84]["state"] = "CLOSED"  # closed mid-cycle
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "pre-pr-check",
+                         "--issues", "84"], runner=gh) == 3
+
+
+def test_pre_pr_check_without_cycle_claims_file_is_safe_skip():
+    # A lane pointed at a missing claims file must NOT proceed — and the
+    # read-only guard must NOT create one (#7132 P1/P2: a mistyped --claims
+    # path initializes a fresh cycle instead of reporting the prerequisite).
+    gh = FakeGh()
+    gh.add(85, labels=["in progress"])
+    with tempfile.TemporaryDirectory() as tmp:
+        missing = Path(tmp) / "no-such-claims.json"
+        c = claimer(gh, tmp)
+        c.path = missing
+        c.state = {}
+        out = c.pre_pr_check([85])
+        assert out["proceed"] == []
+        assert [s["issue"] for s in out["skip"]] == [85]
+        assert out["skip"][0]["reason"] == "claim_released"
+        assert not missing.exists()
