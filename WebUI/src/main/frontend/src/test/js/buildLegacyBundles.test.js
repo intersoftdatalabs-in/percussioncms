@@ -1628,10 +1628,14 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
  *      Layout 1.6.3, live via common_js.jsp + bundles; npm `jquery-layout`
  *      is a different library by scravy — no upstream), jquery-dropdown
  *      (claviska jqDropdown, live; npm `jquery-dropdown` is a different
- *      plugin by techhysahil — no upstream), jquery-testrunner
- *      (Resig/Zaefferer 2009, test-only; no npm upstream — QUnit precedent).
+ *      plugin by techhysahil — no upstream).
  *      Each stays vendored in all three trees with its live reference
  *      intact.
+ *      NOTE (issue #7181, parent audit #5627): jquery-testrunner
+ *      (Resig/Zaefferer 2009) was dropped from this keep-vendored list —
+ *      its only references were broken `../jslib//jslib/...` script tags
+ *      in four manual testing pages (dead links, already resolving 404),
+ *      so the file and its tags were deleted outright instead of kept.
  */
 describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => {
   const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
@@ -1671,6 +1675,9 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
   // via mapping + overlay in the core-swap test.
 
   // Keep-vendored (no npm upstream): file must exist + live reference intact.
+  // NOTE (issue #7181): jquery-testrunner was removed from KEPT — its four
+  // manual-testing-page references were broken `../jslib//jslib/...` tags
+  // (dead 404 links); the file and tags were deleted outright.
   const KEPT = [
     {
       dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
@@ -1691,11 +1698,6 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
       dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
       refs: ["app/includes/common_css.jsp", "pages/app/includes/common_css.jsp"],
       refRe: /jquery-dropdown\/jquery\.dropdown\.css/,
-    },
-    {
-      dest: "jslib/profiles/3x/jquery/plugins/jquery-testrunner/testrunner.js",
-      refs: ["testing/test_PercAssetEditorLibrary.html"],
-      refRe: /jquery-testrunner\/testrunner\.js/,
     },
   ];
 
@@ -1853,7 +1855,7 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     }
   });
 
-  it("keeps vendored layout/dropdown/testrunner with live references intact", () => {
+  it("keeps vendored layout/dropdown with live references intact", () => {
     for (const { dest } of KEPT) {
       const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
         (k) => k === dest,

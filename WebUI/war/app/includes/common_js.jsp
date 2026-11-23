@@ -9,7 +9,9 @@
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js"></script>
 <script src="/cm/app/js/legacy/plugins/PercViewReadyManager.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js"></script>
+<!-- First-party carousel (issue #7181): replaces retired jQuery Tools
+     scrollable 1.1.2 with the same $.fn.scrollable API. -->
+<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-percutils/jquery.percscrollable.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js"></script>

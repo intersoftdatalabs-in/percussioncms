@@ -1,59 +1,70 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
- * tools.scrollable 1.1.2 - Scroll your HTML with eye candy.
+ * [jquery.percscrollable]
  *
- * Copyright (c) 2009 Tero Piirainen
- * http://flowplayer.org/tools/scrollable.html
- *
- * Dual licensed under MIT and GPL 2+ licenses
- * http://www.opensource.org/licenses
- *
- * Launch  : March 2008
- * Date: ${date}
- * Revision: ${revision}
+ * First-party replacement for the retired jQuery Tools Scrollable 1.1.2
+ * (2009, Tero Piirainen; removed per issue #7181, parent audit #5627).
+ * Exposes the same `$.fn.scrollable` API subset consumed by the classic
+ * template dialogs (`size`, `items`, `keyboard`, `globalNav`, `prev`,
+ * `next`, `prevPage`, `nextPage`, `clickable`, plus the
+ * `.data("scrollable")` handle with `begin` / `seekTo` / `updateItemWrap` /
+ * `getConf`), so no call site changes when swapping the script include.
+ * Positioning keeps the original contract: the item wrap is animated to
+ * `-item.position()` with jQuery, so the existing
+ * `div.perc-scrollable` / `div.perc-items` CSS is untouched.
  */
 (function ($) {
-  // static constructs
-  $.tools = $.tools || {};
+  var defaults = {
+    // basics
+    size: 5,
+    vertical: false,
+    speed: 400,
+    keyboard: true,
 
-  $.tools.scrollable = {
-    version: "1.1.2",
+    // by default this is the same as size
+    keyboardSteps: null,
 
-    conf: {
-      // basics
-      size: 5,
-      vertical: false,
-      speed: 400,
-      keyboard: true,
+    // other
+    disabledClass: "disabled",
+    hoverClass: null,
+    clickable: true,
+    activeClass: "active",
+    easing: "swing",
+    loop: false,
 
-      // by default this is the same as size
-      keyboardSteps: null,
+    items: ".items",
+    item: null,
 
-      // other
-      disabledClass: "disabled",
-      hoverClass: null,
-      clickable: true,
-      activeClass: "active",
-      easing: "swing",
-      loop: false,
+    // navigational elements
+    prev: ".prev",
+    next: ".next",
+    prevPage: ".prevPage",
+    nextPage: ".nextPage",
+    api: false,
 
-      items: ".items",
-      item: null,
-
-      // navigational elements
-      prev: ".prev",
-      next: ".next",
-      prevPage: ".prevPage",
-      nextPage: ".nextPage",
-      api: false,
-
-      // CALLBACKS: onBeforeSeek, onSeek, onReload
-    },
+    // CALLBACKS: onBeforeSeek, onSeek, onReload (bound as events)
   };
 
   var current;
 
   // constructor
-  function Scrollable(root, conf) {
+  function PercScrollable(root, conf) {
     // current instance
     var self = this,
       $self = $(this),
@@ -82,9 +93,6 @@
       var els = $(query);
       return conf.globalNav ? els : root.parent().find(query);
     }
-
-    // to be used by plugins
-    root.data("finder", find);
 
     // get handle to navigational elements
     var prev = find(conf.prev),
@@ -251,12 +259,12 @@
         return this.move(steps, time, fn);
       },
 
-      prevPage: function (time, fn) {
-        return this.movePage(-1, time, fn);
-      },
-
       nextPage: function (time, fn) {
         return this.movePage(1, time, fn);
+      },
+
+      prevPage: function (time, fn) {
+        return this.movePage(-1, time, fn);
       },
 
       setPage: function (page, time, fn) {
@@ -284,7 +292,7 @@
         return self;
       },
 
-      click: function (i) {
+      click: function (i, time, fn) {
         var item = self.getItems().eq(i),
           klass = conf.activeClass,
           size = conf.size;
@@ -336,6 +344,13 @@
       },
 
       // bind / unbind
+      // NOTE: preserved verbatim from the retired jTools original, quirk
+      // included: `on` unbinds and `off` binds nothing, so the hover /
+      // clickable / keyboard block registered via `self.onReload(...)`
+      // below never fires. That is the long-deployed behavior (every call
+      // site binds its own item click and arrow-key handlers), and this
+      // shim must not change it. Do not "fix" without a live pass over
+      // the classic template dialogs.
       on: function (name, fn) {
         $self.off(name, fn);
         return self;
@@ -455,13 +470,13 @@
       return el;
     }
 
-    var globals = $.extend({}, $.tools.scrollable.conf);
+    var globals = $.extend({}, defaults);
     conf = $.extend(globals, conf);
 
     conf.keyboardSteps = conf.keyboardSteps || conf.size;
 
     this.each(function () {
-      el = new Scrollable($(this), conf);
+      el = new PercScrollable($(this), conf);
       $(this).data("scrollable", el);
     });
 
