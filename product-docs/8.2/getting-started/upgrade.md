@@ -103,18 +103,21 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
   1.6.7-based Calendar widget is retired and no longer installs or appears
   in the widget catalog. Pages that used it should switch to
   **Calendar 2.0** (`percCalendarTwo`), which renders the same
-  `percCalendarAsset` items on the supported FullCalendar 2.x line. The
-  shared calendar content type, its editor controls, and all Calendar 2.0
-  payload files are unchanged.
+  `percCalendarAsset` items on the maintained FullCalendar v6.1.15 line
+  (#6919). The shared calendar content type and its editor controls are
+  unchanged by the removal; the Calendar 2.0 runtime payload itself moved
+  from the end-of-life 2.x line to v6 — see [Calendar 2.0 widget
+  runtime](id:developer-calendar-widget).
 
   > **Calendar 2.0 styling contract (unchanged).** Calendar 2.0 pages keep
   > their responsive toolbar stacking (narrow-viewport overrides) and the
   > print stylesheet exactly as shipped — no template or site-CSS action is
-  > needed on upgrade. Custom site overrides that target the calendar's
-  > `fc-*` classes keep working: the planned FullCalendar v6 successor
-  > renames several of those hooks (toolbar sections become
-  > `.fc-toolbar-chunk`, theme button classes change), and that retargeting
-  > ships with the migration itself, not before it.
+  > needed on upgrade for the widget's bundled styling. The FullCalendar v6
+  > runtime renames several hooks (toolbar sections are `.fc-toolbar-chunk`,
+  > theme button classes changed): the widget's own styles were retargeted
+  > with the migration, but custom site CSS targeting the renamed hooks
+  > (for example `.fc-toolbar .fc-left`) must be reviewed and updated —
+  > see [Calendar 2.0 widget runtime](id:developer-calendar-widget).
 
 - **Responsive base templates (`perc.resp.*`) removed.** The
   `perc.responsiveTemplates` package (Banded / Basic / plain, Foundation
