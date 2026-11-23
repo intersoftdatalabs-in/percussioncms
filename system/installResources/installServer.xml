@@ -1768,22 +1768,10 @@
 		<PSJaFiles />
 
 		<!-- Solutions -->
-		<mkdir dir="${basedir}/Temp" />
-		<unzip src="${basedir}/Solutions/soln-linkback-dist.zip"
-			dest="${basedir}/Temp" />
-		<ant inheritAll="false"
-			antfile="${basedir}/Temp/Solution-LinkBack/deploy.xml">
-			<property name="rhythmyx.home" value="${install.dir}" />
-		</ant>
-		<delete dir="${basedir}/Temp" />
-
-		<if>
-			<equals arg1="${INSTALL_PROJECTS}" arg2="yes" />
-			<then>
-				<!-- Install projects -->
-				<antcall target="installProjects" />
-			</then>
-		</if>
+		<!-- #7068: soln-linkback-dist.zip is no longer staged
+			(system/Solutions does not exist in the repo and no build
+			produces the zip), so the unzip plus its dependent LinkBack
+			deploy ant step are removed. -->
 
 		<!-- replace ephox files if its an upgrade -->
 		<if>
@@ -1802,19 +1790,10 @@
 			file="${builddir}/lib/rxEphoxExtensions.jar" />
 	</target>
 
-	<!-- Projects Installer sequence -->
-	<target name="installProjects">
-		<property name="tempDir" value="${basedir}/Temp" />
-		<mkdir dir="tempDir" />
-		<unzip
-			src="${basedir}/../projects/cmui/build/packages/perc-cmui.zip"
-			dest="${tempDir}" />
-		<ant inheritAll="false"
-			antfile="${basedir}/Temp/perc-cmui/install.xml">
-			<property name="rhythmyx.home" value="${install.dir}" />
-		</ant>
-		<delete dir="${tempDir}" />
-	</target>
+	<!-- #7068: projects/cmui no longer exists and no build produces
+		perc-cmui.zip, so the installProjects target (unzip plus its
+		dependent install ant step) is removed along with its
+		INSTALL_PROJECTS caller above. -->
 
 	<!-- Post install sequence -->
 	<target name="postInstall">
