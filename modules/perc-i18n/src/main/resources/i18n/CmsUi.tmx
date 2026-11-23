@@ -26360,6 +26360,10 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="en-us"><seg>{count} item(s)</seg></tuv>
     </tu>
     <!-- #7076: summary status labels keyed from delivery-panel review threads (parent #6936 follow-up). en-us only. -->
+    <!-- #7106: unknown file driver fallback (from #7076). en-us only; other locales fall back to en-us. -->
+    <tu tuid="perc.ui.publish.modern@Unknown file driver: {0}">
+      <tuv xml:lang="en-us"><seg>Unknown file driver: {0}</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Password">
       <tuv xml:lang="en-us"><seg>Password</seg></tuv>
     </tu>

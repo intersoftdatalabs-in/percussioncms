@@ -92,4 +92,12 @@ describe("FileDriverFields canonical property keys", () => {
     expect(keys).toContain("userid");
     expect(keys).not.toContain("user");
   });
+
+  it("renders unknown drivers with the driver name interpolated (no literal {0}, #7106)", () => {
+    const onChange = vi.fn();
+    render(<FileDriverFields driver="WEIRD" properties={{}} onChange={onChange} />);
+    const note = screen.getByTestId("driver-unknown");
+    expect(note.textContent).toBe("Unknown file driver: WEIRD");
+    expect(note.textContent).not.toContain("{0}");
+  });
 });
