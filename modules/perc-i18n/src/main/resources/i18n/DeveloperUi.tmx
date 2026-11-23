@@ -4699,5 +4699,15 @@
       <tuv xml:lang="en-us"><seg>System controls are read-only packaged defaults</seg></tuv>
       <tuv xml:lang="bn"><seg>সিস্টেম নিয়ন্ত্রণগুলি শুধুমাত্র পঠনযোগ্য প্যাকেজ ডিফল্ট</seg></tuv>
     <tuv xml:lang="fr-ca"><seg>Les contrôles système sont des valeurs par défaut packagées en lecture seule</seg></tuv><tuv xml:lang="ru"><seg>Системные элементы управления — это упакованные значения по умолчанию, доступные только для чтения.</seg></tuv><tuv xml:lang="he"><seg>בקרות מערכת הן ברירות מחדל ארוזות לקריאה בלבד</seg></tuv><tuv xml:lang="uk"><seg>Системні елементи керування є пакетними за замовчуванням лише для читання</seg></tuv><tuv xml:lang="lou"><seg>System controls sé read-only packaged defaults</seg></tuv><tuv xml:lang="pl"><seg>Elementy sterujące systemu są domyślnymi pakietami tylko do odczytu</seg></tuv><tuv xml:lang="tr"><seg>Sistem kontrolleri salt okunur paketlenmiş varsayılanlardır</seg></tuv><tuv xml:lang="hi"><seg>सिस्टम नियंत्रण केवल-पढ़ने के लिए पैकेज्ड डिफ़ॉल्ट हैं</seg></tuv><tuv xml:lang="te"><seg>సిస్టమ్ నియంత్రణలు చదవడానికి మాత్రమే ప్యాక్ చేయబడిన డిఫాల్ట్‌లు</seg></tuv><tuv xml:lang="es"><seg>Los controles del sistema son valores predeterminados empaquetados de solo lectura</seg></tuv><tuv xml:lang="fr"><seg>Les contrôles système sont des valeurs par défaut packagées en lecture seule</seg></tuv><tuv xml:lang="de"><seg>Systemsteuerelemente sind schreibgeschützte Standardeinstellungen</seg></tuv><tuv xml:lang="zh-cn"><seg>系统控件是只读的打包默认值</seg></tuv><tuv xml:lang="ar"><seg>عناصر التحكم في النظام هي إعدادات افتراضية مجمعة للقراءة فقط</seg></tuv><tuv xml:lang="it"><seg>I controlli di sistema sono pacchetti predefiniti di sola lettura</seg></tuv><tuv xml:lang="ja-jp"><seg>システム コントロールは読み取り専用のパッケージ化されたデフォルトです</seg></tuv><tuv xml:lang="nb"><seg>Systemkontroller er skrivebeskyttede standardinnstillinger</seg></tuv><tuv xml:lang="nl"><seg>Systeembesturingselementen zijn alleen-lezen standaardpakketten</seg></tuv><tuv xml:lang="pt"><seg>Os controles do sistema são pacotes padrão somente leitura</seg></tuv><tuv xml:lang="sv"><seg>Systemkontroller är skrivskyddade paketerade standardinställningar</seg></tuv><tuv xml:lang="zh-tw"><seg>系统控件是只读的打包默认值</seg></tuv></tu>
+    <!-- #7084: content-type icon strategy chrome CD-11 (parent #1690). en-us only. -->
+    <tu tuid="perc.ui.developer@Icon strategy">
+      <tuv xml:lang="en-us"><seg>Icon strategy</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.developer@Could not load icon strategy.">
+      <tuv xml:lang="en-us"><seg>Could not load icon strategy.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.developer@Could not save icon strategy.">
+      <tuv xml:lang="en-us"><seg>Could not save icon strategy.</seg></tuv>
+    </tu>
   </body>
 </tmx>

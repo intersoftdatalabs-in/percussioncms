@@ -366,4 +366,85 @@ test.describe("Developer content type icon strategy (CD-11 / #4047)", () => {
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
+
+  test("GET icon failure shows non-blocking notice; lock still works (#7084 CD-11)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+
+    await loginAsAdmin(page);
+
+    await page.route("**/services/contenttypes/**/icon", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "Forbidden" }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await openContentTypeDetail(page, /percRawHtmlAsset/);
+
+    const source = page.locator('[data-testid="developer-ct-icon-source"]');
+    const value = page.locator('[data-testid="developer-ct-icon-value"]');
+    const loadError = page.locator('[data-testid="developer-ct-icon-error"]');
+    const lockBtn = page.locator('[data-testid="developer-ct-lock"]');
+    const unlockBtn = page.locator('[data-testid="developer-ct-unlock"]');
+    const status = page.locator('[data-testid="developer-ct-lock-status"]');
+
+    // Non-blocking load notice with the fallback-to-none state.
+    await expect(loadError).toBeVisible({ timeout: 20_000 });
+    await expect(loadError).toContainText(/Could not load icon strategy/i);
+    await expect(source).toHaveValue("none");
+
+    // Lock still works and both editors name the notice for screen readers.
+    // NOTE: own type (not the default percPage row) so this test stays
+    // independent of lock state from other specs.
+    await expect(source).toBeDisabled();
+    try {
+      await lockBtn.click();
+      await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+      await expect(source).toBeEnabled();
+      await expect(source).toHaveAttribute(
+        "aria-describedby",
+        "developer-ct-icon-load-error-text",
+      );
+      await expect(value).toHaveAttribute(
+        "aria-describedby",
+        "developer-ct-icon-load-error-text",
+      );
+
+      await unlockBtn.click();
+      await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
+    } finally {
+      // Cleanup (#7140 review): the try opens right after lockBtn.click()
+      // so a failed assertion above cannot leak the real lock on
+      // percRawHtmlAsset into later specs and re-runs. Button path first,
+      // then the REST unlock fallback like the #7120 409 test.
+      // Best-effort: the assertions above already ran.
+      try {
+        if (await unlockBtn.isEnabled()) {
+          await unlockBtn.click();
+          await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
+        }
+      } catch (e) {
+        try {
+          const lockedTypeName = (
+            await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+          ).trim();
+          await page.request.post(
+            `${BASE_URL}/Rhythmyx/services/contenttypes/${encodeURIComponent(lockedTypeName)}/unlock`,
+          );
+        } catch (e2) {
+          // Best-effort cleanup; the assertions above already ran.
+        }
+      }
+    }
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
 });

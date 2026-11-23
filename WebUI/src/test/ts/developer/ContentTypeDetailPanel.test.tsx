@@ -2831,6 +2831,9 @@ describe("ContentTypeDetailPanel", () => {
     );
     expect((screen.getByTestId("developer-ct-icon-value") as HTMLInputElement).disabled).toBe(true);
     expect(setContentTypeIcon).not.toHaveBeenCalled();
+    // No load failure: no describedby reference dangles (#7084 CD-11 polish).
+    expect(screen.getByTestId("developer-ct-icon-source").getAttribute("aria-describedby")).toBeNull();
+    expect(screen.getByTestId("developer-ct-icon-value").getAttribute("aria-describedby")).toBeNull();
   });
 
   it("saves specified icon via dedicated PUT after lock (#4047)", async () => {
@@ -2946,7 +2949,7 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
-        "Could not save content type.",
+        "Could not save icon strategy.",
       );
     });
     expect(setContentTypeIcon).toHaveBeenCalledWith(
@@ -2957,6 +2960,79 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
       true,
+    );
+  });
+
+  it("surfaces a non-blocking notice when GET icon fails (#7084 CD-11)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeIcon.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-icon-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-icon-error").textContent).toContain(
+      "Could not load icon strategy.",
+    );
+    expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).value).toBe(
+      "none",
+    );
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+    // Screen-reader context (#7084 CD-11 polish): both editors name the load
+    // notice so the fallback-to-none state is announced on focus.
+    expect(
+      screen.getByTestId("developer-ct-icon-source").getAttribute("aria-describedby"),
+    ).toBe("developer-ct-icon-load-error-text");
+    expect(
+      screen.getByTestId("developer-ct-icon-value").getAttribute("aria-describedby"),
+    ).toBe("developer-ct-icon-load-error-text");
+    expect(screen.getByTestId("developer-ct-icon-error").getAttribute("id")).toBe(
+      "developer-ct-icon-load-error-text",
+    );
+  });
+
+  it("shows a keyed error and keeps edits when icon PUT fails without 409 (#7084 CD-11)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    setContentTypeIcon.mockRejectedValueOnce({
+      status: 500,
+      statusText: "Server Error",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-source"), {
+      target: { value: "specified" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-value"), {
+      target: { value: "rx_resources/images/page.gif" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save icon strategy.",
+      );
+    });
+    // No data loss: the failed save keeps the user's edits and the held lock.
+    expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).value).toBe(
+      "specified",
+    );
+    expect((screen.getByTestId("developer-ct-icon-value") as HTMLInputElement).value).toBe(
+      "rx_resources/images/page.gif",
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+    expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+      false,
     );
   });
 

@@ -230,6 +230,7 @@ export const DEV_MSG_KEYS = {
   CT_ICON_FROM_FILE_FIELD: "perc.ui.developer@From file field",
   CT_ICON_VALUE_PLACEHOLDER: "perc.ui.developer@File path, name, or file field name",
   CT_ICON_LOAD_ERROR: "perc.ui.developer@Could not load icon strategy.",
+  CT_ICON_SAVE_ERROR: "perc.ui.developer@Could not save icon strategy.",
   CT_ICON_VALUE_REQUIRED: "perc.ui.developer@value is required when source is not none",
   CT_LOCK: "perc.ui.developer@Lock",
   CT_UNLOCK: "perc.ui.developer@Unlock",
