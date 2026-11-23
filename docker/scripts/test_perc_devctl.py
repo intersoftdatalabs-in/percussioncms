@@ -9,6 +9,7 @@ argv and assert exit-code / RESULT:OK mapping.
 
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import logging
 import os
@@ -2772,6 +2773,108 @@ class QaCellSuffixIsolationTests(unittest.TestCase):
         )
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("CONTAINER:perc-matrix-cms-h2-qa-a", out)
+
+
+class QaPublishFixtureDeployFallbackTest(unittest.TestCase):
+    """#7185: a failed fixture-tree ``docker cp`` retries via tar pipe.
+
+    ``_run_logged`` is stubbed (pull/mkdir OK, deploy ``docker cp``
+    fails); the fallback ``subprocess.run`` is stubbed too. The staged
+    tree is real (synthetic CMS publish tree), so the test proves the
+    fallback would ship the verified fixture bytes.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        # ``_qa_publish_fixture_deploy`` stages from ``plan.pull_dir``
+        # as the CMS install root: plant the publish tree there.
+        pull = self.root / "pull"
+        src = pull / "web_resources"
+        import qa_publish_fixture as qpf
+
+        self.qpf = qpf
+        for asset in qpf.REQUIRED_PUBLISHED_ASSETS:
+            rel = Path(*asset.split("/")).relative_to(qpf.CMS_WEB_RESOURCES_DIR)
+            target = src / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(f"/* fixture bytes for {asset} */", encoding="utf-8")
+        self.plan = argparse.Namespace(
+            container="perc-matrix-dts-h2",
+            cms_container="perc-matrix-cms-h2",
+            site_url="http://127.0.0.1:9983",
+            category_url="http://127.0.0.1:9983/category.html",
+            site_dir=self.root / "site",
+            pull_dir=pull,
+            cms_install=str(pull),
+            context_dest="/opt/DTS/Deployment/Server/webapps/ROOT",
+            timeout=120,
+        )
+        self.log_dir = self.root / "logs"
+        self.log_dir.mkdir()
+
+    def _deploy(self, run_logged_side_effect, tar_returncode):
+        calls = []
+
+        def fake_run(argv, **kwargs):
+            calls.append((list(argv), kwargs))
+            return subprocess.CompletedProcess(
+                args=argv, returncode=tar_returncode, stdout="", stderr="")
+
+        with unittest.mock.patch.object(
+            pdc, "_run_logged", side_effect=run_logged_side_effect
+        ), unittest.mock.patch.object(pdc.subprocess, "run", side_effect=fake_run):
+            rc = pdc._qa_publish_fixture_deploy(
+                self.plan, log_dir=self.log_dir, repo_root=self.root)
+        return rc, calls
+
+    def _ok(self, label):
+        return (pdc.EXIT_OK, self.log_dir / f"{label}.log")
+
+    def test_deploy_cp_failure_falls_back_to_tar_pipe(self):
+        import io as _io
+        import tarfile as _tarfile
+
+        rc, calls = self._deploy(
+            [self._ok("pull"), self._ok("mkdir"), (pdc.EXIT_SUBPROCESS_FAILED, self.log_dir / "cp.log")],
+            tar_returncode=0,
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertTrue(self.qpf.verify_fixture_tree(self.plan.site_dir) == [])
+        tar_calls = [c for c in calls if c[0][:2] == ["docker", "exec"] and "tar" in c[0]]
+        self.assertEqual(len(tar_calls), 1)
+        argv, kwargs = tar_calls[0]
+        self.assertEqual(
+            argv,
+            ["docker", "exec", "-i", "perc-matrix-dts-h2",
+             "tar", "-xf", "-", "-C", "/opt/DTS/Deployment/Server/webapps/ROOT"],
+        )
+        payload = kwargs.get("input")
+        self.assertTrue(payload, msg="tar fallback must pipe archive bytes via input=")
+        with _tarfile.open(fileobj=_io.BytesIO(payload), mode="r") as tf:
+            names = [m.name for m in tf.getmembers()]
+        self.assertIn(self.qpf.FIXTURE_HOME_PAGE, names)
+
+    def test_both_fail_reports_recreate(self):
+        with unittest.mock.patch("builtins.print") as _print:
+            rc, _calls = self._deploy(
+                [self._ok("pull"), self._ok("mkdir"),
+                 (pdc.EXIT_SUBPROCESS_FAILED, self.log_dir / "cp.log")],
+                tar_returncode=1,
+            )
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        printed = " ".join(str(c.args[0]) for c in _print.call_args_list)
+        self.assertIn("qa-down", printed)
+        self.assertIn("qa-up", printed)
+
+    def test_deploy_cp_success_never_touches_tar(self):
+        rc, calls = self._deploy(
+            [self._ok("pull"), self._ok("mkdir"), self._ok("deploy")],
+            tar_returncode=0,
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertFalse(any("tar" in argv for argv, _ in calls))
 
 
 if __name__ == "__main__":

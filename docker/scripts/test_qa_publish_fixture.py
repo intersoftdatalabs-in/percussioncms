@@ -338,5 +338,56 @@ class DockerArgvTest(unittest.TestCase):
         )
 
 
+class StageTarBytesTest(unittest.TestCase):
+    """#7185: the tar-pipe fallback ships the staged tree byte-identical."""
+
+    def setUp(self):
+        self.td = TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+
+    def _staged(self) -> Path:
+        cms = _fake_cms_install(self.root / "cms")
+        staging = self.root / "staging"
+        qpf.build_fixture_tree(staging, cms)
+        return staging
+
+    def test_tar_extract_argv_shape(self):
+        self.assertEqual(
+            qpf.tar_extract_argv("perc-matrix-dts-h2", "/opt/DTS/webapps/ROOT"),
+            ["docker", "exec", "-i", "perc-matrix-dts-h2",
+             "tar", "-xf", "-", "-C", "/opt/DTS/webapps/ROOT"],
+        )
+
+    def test_members_are_relative_sorted_with_mtime(self):
+        import tarfile
+
+        staging = self._staged()
+        blob = qpf.stage_tar_bytes(staging)
+        with tarfile.open(fileobj=io.BytesIO(blob), mode="r") as tf:
+            members = tf.getmembers()
+        names = [m.name for m in members]
+        # Contents-copy semantics (like `docker cp <dir>/.`): no
+        # top-level directory entry, paths relative to the tree root.
+        self.assertTrue(names, "expected a non-empty archive")
+        self.assertEqual(names, sorted(names))
+        self.assertFalse(any(n.startswith("/") or n.startswith("./") for n in names))
+        self.assertFalse(any(part == ".." for n in names for part in n.split("/")))
+        self.assertIn(qpf.FIXTURE_HOME_PAGE, names)
+        expected = {qpf.FIXTURE_HOME_PAGE, qpf.FIXTURE_CATEGORY_PAGE}
+        expected.update(qpf.REQUIRED_PUBLISHED_ASSETS)
+        expected.update(
+            f"{qpf.WIDGET_FIXTURE_DIR}/{name}.html" for name, *_ in qpf.WIDGET_FIXTURES
+        )
+        self.assertEqual(set(names), expected)
+        with tarfile.open(fileobj=io.BytesIO(blob), mode="r") as tf:
+            for member in tf.getmembers():
+                src = staging.joinpath(*member.name.split("/"))
+                extracted = tf.extractfile(member)
+                assert extracted is not None
+                self.assertEqual(extracted.read(), src.read_bytes())
+                self.assertEqual(member.mtime, int(src.stat().st_mtime))
+
+
 if __name__ == "__main__":
     unittest.main()

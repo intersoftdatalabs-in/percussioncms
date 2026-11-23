@@ -34,7 +34,9 @@ guarantees byte fidelity with what a real edition publish emits.
 
 from __future__ import annotations
 
+import io
 import shutil
+import tarfile
 from pathlib import Path
 from typing import List, Sequence
 
@@ -497,6 +499,51 @@ def docker_copy_from_container_argv(
 ) -> List[str]:
     """``docker cp <container>:<src> <host-dest>`` argv (pure)."""
     return ["docker", "cp", f"{container}:{container_src}", str(host_dest)]
+
+
+def tar_extract_argv(container: str, container_dest: str) -> List[str]:
+    """``docker exec -i <cell> tar -xf - -C <dest>`` argv (pure, #7185).
+
+    Tar-pipe fallback for the fixture deploy: when ``docker cp`` of the
+    staged tree fails on a corrupt cell (daemon ``mkdirat ... file
+    exists``, #7157), the same bytes (see :func:`stage_tar_bytes`) are
+    piped to ``tar`` inside the cell. The archive holds
+    ``site_dir``-relative members, so extraction lands exactly where the
+    ``docker cp <site_dir>/. <container>:<dest>`` contents-copy lands.
+    """
+    return ["docker", "exec", "-i", container, "tar", "-xf", "-", "-C", container_dest]
+
+
+def stage_tar_bytes(site_dir: Path) -> bytes:
+    """In-memory tar of the staged fixture tree (tar-pipe fallback, #7185).
+
+    Members are named relative to ``site_dir`` with POSIX separators
+    (tar format always uses ``/``), sorted for deterministic output, and
+    carry the source mtimes (``TarInfo`` defaults to epoch 0 — a 1970
+    mtime can confuse cell-side freshness checks after a changed copy).
+
+    Raises :exc:`ValueError` when a member name would escape the tree
+    (absolute or ``..``), and :exc:`OSError` on unreadable files.
+    """
+    root = Path(site_dir)
+    names = sorted(
+        (p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file()),
+    )
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        for name in names:
+            if any(part in (".", "..") for part in name.split("/")):
+                raise ValueError(f"refusing tar fallback for escaping member: {name!r}")
+            # Tar member names always use `/`; split back into parts for
+            # a portable host join (no hardcoded separator in the join).
+            src = root.joinpath(*name.split("/"))
+            st = src.stat()
+            info = tarfile.TarInfo(name=name)
+            info.size = st.st_size
+            info.mtime = int(st.st_mtime)
+            with src.open("rb") as f:
+                tf.addfile(info, f)
+    return buf.getvalue()
 
 
 def print_published_contract(site_url: str, category_url: str) -> None:
