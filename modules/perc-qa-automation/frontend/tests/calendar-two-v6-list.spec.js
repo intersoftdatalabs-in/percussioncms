@@ -259,7 +259,10 @@ function portedWiringScript() {
     // Port of percInitListView: hide the calendar, show the list region
     // with the loading row, then feed asynchronously (the snippet awaits
     // the DTS fetch; the harness awaits a macrotask so the loading row is
-    // observable before the rows land).
+    // observable before the rows land). Tests that pin the loading row
+    // install window.__listGate (a promise) before clicking List View and
+    // resolve window.__listRelease after the loading assertion passes, so
+    // the loading state is guaranteed to be observable (#7148 review).
     function portedInitListView() {
       document.getElementById('calendar-' + window.__ROOT).style.display = 'none';
       var list = document.getElementById('perc-event-list-' + window.__ROOT);
@@ -267,9 +270,17 @@ function portedWiringScript() {
       list.querySelector('ul').innerHTML =
         '<li class="perc-event-list-element perc-event-list-loading">Loading events\\u2026</li>';
       var feed = window.__listFeed || [];
-      setTimeout(function () {
-        portedProcessEventList(feed, window.__maxResults);
-      }, 0);
+      var gate = window.__listGate || null;
+      window.__listGate = null;
+      if (gate) {
+        gate.then(function () {
+          portedProcessEventList(feed, window.__maxResults);
+        });
+      } else {
+        setTimeout(function () {
+          portedProcessEventList(feed, window.__maxResults);
+        }, 0);
+      }
     }
 
     // Port of percProcessEventList: same comparator, same
@@ -422,7 +433,9 @@ function expectQuiet(noise) {
 }
 
 test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () => {
-  test("list-view render + toggle round-trip with loading row and aria-pressed sync", async ({
+  test("list-view render + toggle round-trip with loading row and aria-pressed sync",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -455,13 +468,20 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     await expect(list).toBeHidden();
 
     // Toggle to list: the loading row covers the async fetch window.
+    // The feed is held behind a gate released only after the loading
+    // assertion passes, so the loading state is guaranteed observable
+    // instead of racing the stubbed fetch (#7148 review).
     await page.evaluate((events) => {
       window.__listFeed = events;
+      window.__listGate = new Promise((resolve) => {
+        window.__listRelease = resolve;
+      });
     }, futureListFixture());
     await listButton.click();
     await expect(
       list.locator(".perc-event-list-loading"),
     ).toContainText("Loading events");
+    await page.evaluate(() => window.__listRelease());
     await expect(list.locator(".perc-event-list-element")).toHaveCount(3, {
       timeout: 10_000,
     });
@@ -524,7 +544,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("list-view empty state replaces the loading row", async ({ page }) => {
+  test("list-view empty state replaces the loading row",
+    { tag: ["@static"] },
+    async ({ page }) => {
     test.setTimeout(90_000);
     const noise = [];
     listenForNoise(page, noise);
@@ -539,11 +561,15 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     const list = page.locator("#perc-event-list-cal1-w1");
     await page.evaluate(() => {
       window.__listFeed = [];
+      window.__listGate = new Promise((resolve) => {
+        window.__listRelease = resolve;
+      });
     });
     await page.locator("#showListButton-cal1-w1").click();
     await expect(
       list.locator(".perc-event-list-loading"),
     ).toContainText("Loading events");
+    await page.evaluate(() => window.__listRelease());
     await expect(list.locator(".perc-event-list-empty")).toHaveCount(1, {
       timeout: 10_000,
     });
@@ -565,7 +591,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("print-media emulation hides chrome and flattens events", async ({
+  test("print-media emulation hides chrome and flattens events",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -613,7 +641,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("mini-calendar highlight hook + fullCalendarPage link contract", async ({
+  test("mini-calendar highlight hook + fullCalendarPage link contract",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);

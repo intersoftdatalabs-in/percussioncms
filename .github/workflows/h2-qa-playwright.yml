@@ -2,7 +2,7 @@
 #
 # NON-REQUIRED by design: do not add this workflow (or its job names) to
 # branch protection required checks without an explicit product decision.
-# Path-filtered PR runs are dry-run / unit / list only — never live CMS.
+# Path-filtered PR runs are dry-run / unit / static / list only — never live CMS.
 #
 # Operators / agents trigger a live stack with:
 #   Actions → H2 QA Playwright (optional) → Run workflow → mode=live
@@ -77,7 +77,7 @@ jobs:
   # / surface list. No Docker CMS, no secrets, no host install.
   # ---------------------------------------------------------------------------
   qa-wiring-check:
-    name: QA wiring (dry-run / unit / list)
+    name: QA wiring (dry-run / unit / static / list)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -131,6 +131,19 @@ jobs:
             npm run test:surface:list -- --path "${SURFACE_PATH}"
           fi
           npm run test:surface:print -- --path "${SURFACE_PATH:-tests/login.spec.js}"
+
+      # Static pins (@static — no live CMS, issue #7133). Separate step with
+      # NO SURFACE_* env: run-surface merges env paths with the CLI tag, so
+      # an inherited SURFACE_PATH would scope the run to one file and find
+      # zero @static tests ("No tests found" → red). The hermetic flavor
+      # needs a browser but never a CMS.
+      - name: Static pins (@static — no live CMS)
+        shell: bash
+        working-directory: modules/perc-qa-automation/frontend
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+          npm run test:surface -- --tag static
 
   # ---------------------------------------------------------------------------
   # Live H2 Docker QA cell + Playwright. Manual only (workflow_dispatch mode=live).

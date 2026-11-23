@@ -138,7 +138,9 @@ function prefDefaults() {
 }
 
 test.describe("calendarTwo list-state strings are preference-driven (#6993)", () => {
-  test("defaults preserve the slice-2 English output", async () => {
+  test("defaults preserve the slice-2 English output",
+    { tag: ["@static"] },
+    async () => {
     const defaults = prefDefaults();
     expect(defaults["perc_list_loading_text"]).toBe("Loading events…");
     expect(defaults["perc_list_empty_text"]).toBe("No upcoming events.");
@@ -163,7 +165,9 @@ test.describe("calendarTwo list-state strings are preference-driven (#6993)", ()
     );
   });
 
-  test("French override reaches the aria-live region intact", async ({
+  test("French override reaches the aria-live region intact",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(60_000);
