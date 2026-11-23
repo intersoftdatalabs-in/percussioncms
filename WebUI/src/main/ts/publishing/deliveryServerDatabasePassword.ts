@@ -26,6 +26,7 @@ export const DATABASE_PASSWORD_MAX_LENGTH = 255;
 
 export const DATABASE_PASSWORD_PROPERTY = "password";
 
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7077, same class as #7078, in-diff precedent #7076/#6936) — UI validation message string, no credential material.
 export const DATABASE_PASSWORD_REQUIRED = "Database password is required";
 
 export const DATABASE_PASSWORD_TOO_LONG =
@@ -35,6 +36,7 @@ export const DATABASE_PASSWORD_DRIVER_ONLY =
   "Database password can be set only on a database delivery server.";
 
 /** The stored secret is never shown. The summary carries this fixed status instead. */
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7077, same class as #7078, in-diff precedent #7076/#6936) — UI status message string, no credential material.
 export const DATABASE_PASSWORD_NEVER_SHOWN = "Stored password is never shown.";
 
 export type DatabasePasswordResult =
