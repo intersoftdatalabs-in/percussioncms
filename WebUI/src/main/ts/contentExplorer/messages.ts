@@ -228,6 +228,8 @@ export const EXPLORER_MSG = {
   MULTI_RECYCLE_NONE: "perc.ui.explorer@No items were recycled",
   MULTI_RECYCLE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_RECYCLE_FAILURES: "perc.ui.explorer@Recycle failed for: {details}",
+  MULTI_RECYCLE_CANCELLED:
+    "perc.ui.explorer@Recycle cancelled — nothing was recycled.",
   MULTI_PURGE: "perc.ui.explorer@Purge selected",
   MULTI_PURGE_CONFIRM:
     "perc.ui.explorer@Permanently purge the selected recycled items? This cannot be undone.",
@@ -237,6 +239,8 @@ export const EXPLORER_MSG = {
   MULTI_PURGE_NONE: "perc.ui.explorer@No items were purged",
   MULTI_PURGE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_PURGE_FAILURES: "perc.ui.explorer@Purge failed for: {details}",
+  MULTI_PURGE_CANCELLED:
+    "perc.ui.explorer@Purge cancelled — nothing was purged.",
   MULTI_RESTORE: "perc.ui.explorer@Restore selected",
   MULTI_RESTORE_CONFIRM:
     "perc.ui.explorer@Restore the checked pages, assets, and folders to their original folders?",
@@ -245,6 +249,9 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Restored {count} item(s); the rest of the selection was not restored",
   MULTI_RESTORE_NONE: "perc.ui.explorer@No items were restored",
   MULTI_RESTORE_FAILURES: "perc.ui.explorer@Restore failed for: {details}",
+  MULTI_RESTORE_CANCELLED:
+    "perc.ui.explorer@Restore cancelled — nothing was restored.",
+  MULTI_UNNAMED_ITEM: "perc.ui.explorer@(unnamed)",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   ACTION_DELETE_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",
@@ -1147,6 +1154,10 @@ export const EXPLORER_MSG = {
   BULK_UNSTAGE_NOT_REMOVED: "perc.ui.explorer@Not removed from staging",
   BULK_STAGE_FAILED: "perc.ui.explorer@Stage failed",
   BULK_UNSTAGE_FAILED: "perc.ui.explorer@Remove from staging failed",
+  BULK_STAGE_CANCELLED:
+    "perc.ui.explorer@Staging cancelled — nothing was staged.",
+  BULK_UNSTAGE_CANCELLED:
+    "perc.ui.explorer@Remove from staging cancelled — nothing was removed.",
   /**
    * Publish / takedown / stage / unstage batch-helper failure details —
    * catalog-routed so session locales apply instead of hardcoded lowercase
