@@ -263,6 +263,7 @@ describe("dts-cell shared helpers (#6719)", () => {
       "feeds-entries-matrix.spec.js",
       "metadata-index-matrix.spec.js",
       "comments-moderation-matrix.spec.js",
+      "forms-confirmation-matrix.spec.js",
     ]) {
       const spec = fs.readFileSync(path.join(FRONTEND_DIR, name), "utf8");
       assert.ok(spec.includes("openDtsHttpsContext"), `${name} opens the shared HTTPS writer context`);

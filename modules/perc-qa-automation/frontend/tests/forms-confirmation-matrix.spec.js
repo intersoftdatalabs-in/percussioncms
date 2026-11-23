@@ -66,7 +66,6 @@ const {
   CASE_SUMMARIES,
   CASE_CSV,
   SKIP_NO_DTS_BASE,
-  SKIP_NO_DTS_HTTPS,
   SUCCESS_PAGE_TESTID,
   SUCCESS_PAGE_COPY,
   skipServiceDown,
@@ -74,7 +73,7 @@ const {
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
-  dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   dtsHttpsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
@@ -122,22 +121,23 @@ async function readJson(response) {
 }
 
 /**
- * Opens the retrieval surface: the published DTS HTTPS origin plus a
- * dedicated request context that allows the cell's self-signed TLS
- * identity. The admin retrieval surface is {@code CONFIDENTIAL}-gated, so
+ * Opens the retrieval surface: the published DTS HTTPS origin through the
+ * shared {@code tests/helpers/dts-cell.js#openDtsHttpsContext} writer
+ * context. The admin retrieval surface is {@code CONFIDENTIAL}-gated, so
  * plain-HTTP callers only see its 302 redirect — the summaries and CSV
  * reads must run here, not on the {@code DTS_BASE_URL} origin. Skips by
- * name when the cell publishes no HTTPS origin.
+ * name when the cell publishes no HTTPS origin or the origin never
+ * answers (default H2 QA cell, pre-#6375 cell).
+ *
+ * <p>The caller disposes the returned context (try/finally) so a passing
+ * run leaves no request state behind.</p>
  *
  * @returns {Promise<{ httpsBase: URL, httpsRequest: import("@playwright/test").APIRequestContext }>}
  */
 async function httpsRetrievalContext() {
-  const httpsBase = dtsHttpsBaseUrl();
-  test.skip(!httpsBase, `forms confirmation (Forms): ${SKIP_NO_DTS_HTTPS}`);
-  const httpsRequest = await baseRequest.newContext({
-    ignoreHTTPSErrors: true,
+  return openDtsHttpsContext(test, baseRequest, {
+    label: "forms confirmation (Forms)",
   });
-  return { httpsBase, httpsRequest };
 }
 
 /**

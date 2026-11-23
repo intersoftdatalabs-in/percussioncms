@@ -836,12 +836,15 @@ stable automation hooks — `data-testid="forms-confirmation-success"` /
 `"forms-confirmation-error"` with the long-standing user-visible copy —
 exported from the helper as `SUCCESS_PAGE_TESTID` / `SUCCESS_PAGE_COPY`
 (+ `ERROR_PAGE_*`) with the pure `pageHasConfirmationMarker(html,
-marker)` predicate, so the future follow-the-redirect proof and the
-credentialed retrieval-green run assert the same contract the unit tests
-pin. Known gap (#6893, unassigned): the default redirect targets are
-only packaged under `WEB-INF` with the Jersey servlet on `/*`, so a
-branch-built cell must prove the landing page servable before the spec
-follows the redirect live.
+marker)` predicate. The default redirect targets are served by the
+service itself (Jersey root resource, #6893 fixed by #6940:
+`GET /perc-form-processor/success.html` and `/error.html` answer HTTP 200
+with the packaged pages), so the submit case follows the success redirect
+and asserts the landing marker plus the user-visible copy — a bare 302 at
+an unservable page no longer stays green. The credentialed
+retrieval-green run (summaries + CSV over `DTS_HTTPS_URL`) still needs a
+`--with-dts` cell with provisioned `deliverymanager` credentials; without
+them the two retrieval cases skip by name instead of failing.
 
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 

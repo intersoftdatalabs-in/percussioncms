@@ -425,8 +425,12 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     assert.ok(spec.includes("DTS_DELIVERY_USER"), "retrieval credential gap named");
     assert.ok(spec.includes("DTS_HTTPS_URL"), "retrieval runs over the published HTTPS origin");
     assert.ok(
-      spec.includes("ignoreHTTPSErrors"),
-      "HTTPS context allows the cell self-signed TLS identity",
+      spec.includes("openDtsHttpsContext"),
+      "retrieval cases open the shared DTS HTTPS writer context (#6719)",
+    );
+    assert.ok(
+      !spec.includes("baseRequest.newContext"),
+      "no per-spec request-context copy; the shared opener owns TLS + disposal",
     );
     assert.ok(
       spec.includes("dtsHttpsServiceUrl"),
