@@ -61,6 +61,20 @@ function openRecent(): void {
   fireEvent.click(screen.getByTestId("explorer-view-tool-recent"));
 }
 
+/**
+ * Single wall-clock budget for the recent-drop round trip (#7187). The
+ * drop itself is microtask-driven (probe promise → state update), but the
+ * localStorage write lands in a passive persist effect that React may
+ * defer while the worker host is saturated by the full suite — so the
+ * test polls the storage assertion instead of reading it synchronously
+ * after the row disappears. Every {@code waitFor} in the delete-entry
+ * test uses it explicitly: the 1s testing-library defaults are the
+ * most-tripped cliff when hundreds of suite files share the worker host
+ * (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT} in #7122 and
+ * {@code PICKER_MOUNT_TIMEOUT} in #7151).
+ */
+const RECENT_DROP_TIMEOUT = 15_000;
+
 describe("Explorer recent-items quick access (#6256)", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -255,20 +269,23 @@ describe("Explorer recent-items quick access (#6256)", () => {
         loadMenuActions={async () => []}
       />,
     );
-    await waitFor(() =>
-      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    await waitFor(
+      () => expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: RECENT_DROP_TIMEOUT },
     );
     openRecent();
-    await waitFor(() =>
-      expect(screen.getByTestId("recent-panel")).toBeInTheDocument(),
+    await waitFor(
+      () => expect(screen.getByTestId("recent-panel")).toBeInTheDocument(),
+      { timeout: RECENT_DROP_TIMEOUT },
     );
     expect(screen.getByTestId("recent-item-row")).toHaveAttribute(
       "data-recent-key",
       "id:999",
     );
     fireEvent.click(screen.getByTestId("recent-item-open"));
-    await waitFor(() =>
-      expect(screen.queryByTestId("recent-item-row")).toBeNull(),
+    await waitFor(
+      () => expect(screen.queryByTestId("recent-item-row")).toBeNull(),
+      { timeout: RECENT_DROP_TIMEOUT },
     );
     // Dropped with a polite status — never an alert/error.
     const notice = screen.getByTestId("recent-status");
@@ -276,9 +293,18 @@ describe("Explorer recent-items quick access (#6256)", () => {
     expect(notice).toHaveTextContent("no longer available");
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByTestId("recent-empty")).toBeInTheDocument();
-    const stored = JSON.parse(
-      window.localStorage.getItem(recentStorageKey("Admin")) ?? "[]",
+    // The drop persists via a passive effect that React may defer while
+    // the worker host is saturated: poll until the write lands instead of
+    // asserting the pre-effect snapshot (the #7187 flake read the stale
+    // entry here under full-suite load).
+    await waitFor(
+      () => {
+        const stored = JSON.parse(
+          window.localStorage.getItem(recentStorageKey("Admin")) ?? "[]",
+        );
+        expect(stored).toEqual([]);
+      },
+      { timeout: RECENT_DROP_TIMEOUT },
     );
-    expect(stored).toEqual([]);
   });
 });
