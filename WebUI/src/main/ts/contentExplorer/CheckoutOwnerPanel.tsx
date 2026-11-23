@@ -43,6 +43,26 @@ export interface CheckoutOwnerPanelProps {
   load?: (itemId: string) => Promise<CheckoutOwnerInfo>;
 }
 
+/**
+ * Visible keyboard focus ring for the checkout-owner Retry button (#7146).
+ * The button is focusable by default but the panel carries no UA outline
+ * styling, so the focus returned after a failed retry would be invisible
+ * to sighted keyboard operators. Inline styles cannot express
+ * {@code :focus-visible}, so this class carries the ring (same pattern as
+ * the context-menu Retry, #7122, the tree rows, #7035, and the detail-list
+ * rows, #6596). Plain {@code :focus} is suppressed so pointer clicks do
+ * not leave a sticky outline.
+ */
+const CHECKOUT_OWNER_RETRY_FOCUS_CSS = `
+.perc-checkout-owner-retry:focus {
+  outline: none;
+}
+.perc-checkout-owner-retry:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+`;
+
 export function CheckoutOwnerPanel({
   itemId,
   reloadToken = 0,
@@ -62,7 +82,9 @@ export function CheckoutOwnerPanel({
   /**
    * Set on Retry click; when the retried lookup fails again the button
    * unmounts during loading, so focus is returned to it once the error
-   * re-renders (keyboard operators are not stranded on <body>).
+   * re-renders (keyboard operators are not stranded on <body>). Cleared
+   * on success or empty lookup (#7146) so a later fresh failure in the
+   * same mount does not move focus unprompted.
    */
   const returnFocusToRetryRef = useRef(false);
 
@@ -72,6 +94,11 @@ export function CheckoutOwnerPanel({
       setOwner(null);
       setError(null);
       setLoading(false);
+      // Empty lookup disarms any pending retry-focus request (#7146):
+      // there is no Retry button to return to, and a later failure in the
+      // same mount must not inherit a stale request (focus theft for
+      // SR/keyboard operators).
+      returnFocusToRetryRef.current = false;
       return;
     }
     let cancelled = false;
@@ -81,6 +108,11 @@ export function CheckoutOwnerPanel({
     load(id)
       .then((info) => {
         if (cancelled) return;
+        // Success disarms the pending retry-focus request (#7146, mirrors
+        // the #7122 disarm effect): the retried lookup landed, so a later
+        // fresh failure in the same mount must not move focus to Retry
+        // unprompted.
+        returnFocusToRetryRef.current = false;
         setOwner((info.checkOutUser ?? "").trim());
         setLoading(false);
       })
@@ -117,6 +149,7 @@ export function CheckoutOwnerPanel({
       aria-live="polite"
       style={{ fontSize: "0.85rem", padding: "4px 8px" }}
     >
+      <style>{CHECKOUT_OWNER_RETRY_FOCUS_CSS}</style>
       <span data-testid="explorer-checkout-owner-label">
         {message(EXPLORER_MSG.CHECKOUT_OWNER_LABEL)}
       </span>{" "}
@@ -133,6 +166,7 @@ export function CheckoutOwnerPanel({
           <button
             type="button"
             data-testid="explorer-checkout-owner-retry"
+            className="perc-checkout-owner-retry"
             ref={retryButtonRef}
             onClick={() => {
               returnFocusToRetryRef.current = true;

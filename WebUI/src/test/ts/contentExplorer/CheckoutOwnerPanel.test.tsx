@@ -155,4 +155,62 @@ describe("CheckoutOwnerPanel (#4910)", () => {
       expect(retryAgain).toHaveFocus();
     });
   });
+
+  it("does not steal focus on a later fresh failure after a successful retry (#7146)", async () => {
+    const load = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("first down"))
+      .mockResolvedValueOnce({
+        checkOutUser: "editor",
+        currentUser: "Admin",
+        itemName: "Home",
+      })
+      .mockRejectedValueOnce(new Error("second down"));
+    const { rerender } = render(
+      <CheckoutOwnerPanel itemId="42" load={load} />,
+    );
+    const retry = await screen.findByTestId("explorer-checkout-owner-retry");
+    fireEvent.click(retry);
+    // The retry landed: the success path must disarm the pending
+    // retry-focus request, otherwise the stale flag below would move focus
+    // to Retry unprompted (focus theft for SR/keyboard operators).
+    expect(await screen.findByTestId("explorer-checkout-owner-user")).toHaveTextContent(
+      "editor",
+    );
+    // A fresh failure for another item in the same mount renders a new
+    // Retry button but must leave focus alone.
+    rerender(<CheckoutOwnerPanel itemId="43" load={load} />);
+    const retryAgain = await screen.findByTestId("explorer-checkout-owner-retry");
+    expect(
+      screen.getByTestId("explorer-checkout-owner-error"),
+    ).toBeTruthy();
+    expect(retryAgain).not.toHaveFocus();
+  });
+
+  it("carries a visible focus-visible ring class on the Retry button (#7146)", async () => {
+    const { container } = render(
+      <CheckoutOwnerPanel
+        itemId="42"
+        load={vi.fn().mockRejectedValue(new Error("down"))}
+      />,
+    );
+    const retry = await screen.findByTestId("explorer-checkout-owner-retry");
+    expect(retry.classList.contains("perc-checkout-owner-retry")).toBe(true);
+    // Inline styles cannot express :focus-visible, so the ring ships as an
+    // injected class (same pattern as the context-menu Retry, #7122): plain
+    // :focus stays outline-free so pointer clicks leave no sticky outline.
+    const styles = Array.from(container.querySelectorAll("style")).map(
+      (el) => el.textContent ?? "",
+    );
+    expect(
+      styles.some((css) =>
+        css.includes(".perc-checkout-owner-retry:focus-visible"),
+      ),
+    ).toBe(true);
+    expect(
+      styles.some((css) =>
+        css.includes(".perc-checkout-owner-retry:focus"),
+      ),
+    ).toBe(true);
+  });
 });
