@@ -517,5 +517,298 @@ class MainSkipOnErrorTest(unittest.TestCase):
         self.assertNotIn('xml:lang="te"', k1_block, "skipped key must not get a Te TUV")
 
 
+class MainReplaceExistingTest(unittest.TestCase):
+    """Step 2 (--replace-existing) via main(): success path and abort path."""
+
+    def setUp(self):
+        self._orig_invoke = itd.invoke_translate
+        self._orig_load_cache = itd.load_cache
+        self._orig_save_cache = itd.save_cache
+        self._orig_sleep = itd.time.sleep
+        self._tmpdir = tempfile.TemporaryDirectory()
+        itd.load_cache = lambda: {}
+        itd.save_cache = lambda _cache: None
+        itd.time.sleep = lambda _s: None
+        self.tmx_path = Path(self._tmpdir.name) / "sample.tmx"
+        self.tmx_path.write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header>'
+            '<prop type="supportedlanguage">en-us</prop>'
+            '</header><body>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '<tuv xml:lang="te"><seg>Hello</seg></tuv></tu>'
+            "</body></tmx>\n",
+            encoding="utf-8",
+        )
+
+    def tearDown(self):
+        itd.invoke_translate = self._orig_invoke
+        itd.load_cache = self._orig_load_cache
+        itd.save_cache = self._orig_save_cache
+        itd.time.sleep = self._orig_sleep
+        self._tmpdir.cleanup()
+
+    def test_replace_existing_retranslates(self):
+        itd.invoke_translate = lambda text, target: "[te] " + text
+        rc = itd.main(["--target", "te", "--file", str(self.tmx_path),
+                       "--replace-existing"])
+        self.assertEqual(rc, 0)
+        body = self.tmx_path.read_text(encoding="utf-8")
+        self.assertIn("<seg>[te] Hello</seg>", body)
+
+    def test_replace_existing_hard_failure_aborts(self):
+        def boom(text, target):
+            raise RuntimeError("Null response from translate-shell")
+
+        itd.invoke_translate = boom
+        rc = itd.main(["--target", "te", "--file", str(self.tmx_path),
+                       "--replace-existing"])
+        self.assertEqual(rc, 1)
+
+
+class MainFixMatchingEnTest(unittest.TestCase):
+    """Step 3 (--fix-matching-en) via main()."""
+
+    def setUp(self):
+        self._orig_invoke = itd.invoke_translate
+        self._orig_load_cache = itd.load_cache
+        self._orig_save_cache = itd.save_cache
+        self._orig_sleep = itd.time.sleep
+        self._tmpdir = tempfile.TemporaryDirectory()
+        itd.load_cache = lambda: {}
+        itd.save_cache = lambda _cache: None
+        itd.time.sleep = lambda _s: None
+        self.tmx_path = Path(self._tmpdir.name) / "sample.tmx"
+        self.tmx_path.write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header>'
+            '<prop type="supportedlanguage">en-us</prop>'
+            '</header><body>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '<tuv xml:lang="te"><seg>Hello</seg></tuv></tu>'
+            '<tu tuid="k@2"><tuv xml:lang="en-us"><seg>World</seg></tuv>'
+            '<tuv xml:lang="te"><seg>[te] World</seg></tuv></tu>'
+            "</body></tmx>\n",
+            encoding="utf-8",
+        )
+
+    def tearDown(self):
+        itd.invoke_translate = self._orig_invoke
+        itd.load_cache = self._orig_load_cache
+        itd.save_cache = self._orig_save_cache
+        itd.time.sleep = self._orig_sleep
+        self._tmpdir.cleanup()
+
+    def test_fix_matching_en_retranslates_only_matches(self):
+        itd.invoke_translate = lambda text, target: "[te] " + text
+        rc = itd.main(["--target", "te", "--file", str(self.tmx_path),
+                       "--fix-matching-en"])
+        self.assertEqual(rc, 0)
+        body = self.tmx_path.read_text(encoding="utf-8")
+        self.assertIn("<seg>[te] Hello</seg>", body)
+        # k@2 already differed; its seg must be untouched.
+        self.assertIn("<seg>[te] World</seg>", body)
+
+    def test_fix_matching_en_skipped_for_variant(self):
+        """Variant locales never take the fix-matching-en path."""
+        itd.invoke_translate = lambda text, target: "[xx] " + text
+        # hi-in TUVs already exist (identical to en); Step 1 finds
+        # nothing missing, and Step 3 must stay skipped for variants.
+        self.tmx_path.write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header>'
+            '<prop type="supportedlanguage">en-us</prop>'
+            '</header><body>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '<tuv xml:lang="hi-in"><seg>Hello</seg></tuv></tu>'
+            "</body></tmx>\n",
+            encoding="utf-8",
+        )
+        rc = itd.main(["--target", "hi-in", "--file", str(self.tmx_path),
+                       "--fix-matching-en", "--variant-base", "hi"])
+        self.assertEqual(rc, 0)
+        body = self.tmx_path.read_text(encoding="utf-8")
+        self.assertNotIn("[xx]", body)
+
+
+class VariantFilterTest(unittest.TestCase):
+    """_maybe_filter_variant: only true dialect differences are kept."""
+
+    def _tmx_with_base(self, tmpdir):
+        p = Path(tmpdir) / "v.tmx"
+        p.write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header></header><body>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '<tuv xml:lang="hi"><seg>Hi</seg></tuv></tu>'
+            "</body></tmx>\n",
+            encoding="utf-8",
+        )
+        return itd.TmxFile(p)
+
+    def test_no_base_lang_passes_through(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmx = self._tmx_with_base(d)
+            got = itd._maybe_filter_variant({"k@1": "X"}, tmx, "hi", None)
+            self.assertEqual(got, {"k@1": "X"})
+
+    def test_base_equals_target_passes_through(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmx = self._tmx_with_base(d)
+            got = itd._maybe_filter_variant({"k@1": "X"}, tmx, "hi", "hi")
+            self.assertEqual(got, {"k@1": "X"})
+
+    def test_identical_to_base_is_dropped(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmx = self._tmx_with_base(d)
+            got = itd._maybe_filter_variant(
+                {"k@1": "Hi", "k@2": "Different"}, tmx, "hi-in", "hi")
+            self.assertEqual(got, {"k@2": "Different"})
+
+
+class LenientBatchTest(unittest.TestCase):
+    """_translate_missing_lenient: skip counting and --limit."""
+
+    def setUp(self):
+        self._orig_translate = itd.translate
+        self._orig_save_cache = itd.save_cache
+        itd.save_cache = lambda _cache: None
+
+    def tearDown(self):
+        itd.translate = self._orig_translate
+        itd.save_cache = self._orig_save_cache
+
+    def test_skip_counted_and_run_continues(self):
+        def fake_translate(text, target, cache=None, force=False):
+            if text == "bad":
+                raise RuntimeError("boom")
+            return "[" + text + "]"
+
+        itd.translate = fake_translate
+        translations, skipped = itd._translate_missing_lenient(
+            [("a", "bad"), ("b", "good")], target="te",
+            cache={}, force=False, limit=0)
+        self.assertEqual(translations, {"b": "[good]"})
+        self.assertEqual(skipped, 1)
+
+    def test_limit_bounds_processed_keys(self):
+        seen = []
+
+        def fake_translate(text, target, cache=None, force=False):
+            seen.append(text)
+            return text
+
+        itd.translate = fake_translate
+        translations, skipped = itd._translate_missing_lenient(
+            [("a", "one"), ("b", "two"), ("c", "three")], target="te",
+            cache={}, force=False, limit=2)
+        self.assertEqual(sorted(translations), ["a", "b"])
+        self.assertEqual(sorted(translations.values()), ["one", "two"])
+        self.assertEqual(skipped, 0)
+        self.assertEqual(seen, ["one", "two"])
+
+
+class RetryHelperTest(unittest.TestCase):
+    """_retry_after_failure: exhaustion raises, rate limit doubles delay."""
+
+    class _FakeResult:
+        def __init__(self, rc=1, stdout="", stderr=""):
+            self.returncode = rc
+            self.stdout = stdout
+            self.stderr = stderr
+
+    def test_exhausted_attempts_raise(self):
+        with self.assertRaises(RuntimeError) as ctx:
+            itd._retry_after_failure(
+                self._FakeResult(stderr="oops"),
+                itd.BACKOFF_MAX_ATTEMPTS, itd.BACKOFF_START_SEC)
+        self.assertIn("rc=1", str(ctx.exception))
+
+    def test_rate_limit_doubles_delay(self):
+        sleep_s, nxt = itd._retry_after_failure(
+            self._FakeResult(stderr="HTTP 429 Too Many Requests"), 1, 2.0)
+        self.assertGreater(sleep_s, 0)
+        self.assertEqual(nxt, 4.0)
+
+    def test_transient_resets_delay(self):
+        sleep_s, nxt = itd._retry_after_failure(
+            self._FakeResult(stderr="Null response"), 1, 8.0)
+        self.assertGreater(sleep_s, 0)
+        self.assertEqual(nxt, itd.BACKOFF_START_SEC)
+
+
+class MidRunDockerSwitchTest(unittest.TestCase):
+    """_maybe_switch_to_docker: trans vanishing mid-run falls back once."""
+
+    def setUp(self):
+        self._force = itd._force_docker
+        itd._force_docker = False
+        itd._warned_trans_fallback = False
+
+    def tearDown(self):
+        itd._force_docker = self._force
+        itd._warned_trans_fallback = False
+
+    def test_file_not_found_switches_to_docker(self):
+        calls = []
+
+        class _FakeResult:
+            returncode = 0
+            stdout = "ok\n"
+            stderr = ""
+
+        state = {"n": 0}
+
+        def fake_run(cmd, **kwargs):
+            calls.append(list(cmd))
+            state["n"] += 1
+            if state["n"] == 1:
+                raise FileNotFoundError("trans gone")
+            return _FakeResult()
+
+        orig_run = itd.subprocess.run
+        orig_which = itd.shutil.which
+        itd.subprocess.run = fake_run
+        # trans resolves initially so the first call uses it; the binary
+        # then "vanishes" (FileNotFoundError) and Docker takes over.
+        # (which results are only null-checked, so no real paths needed.)
+        fake_paths = {"trans": "trans", "docker": "docker"}
+        itd.shutil.which = lambda name: fake_paths.get(name)
+        try:
+            self.assertEqual(itd.invoke_translate("Hello", "ar"), "ok")
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
+        self.assertEqual(calls[0][0], "trans")
+        self.assertEqual(calls[1][:3], ["docker", "run", "--rm"])
+
+    def test_file_not_found_without_docker_raises(self):
+        def fake_run(cmd, **kwargs):
+            raise FileNotFoundError("trans gone")
+
+        orig_run = itd.subprocess.run
+        orig_which = itd.shutil.which
+        itd.subprocess.run = fake_run
+        itd.shutil.which = lambda name: None
+        try:
+            with self.assertRaises(RuntimeError) as ctx:
+                itd.invoke_translate("Hello", "ar")
+            self.assertIn("Docker", str(ctx.exception))
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
+
+
+class RunFilesTest(unittest.TestCase):
+    """_resolve_run_files: relative names resolve under I18N_DIR."""
+
+    def test_relative_and_absolute(self):
+        files = itd._resolve_run_files(["CmsUi.tmx"])
+        self.assertEqual(files, [itd.I18N_DIR / "CmsUi.tmx"])
+        with tempfile.TemporaryDirectory() as d:
+            abs_p = str(Path(d) / "x.tmx")
+            self.assertEqual(itd._resolve_run_files([abs_p]), [Path(abs_p)])
+
+
 if __name__ == "__main__":
     unittest.main()

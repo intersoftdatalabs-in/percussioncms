@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from dataclasses import dataclass
 import html
 import random
 import re
@@ -201,21 +202,97 @@ def _resolve_initial_cmd(text: str, target: str,
     if shutil.which('trans') is not None:
         return _default_trans_cmd(text, target)
     if shutil.which('docker') is not None:
-        global _warned_trans_fallback
-        if not _warned_trans_fallback:
-            print(
-                'trans not found on PATH; using Docker translate-shell '
-                '(pass --docker to force this path)',
-                file=sys.stderr,
-                flush=True,
-            )
-            _warned_trans_fallback = True
+        _note_trans_fallback(
+            'trans not found on PATH; using Docker translate-shell '
+            '(pass --docker to force this path)',
+        )
         return _default_docker_cmd(text, target)
     raise RuntimeError(
         'trans (translate-shell) is not on PATH and Docker is unavailable. '
         'Install translate-shell (https://github.com/soimort/translate-shell) '
         'or install Docker and pull the soimort/translate-shell image.',
     )
+
+
+def _note_trans_fallback(message: str) -> None:
+    """Print a trans -> Docker fallback notice once per process."""
+    global _warned_trans_fallback
+    if not _warned_trans_fallback:
+        print(message, file=sys.stderr, flush=True)
+        _warned_trans_fallback = True
+
+
+def _run_engine(cmd: list[str]):
+    """Run one translate-shell invocation (thin wrapper for test seams)."""
+    return subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        check=False,
+        encoding='utf-8',
+        errors='replace',
+    )
+
+
+def _engine_unavailable_error(cause: Exception) -> RuntimeError:
+    """Error raised when neither ``trans`` nor Docker can be executed."""
+    return RuntimeError(
+        'trans (translate-shell) is not on PATH and Docker is unavailable. '
+        'Install translate-shell (https://github.com/soimort/translate-shell) '
+        'or install Docker and pull the soimort/translate-shell image. '
+        f'Underlying error: {cause}',
+    )
+
+
+def _maybe_switch_to_docker(cmd: list[str], text: str, target: str,
+                            trans_cmd: list[str] | None) -> list[str] | None:
+    """Return the Docker argv when the ``trans`` binary vanished mid-run.
+
+    Returns None when the Docker fallback does not apply (explicit
+    ``trans_cmd`` override, ``--docker`` mode, or no Docker on PATH).
+    """
+    if (trans_cmd is None and not _force_docker
+            and cmd and cmd[0] == 'trans'
+            and shutil.which('docker') is not None):
+        _note_trans_fallback(
+            'trans not found on PATH; falling back to Docker translate-shell',
+        )
+        return _default_docker_cmd(text, target)
+    return None
+
+
+def _jittered(base: float) -> float:
+    """Apply the shared ±20% backoff jitter to a base sleep."""
+    return base * (1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER))
+
+
+def _retry_after_failure(result, attempt: int, delay: float) -> tuple[float, float]:
+    """Return (sleep_s, next_delay) or raise when retries are exhausted.
+
+    Rate-limit responses back off exponentially; other transient failures
+    use the fixed settle wait and reset the exponential delay.
+    """
+    if attempt >= BACKOFF_MAX_ATTEMPTS:
+        raise RuntimeError(
+            f'translate-shell failed (rc={result.returncode}): '
+            f'stdout={result.stdout!r} stderr={result.stderr!r}',
+        )
+    lowered = (result.stderr + result.stdout).lower()
+    if '429' in lowered or 'rate limit' in lowered or 'too many requests' in lowered:
+        sleep_s = _jittered(min(BACKOFF_MAX_SEC, delay))
+        print(
+            f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
+            file=sys.stderr,
+            flush=True,
+        )
+        return sleep_s, delay * 2
+    sleep_s = _jittered(TRANSIENT_RETRY_SEC)
+    print(
+        f'  translate-shell error (rc={result.returncode}); '
+        f'retrying in {sleep_s:.1f}s (attempt {attempt})',
+        file=sys.stderr,
+    )
+    return sleep_s, BACKOFF_START_SEC
 
 
 def invoke_translate(text: str, target: str, *,
@@ -233,37 +310,16 @@ def invoke_translate(text: str, target: str, *,
     while True:
         attempt += 1
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=False,
-                encoding='utf-8',
-                errors='replace',
-            )
+            result = _run_engine(cmd)
         except FileNotFoundError as e:
             # Binary disappeared mid-run, or PATH race — try Docker once.
-            if (trans_cmd is None and not _force_docker
-                    and cmd and cmd[0] == 'trans'
-                    and shutil.which('docker') is not None):
-                global _warned_trans_fallback
-                if not _warned_trans_fallback:
-                    print(
-                        'trans not found on PATH; falling back to Docker translate-shell',
-                        file=sys.stderr,
-                        flush=True,
-                    )
-                    _warned_trans_fallback = True
-                cmd = _default_docker_cmd(text, target)
-                attempt = 0
-                delay = BACKOFF_START_SEC
-                continue
-            raise RuntimeError(
-                'trans (translate-shell) is not on PATH and Docker is unavailable. '
-                'Install translate-shell (https://github.com/soimort/translate-shell) '
-                'or install Docker and pull the soimort/translate-shell image. '
-                f'Underlying error: {e}',
-            ) from e
+            switched = _maybe_switch_to_docker(cmd, text, target, trans_cmd)
+            if switched is None:
+                raise _engine_unavailable_error(e) from e
+            cmd = switched
+            attempt = 0
+            delay = BACKOFF_START_SEC
+            continue
         if result.returncode == 0:
             out = _normalize_engine_output(result.stdout, result.stderr)
             if out:
@@ -273,38 +329,8 @@ def invoke_translate(text: str, target: str, *,
                 f'(rc={result.returncode}): stdout={result.stdout!r} '
                 f'stderr={result.stderr!r}',
             )
-        lowered = (result.stderr + result.stdout).lower()
-        is_rate_limit = (
-            '429' in lowered
-            or 'rate limit' in lowered
-            or 'too many requests' in lowered
-        )
-        if is_rate_limit and attempt < BACKOFF_MAX_ATTEMPTS:
-            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
-            sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
-            print(
-                f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
-                file=sys.stderr,
-                flush=True,
-            )
-            time.sleep(sleep_s)
-            delay *= 2
-            continue
-        if attempt < BACKOFF_MAX_ATTEMPTS:
-            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
-            sleep_s = TRANSIENT_RETRY_SEC * jitter
-            print(
-                f'  translate-shell error (rc={result.returncode}); '
-                f'retrying in {sleep_s:.1f}s (attempt {attempt})',
-                file=sys.stderr,
-            )
-            time.sleep(sleep_s)
-            delay = BACKOFF_START_SEC
-            continue
-        raise RuntimeError(
-            f'translate-shell failed (rc={result.returncode}): '
-            f'stdout={result.stdout!r} stderr={result.stderr!r}',
-        )
+        sleep_s, delay = _retry_after_failure(result, attempt, delay)
+        time.sleep(sleep_s)
 
 
 def _preview(s: str, n: int = 50) -> str:
@@ -340,6 +366,42 @@ def translate(text: str, target: str, *, cache: dict[str, str] | None = None, fo
     return translated
 
 
+def _tuv_lang(tuv) -> str | None:
+    """Language tag of a <tuv>, accepting namespaced and plain attributes."""
+    return tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
+
+
+def _seg_text(tuv) -> str:
+    """Text of the <tuv>'s <seg>, or '' when missing/empty."""
+    seg_el = tuv.find('seg')
+    return seg_el.text if seg_el is not None and seg_el.text else ''
+
+
+def _iter_tus(root):
+    """Yield (tuid, tu) pairs, skipping entries without a tuid."""
+    for tu in root.iter('tu'):
+        tuid = tu.get('tuid') or ''
+        if tuid:
+            yield tuid, tu
+
+
+def _tu_segments(tu):
+    """Yield (lang, seg_text) for each <tuv> child of a <tu>."""
+    for tuv in tu.findall('tuv'):
+        yield _tuv_lang(tuv), _seg_text(tuv)
+
+
+def _scan_tu_missing(tu, target: str) -> tuple[str, bool]:
+    """Return (en_seg, has_target) for one <tu>."""
+    en_seg = ''
+    for tlang, text in _tu_segments(tu):
+        if tlang == target:
+            return en_seg, True
+        if tlang == SOURCE_LANG and text:
+            en_seg = text
+    return en_seg, False
+
+
 class TmxFile:
     def __init__(self, path: Path):
         self.path = path
@@ -351,41 +413,20 @@ class TmxFile:
 
     def list_missing(self, target: str) -> list[tuple[str, str]]:
         """Return [(tuid, en_seg)] for every <tu> missing target lang."""
-        root = self._parse()
         missing = []
-        for tu in root.iter('tu'):
-            tuid = tu.get('tuid') or ''
-            if not tuid:
-                continue
-            en_seg = ''
-            has_target = False
-            for tuv in tu.findall('tuv'):
-                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
-                if tlang == target:
-                    has_target = True
-                    break
-                if tlang == SOURCE_LANG:
-                    seg_el = tuv.find('seg')
-                    if seg_el is not None and seg_el.text:
-                        en_seg = seg_el.text
+        for tuid, tu in _iter_tus(self._parse()):
+            en_seg, has_target = _scan_tu_missing(tu, target)
             if not has_target and en_seg:
                 missing.append((tuid, en_seg))
         return missing
 
     def list_matching_en(self, target: str) -> list[tuple[str, str, str]]:
         """Return [(tuid, en_seg, target_seg)] for where target matches en-us."""
-        root = self._parse()
         matching = []
-        for tu in root.iter('tu'):
-            tuid = tu.get('tuid') or ''
-            if not tuid:
-                continue
+        for tuid, tu in _iter_tus(self._parse()):
             en_seg = ''
             target_seg = ''
-            for tuv in tu.findall('tuv'):
-                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
-                seg_el = tuv.find('seg')
-                text = seg_el.text if seg_el is not None and seg_el.text else ''
+            for tlang, text in _tu_segments(tu):
                 if tlang == SOURCE_LANG:
                     en_seg = text
                 elif tlang == target:
@@ -401,18 +442,11 @@ class TmxFile:
         rows (e.g. pre ``-no-bidi`` Arabic presentation forms + padding).
         Includes empty or whitespace-only target segs.
         """
-        root = self._parse()
         existing: list[tuple[str, str, str]] = []
-        for tu in root.iter('tu'):
-            tuid = tu.get('tuid') or ''
-            if not tuid:
-                continue
+        for tuid, tu in _iter_tus(self._parse()):
             en_seg = ''
             target_seg: str | None = None
-            for tuv in tu.findall('tuv'):
-                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
-                seg_el = tuv.find('seg')
-                text = seg_el.text if seg_el is not None and seg_el.text else ''
+            for tlang, text in _tu_segments(tu):
                 if tlang == SOURCE_LANG:
                     en_seg = text
                 elif tlang == target:
@@ -423,18 +457,12 @@ class TmxFile:
 
     def get_base_translations(self, base_lang: str) -> dict[str, str]:
         """Get all translations for base_lang: {tuid: seg_text}."""
-        root = self._parse()
         translations = {}
-        for tu in root.iter('tu'):
-            tuid = tu.get('tuid') or ''
-            if not tuid:
-                continue
-            for tuv in tu.findall('tuv'):
-                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
+        for tuid, tu in _iter_tus(self._parse()):
+            for tlang, text in _tu_segments(tu):
                 if tlang == base_lang:
-                    seg_el = tuv.find('seg')
-                    if seg_el is not None and seg_el.text:
-                        translations[tuid] = seg_el.text
+                    if text:
+                        translations[tuid] = text
                     break
         return translations
 
@@ -555,7 +583,30 @@ def _translate_batch(
     return translations
 
 
-def main(argv: list[str] | None = None) -> int:
+@dataclass
+class _RunOptions:
+    """Per-run CLI state shared by the three processing steps."""
+    target: str
+    base_lang: str | None = None
+    force: bool = False
+    limit: int = 0
+    dry_run: bool = False
+    replace_existing: bool = False
+    fix_matching_en: bool = False
+
+
+@dataclass
+class _RunTotals:
+    """Counters reported in the final ``Done.`` summary line."""
+    missing: int = 0
+    inserted: int = 0
+    replaced: int = 0
+    fixed: int = 0
+    skipped: int = 0
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser (extracted so ``main`` stays flat)."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', required=True, help='Target BCP-47 locale code')
     parser.add_argument('--file', action='append', dest='files', help='TMX file to process')
@@ -579,159 +630,181 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--fix-matching-en', action='store_true', help='Fix translations matching English')
     parser.add_argument('--variant-base', help='Base locale for variant (e.g., hi for hi-in)')
     parser.add_argument('--limit', type=int, default=0, help='Max translations per phase (0=unlimited)')
-    args = parser.parse_args(argv)
+    return parser
+
+
+def _resolve_run_files(files_arg: list[str] | None) -> list[Path]:
+    """Resolve CLI ``--file`` names against the canonical i18n directory."""
+    files = []
+    for name in (files_arg or list(DEFAULT_FILES)):
+        candidate = Path(name)
+        files.append(I18N_DIR / candidate if not candidate.is_absolute() else candidate)
+    return files
+
+
+def _maybe_filter_variant(translations: dict[str, str], tmx: TmxFile,
+                          target: str, base_lang: str | None) -> dict[str, str]:
+    """Drop translations identical to the base locale (variant locales only)."""
+    if not base_lang or base_lang == target:
+        return translations
+    base_trans = tmx.get_base_translations(base_lang)
+    filtered = {k: v for k, v in translations.items()
+                if k not in base_trans or base_trans[k] != v}
+    print(
+        f'  variant filter: {len(translations)} -> {len(filtered)} '
+        f'(only differences)',
+        flush=True,
+    )
+    return filtered
+
+
+def _translate_missing_lenient(pairs: list[tuple[str, str]], *, target: str,
+                               cache: dict[str, str], force: bool, limit: int,
+                               ) -> tuple[dict[str, str], int]:
+    """Translate ``(tuid, en_seg)`` pairs, skipping per-key failures.
+
+    Returns (translations, skipped). Unlike :func:`_translate_batch` (which
+    aborts the run with None on a hard failure), one bad key must not kill
+    a multi-hour run.
+    """
+    translations: dict[str, str] = {}
+    skipped = 0
+    processed = 0
+    total = len(pairs)
+    for tuid, en_seg in pairs:
+        if limit and processed >= limit:
+            break
+        try:
+            translations[tuid] = translate(en_seg, target, cache=cache, force=force)
+        except Exception as e:
+            print(f'  SKIP {tuid}: {e}', file=sys.stderr)
+            save_cache(cache)
+            skipped += 1
+            continue
+        processed += 1
+        if processed % 10 == 0:
+            print(f'  ... {processed}/{total}')
+            save_cache(cache)
+    save_cache(cache)
+    return translations, skipped
+
+
+def _process_missing(tmx: TmxFile, options: _RunOptions,
+                     totals: _RunTotals, cache: dict[str, str]) -> None:
+    """Step 1: translate every <tu> missing the target TUV."""
+    missing = tmx.list_missing(options.target)
+    totals.missing += len(missing)
+    print(f'{tmx.path.name}: {len(missing)} missing <tuv xml:lang="{options.target}">', flush=True)
+    if options.dry_run or not missing:
+        return
+    translations, skipped = _translate_missing_lenient(
+        missing, target=options.target, cache=cache,
+        force=options.force, limit=options.limit,
+    )
+    totals.skipped += skipped
+    if not translations:
+        return
+    translations = _maybe_filter_variant(translations, tmx, options.target, options.base_lang)
+    inserted = tmx.inject(options.target, translations)
+    if not options.dry_run:
+        tmx.commit()
+    totals.inserted += inserted
+    print(f'  inserted {inserted} TUVs', flush=True)
+
+
+def _process_replace_existing(tmx: TmxFile, options: _RunOptions,
+                              totals: _RunTotals, cache: dict[str, str]) -> bool:
+    """Step 2: re-translate every existing target TUV. False = abort the run."""
+    if not options.replace_existing:
+        return True
+    # Re-read after a possible inject so we see freshly written rows too;
+    # inject already wrote fresh text, so list_existing on current tmx is
+    # correct for pre-existing polluted rows.
+    existing = tmx.list_existing(options.target)
+    print(
+        f'{tmx.path.name}: {len(existing)} existing <tuv xml:lang="{options.target}"> '
+        f'to re-translate',
+        flush=True,
+    )
+    if options.dry_run or not existing:
+        return True
+    pairs = [(tuid, en_seg) for tuid, en_seg, _ in existing]
+    # Always bypass cache — that is the whole point of this flag.
+    translations = _translate_batch(
+        pairs,
+        options.target,
+        cache=cache,
+        force=True,
+        limit=options.limit,
+        label='replace-existing',
+    )
+    if translations is None:
+        return False
+    if not translations:
+        return True
+    translations = _maybe_filter_variant(translations, tmx, options.target, options.base_lang)
+    replaced = tmx.replace_translation(options.target, translations)
+    if not options.dry_run:
+        tmx.commit()
+    totals.replaced += replaced
+    print(f'  replaced {replaced} TUVs', flush=True)
+    return True
+
+
+def _process_fix_matching_en(tmx: TmxFile, options: _RunOptions,
+                             totals: _RunTotals, cache: dict[str, str]) -> None:
+    """Step 3: re-translate target segs identical to English (base locales)."""
+    if not options.fix_matching_en or options.base_lang:
+        return
+    matching = tmx.list_matching_en(options.target)
+    totals.fixed += len(matching)
+    print(f'{tmx.path.name}: {len(matching)} match English, fixing...', flush=True)
+    if options.dry_run or not matching:
+        return
+    pairs = [(tuid, en_seg) for tuid, en_seg, _ in matching]
+    translations, skipped = _translate_missing_lenient(
+        pairs, target=options.target, cache=cache,
+        force=options.force, limit=options.limit,
+    )
+    totals.skipped += skipped
+    if not translations:
+        return
+    replaced = tmx.replace_translation(options.target, translations)
+    if not options.dry_run:
+        tmx.commit()
+    print(f'  fixed {replaced} translations', flush=True)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
 
     global _force_docker
     _force_docker = bool(args.docker)
 
-    files = []
-    for name in (args.files or list(DEFAULT_FILES)):
-        candidate = Path(name)
-        files.append(I18N_DIR / candidate if not candidate.is_absolute() else candidate)
-
-    target = args.target
-    base_lang = args.variant_base or VARIANT_BASES.get(target)
-
+    files = _resolve_run_files(args.files)
+    options = _RunOptions(
+        target=args.target,
+        base_lang=args.variant_base or VARIANT_BASES.get(args.target),
+        force=args.force,
+        limit=args.limit,
+        dry_run=args.dry_run,
+        replace_existing=args.replace_existing,
+        fix_matching_en=args.fix_matching_en,
+    )
     cache = load_cache()
-    total_missing = 0
-    total_inserted = 0
-    total_replaced = 0
-    total_fixed = 0
-    total_skipped = 0
+    totals = _RunTotals()
 
     for f in files:
         if not f.exists():
             print(f'error: {f} not found', file=sys.stderr)
             return 2
-
         tmx = TmxFile(f)
+        _process_missing(tmx, options, totals, cache)
+        if not _process_replace_existing(tmx, options, totals, cache):
+            return 1
+        _process_fix_matching_en(tmx, options, totals, cache)
 
-        # Step 1: Handle missing translations
-        missing = tmx.list_missing(target)
-        total_missing += len(missing)
-        print(f'{f.name}: {len(missing)} missing <tuv xml:lang="{target}">', flush=True)
-
-        if args.dry_run or not missing:
-            pass
-        else:
-            translations = {}
-            processed = 0
-            for tuid, en_seg in missing:
-                if args.limit and processed >= args.limit:
-                    break
-                try:
-                    translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
-                except Exception as e:
-                    print(f'  SKIP {tuid}: {e}', file=sys.stderr)
-                    total_skipped += 1
-                    save_cache(cache)
-                    continue
-                processed += 1
-                if processed % 10 == 0:
-                    print(f'  ... {processed}/{len(missing)}')
-                    save_cache(cache)
-            save_cache(cache)
-
-            if translations:
-                # For variant locales, filter to only include differences from base
-                if base_lang and base_lang != target:
-                    base_trans = tmx.get_base_translations(base_lang)
-                    filtered = {k: v for k, v in translations.items()
-                                if k not in base_trans or base_trans[k] != v}
-                    print(
-                        f'  variant filter: {len(translations)} -> {len(filtered)} '
-                        f'(only differences)',
-                        flush=True,
-                    )
-                    translations = filtered
-
-                inserted = tmx.inject(target, translations)
-                if not args.dry_run:
-                    tmx.commit()
-                total_inserted += inserted
-                print(f'  inserted {inserted} TUVs', flush=True)
-
-        # Step 2: Overwrite every existing target TUV (full repair path)
-        if args.replace_existing:
-            # Re-read after possible inject so we see newly written rows too
-            # only when we want to also re-hit them — skip: inject already
-            # wrote fresh text. list_existing on current tmx is correct for
-            # pre-existing polluted rows.
-            existing = tmx.list_existing(target)
-            print(
-                f'{f.name}: {len(existing)} existing <tuv xml:lang="{target}"> '
-                f'to re-translate',
-                flush=True,
-            )
-            if args.dry_run or not existing:
-                pass
-            else:
-                pairs = [(tuid, en_seg) for tuid, en_seg, _ in existing]
-                # Always bypass cache — that is the whole point of this flag.
-                translations = _translate_batch(
-                    pairs,
-                    target,
-                    cache=cache,
-                    force=True,
-                    limit=args.limit,
-                    label='replace-existing',
-                )
-                if translations is None:
-                    return 1
-                if translations:
-                    if base_lang and base_lang != target:
-                        base_trans = tmx.get_base_translations(base_lang)
-                        filtered = {
-                            k: v for k, v in translations.items()
-                            if k not in base_trans or base_trans[k] != v
-                        }
-                        print(
-                            f'  variant filter: {len(translations)} -> '
-                            f'{len(filtered)} (only differences)',
-                            flush=True,
-                        )
-                        translations = filtered
-                    replaced = tmx.replace_translation(target, translations)
-                    if not args.dry_run:
-                        tmx.commit()
-                    total_replaced += replaced
-                    print(f'  replaced {replaced} TUVs', flush=True)
-
-        # Step 3: Fix translations matching English (only for base locales)
-        if args.fix_matching_en and not base_lang:
-            matching = tmx.list_matching_en(target)
-            total_fixed += len(matching)
-            print(f'{f.name}: {len(matching)} match English, fixing...', flush=True)
-
-            if args.dry_run or not matching:
-                pass
-            else:
-                translations = {}
-                processed = 0
-                for tuid, en_seg, _ in matching:
-                    if args.limit and processed >= args.limit:
-                        break
-                    try:
-                        translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
-                    except Exception as e:
-                        print(f'  SKIP {tuid}: {e}', file=sys.stderr)
-                        save_cache(cache)
-                        total_skipped += 1
-                        continue
-                    processed += 1
-                    if processed % 10 == 0:
-                        print(f'  ... {processed}/{len(matching)}')
-                        save_cache(cache)
-                save_cache(cache)
-
-                if translations:
-                    replaced = tmx.replace_translation(target, translations)
-                    if not args.dry_run:
-                        tmx.commit()
-                    total_fixed = total_fixed  # count already from list size
-                    print(f'  fixed {replaced} translations', flush=True)
-
-    print(f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; fixed: {total_fixed}; skipped: {total_skipped}')
+    print(f'\nDone. Missing: {totals.missing}; inserted: {totals.inserted}; fixed: {totals.fixed}; skipped: {totals.skipped}')
     return 0
 
 
