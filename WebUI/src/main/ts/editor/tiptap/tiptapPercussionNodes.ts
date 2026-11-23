@@ -34,6 +34,19 @@
  * {@code <img>}, shown in the editor as an uneditable "More" badge through a
  * node view while serializing back to the bare stored span.</p>
  *
+ * <p>{@code PercInlineVariant} and {@code PercBlockVariant} are the stored
+ * template-variant wrappers ({@code span.rx_inlinevariant} /
+ * {@code div.rx_ephox_inlinevariant}): unlike the classic edit-time span the
+ * retired {@code editorinline.js} consumed, the stored wrappers carry the
+ * inline-template relationship ({@code rxinlineslot} /
+ * {@code inlinetype="rxvariant"} / {@code sys_dependentid}, moved to the
+ * block {@code div} by {@code PSSingleValueBuilder}), so the schema keeps
+ * them — with their relationship attributes — instead of flattening them.
+ * Dropping the wrapper would drop the relationship and
+ * {@code PSInlineLinkField} would delete it on save. Publish-time stripping
+ * ({@code PSDivTagCleanup}) is unchanged: it applies to the published
+ * output, never to the stored edit-time value.</p>
+ *
  * <p>MIT TipTap 3 / ProseMirror only; no classic-frame services.</p>
  */
 
@@ -41,11 +54,14 @@ import { Link } from "@tiptap/extension-link";
 import { Image } from "@tiptap/extension-image";
 import { Node, mergeAttributes } from "@tiptap/core";
 import {
+  PERC_BLOCK_VARIANT_CLASS,
+  PERC_CONTENT_EDITABLE_ATTR,
   PERC_DEPENDENT_ID_ATTR,
   PERC_DEPENDENT_VARIANT_ATTR,
   PERC_GLOBAL_VARIABLE_CLASS,
   PERC_INLINE_SLOT_ATTR,
   PERC_INLINE_TYPE_ATTR,
+  PERC_INLINE_VARIANT_CLASS,
   PERC_JCR_PATH_ATTR,
   PERC_MORE_LINK_CLASS,
   PERC_RELATIONSHIP_ATTR,
@@ -267,5 +283,88 @@ export const PercMoreLink = Node.create({
       insertPercMoreLink: () => ({ commands }) =>
         commands.insertContent({ type: this.name }),
     };
+  },
+});
+
+/** Relationship attributes kept on template-variant wrappers. */
+function variantRelationshipAttributes(): Record<string, unknown> {
+  return {
+    [PERC_INLINE_SLOT_ATTR]: percAttribute(PERC_INLINE_SLOT_ATTR),
+    [PERC_INLINE_TYPE_ATTR]: percAttribute(PERC_INLINE_TYPE_ATTR),
+    [PERC_DEPENDENT_ID_ATTR]: percAttribute(PERC_DEPENDENT_ID_ATTR),
+    [PERC_DEPENDENT_VARIANT_ATTR]: percAttribute(PERC_DEPENDENT_VARIANT_ATTR),
+    [PERC_RELATIONSHIP_ATTR]: percAttribute(PERC_RELATIONSHIP_ATTR),
+    // #7104: the stored wrappers also carry the broken-link selected text
+    // and the edit-time lock flag. Both must survive the round-trip:
+    // processInlineLink falls back to rxselectedtext for broken-link
+    // cleanup, and dropping contenteditable would misrepresent the stored
+    // lock state on the next save.
+    [PERC_SELECTED_TEXT_ATTR]: percAttribute(PERC_SELECTED_TEXT_ATTR),
+    [PERC_CONTENT_EDITABLE_ATTR]: percAttribute(PERC_CONTENT_EDITABLE_ATTR),
+  };
+}
+
+/**
+ * Stored inline template-variant wrapper ({@code rxvariant} port). Keeps
+ * the wrapper — with its relationship attributes — so the inline-template
+ * relationship survives the edit round-trip; renders the stored span form.
+ */
+export const PercInlineVariant = Node.create({
+  name: "percInlineVariant",
+  inline: true,
+  group: "inline",
+  content: "inline*",
+
+  addAttributes() {
+    return variantRelationshipAttributes();
+  },
+
+  parseHTML() {
+    return [{ tag: `span.${PERC_INLINE_VARIANT_CLASS}` }];
+  },
+
+  renderHTML({ node }) {
+    const htmlAttributes: Record<string, unknown> = {
+      class: PERC_INLINE_VARIANT_CLASS,
+    };
+    for (const attr of Object.keys(variantRelationshipAttributes())) {
+      const value = node.attrs[attr];
+      if (typeof value === "string" && value) {
+        htmlAttributes[attr] = value;
+      }
+    }
+    return ["span", mergeAttributes(htmlAttributes), 0];
+  },
+});
+
+/**
+ * Stored block template-variant wrapper ({@code rxvariant} port). Keeps the
+ * wrapper div — with its relationship attributes — so the inline-template
+ * relationship survives the edit round-trip; renders the stored div form.
+ */
+export const PercBlockVariant = Node.create({
+  name: "percBlockVariant",
+  group: "block",
+  content: "block+",
+
+  addAttributes() {
+    return variantRelationshipAttributes();
+  },
+
+  parseHTML() {
+    return [{ tag: `div.${PERC_BLOCK_VARIANT_CLASS}` }];
+  },
+
+  renderHTML({ node }) {
+    const htmlAttributes: Record<string, unknown> = {
+      class: PERC_BLOCK_VARIANT_CLASS,
+    };
+    for (const attr of Object.keys(variantRelationshipAttributes())) {
+      const value = node.attrs[attr];
+      if (typeof value === "string" && value) {
+        htmlAttributes[attr] = value;
+      }
+    }
+    return ["div", mergeAttributes(htmlAttributes), 0];
   },
 });

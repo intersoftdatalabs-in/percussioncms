@@ -36,8 +36,10 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Underline } from "@tiptap/extension-underline";
 import { StarterKit } from "@tiptap/starter-kit";
 import {
+  PercBlockVariant,
   PercGlobalVariable,
   PercImage,
+  PercInlineVariant,
   PercLink,
   PercMoreLink,
 } from "./tiptapPercussionNodes";
@@ -52,7 +54,8 @@ import {
  * toolbar/plugins, plus CMS inline attributes), images (plus CMS inline
  * attributes), tables, paragraph/heading alignment
  * ({@code rx_default_config.json} align buttons), the global-variable marker,
- * and the blog more-link marker (plugin ports, #5652).</p>
+ * the blog more-link marker (plugin ports, #5652), and the stored
+ * inline/block template-variant wrappers (relationship-preserving, #7048).</p>
  *
  * @returns a fresh extension list per call (extensions hold config state).
  */
@@ -82,5 +85,7 @@ export function createTipTapEditorExtensions(): AnyExtension[] {
     // plugins persist.
     PercGlobalVariable,
     PercMoreLink,
+    PercInlineVariant,
+    PercBlockVariant,
   ];
 }
