@@ -43,8 +43,30 @@ const folder = (id: string, name: string): PSPathItem =>
     leaf: false,
   });
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7147).
+ * Each round trip here is purely microtask-driven (mocked
+ * {@code runBatch} promises → setState → render) with no real timers
+ * involved, so the gates are deterministic in outcome; the budget is
+ * strictly a backstop for loaded-worker scheduling lag. Every
+ * {@code findBy} uses it explicitly: the 1s testing-library default is
+ * the most-tripped cliff when hundreds of suite files share the worker
+ * host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT} in #7122).
+ */
+const BULK_STAGE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7147, same load-contention rationale as
+ * {@code CONTEXT_MENU_RETRY_TEST_TIMEOUT} in #7122). The backstop gates
+ * above plus the axe gate can jointly exceed the 20s global default when
+ * the worker host is saturated. The primary gates stay progress-based
+ * (single bounded backstop per distinct state); this ceiling is strictly
+ * a last-resort backstop.
+ */
+const BULK_STAGE_TEST_TIMEOUT = 30_000;
+
 describe("BulkStageDialog (#6469)", () => {
-  it("confirm lists eligible items, names skipped folders, cancel runs nothing", async () => {
+  it("confirm lists eligible items, names skipped folders, cancel runs nothing", { timeout: BULK_STAGE_TEST_TIMEOUT }, async () => {
     const runBatch = vi.fn();
     const onDone = vi.fn();
     const { container } = render(
@@ -81,7 +103,7 @@ describe("BulkStageDialog (#6469)", () => {
     await renderA11yGate(container);
   });
 
-  it("confirm runs the batch and reports each row with summary counts", async () => {
+  it("confirm runs the batch and reports each row with summary counts", { timeout: BULK_STAGE_TEST_TIMEOUT }, async () => {
     // The stub only saw the eligible rows; the dialog merges the
     // partition plan skips so the folder is still reported.
     const report: BulkStageReportInput = {
@@ -106,7 +128,9 @@ describe("BulkStageDialog (#6469)", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
-    const summary = await screen.findByTestId("explorer-bulk-stage-summary");
+    const summary = await screen.findByTestId("explorer-bulk-stage-summary", undefined, {
+      timeout: BULK_STAGE_ROUND_TRIP_TIMEOUT,
+    });
     expect(summary).toHaveTextContent(/1 staged, 1 skipped, 1 failed/);
     const rows = screen.getAllByTestId("explorer-bulk-stage-report-row");
     expect(rows).toHaveLength(3);
@@ -123,7 +147,7 @@ describe("BulkStageDialog (#6469)", () => {
     await renderA11yGate(container);
   });
 
-  it("report with no successes closes without refresh", async () => {
+  it("report with no successes closes without refresh", { timeout: BULK_STAGE_TEST_TIMEOUT }, async () => {
     const runBatch = vi.fn().mockResolvedValue({
       okIds: [],
       skippedFolders: [],
@@ -141,7 +165,9 @@ describe("BulkStageDialog (#6469)", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
-    await screen.findByTestId("explorer-bulk-stage-summary");
+    await screen.findByTestId("explorer-bulk-stage-summary", undefined, {
+      timeout: BULK_STAGE_ROUND_TRIP_TIMEOUT,
+    });
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-close"));
     expect(onDone).toHaveBeenCalledWith({ ran: true, refresh: false });
   });
@@ -168,7 +194,7 @@ describe("BulkStageDialog (#6469)", () => {
     await renderA11yGate(container);
   });
 
-  it("unstage mode reports removed rows with unstage chrome", async () => {
+  it("unstage mode reports removed rows with unstage chrome", { timeout: BULK_STAGE_TEST_TIMEOUT }, async () => {
     const runBatch = vi.fn().mockResolvedValue({
       okIds: ["42"],
       skippedFolders: ["News"],
@@ -187,7 +213,9 @@ describe("BulkStageDialog (#6469)", () => {
       /Remove 1 item/,
     );
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
-    const summary = await screen.findByTestId("explorer-bulk-stage-summary");
+    const summary = await screen.findByTestId("explorer-bulk-stage-summary", undefined, {
+      timeout: BULK_STAGE_ROUND_TRIP_TIMEOUT,
+    });
     expect(summary).toHaveTextContent(/1 removed from staging/);
     const rows = screen.getAllByTestId("explorer-bulk-stage-report-row");
     expect(rows[0]).toHaveTextContent(/Removed from staging/);
@@ -245,7 +273,7 @@ describe("BulkStageDialog (#6469)", () => {
     expect(onDone).not.toHaveBeenCalled();
   });
 
-  it("batch throw reports the catalog request-failed copy (#6997)", async () => {
+  it("batch throw reports the catalog request-failed copy (#6997)", { timeout: BULK_STAGE_TEST_TIMEOUT }, async () => {
     const runBatch = vi.fn().mockRejectedValue(new Error("boom"));
     const onDone = vi.fn();
     render(
@@ -257,7 +285,9 @@ describe("BulkStageDialog (#6469)", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
-    const summary = await screen.findByTestId("explorer-bulk-stage-summary");
+    const summary = await screen.findByTestId("explorer-bulk-stage-summary", undefined, {
+      timeout: BULK_STAGE_ROUND_TRIP_TIMEOUT,
+    });
     expect(summary).toHaveTextContent(/0 staged, 0 skipped, 1 failed/);
     const rows = screen.getAllByTestId("explorer-bulk-stage-report-row");
     expect(rows).toHaveLength(1);
