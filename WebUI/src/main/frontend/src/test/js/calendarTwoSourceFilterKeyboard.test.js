@@ -96,8 +96,17 @@ describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
       expect(button).toContain("data-calendar-source=");
     }
     // The filter bar is a labelled group, mirroring the view-toggle bar.
+    // The accessible name is preference-driven (#7030, residual of
+    // #6992): the group renders $perc_source_filter_group_label
+    // (HTML-escaped) with a Velocity fallback guard preserving the
+    // English default for pre-existing widget instances.
     expect(snippet).toContain('class="perc-button-container" role="group"');
-    expect(snippet).toContain('aria-label="Calendar sources"');
+    expect(snippet).toContain(
+      'aria-label="$tools.esc.html($perc_source_filter_group_label)"',
+    );
+    expect(snippet).toContain(
+      "#if(!$perc_source_filter_group_label)#set($perc_source_filter_group_label = 'Calendar sources')#end",
+    );
   });
 
   it("hideCalendarSource is global and syncs aria-pressed without hiding the controls", () => {

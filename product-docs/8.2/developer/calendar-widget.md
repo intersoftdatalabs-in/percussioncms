@@ -66,8 +66,9 @@ The **Calendar/List toggle buttons** (`Show Calendar` / `Show List`)
 destroy and re-create the calendar instance when both layouts are enabled.
 Switching is instant (no animation) so printed and captured output is
 deterministic. The buttons expose `aria-pressed` mirroring the visible
-layout inside a `role="group"` labelled "Calendar layout", and the list
-region announces updates via `aria-live="polite"`.
+layout inside a `role="group"` (accessible name from the **Layout
+toggle group label** preference, default "Calendar layout"), and the
+list region announces updates via `aria-live="polite"`.
 
 While the list fetch is in flight the list shows a **Loading events…**
 row; when no event survives the today-or-later filter the list shows an
@@ -82,7 +83,8 @@ English; existing widgets keep the English output unchanged.
 The **source-filter buttons** (one per Google feed plus the Percussion
 events button, shown above the calendar in Calendar layout) toggle the
 per-source event layers. They are native buttons inside a
-`role="group"` labelled "Calendar sources", so keyboard users Tab to a
+`role="group"` (accessible name from the **Source filter group label**
+preference, default "Calendar sources"), so keyboard users Tab to a
 filter and press **Enter** or **Space** to toggle it — the same
 show/hide contract as a mouse click. Each button exposes
 `aria-pressed` (`true` while its source is shown) and a dimmed style
@@ -106,11 +108,18 @@ keep rendering.
 ## Source-filter buttons
 
 Each widget instance renders a **Calendar sources** filter bar
-(`role="group"`, labelled "Calendar sources") with one native button
+(`role="group"`, labelled via the **Source filter group label**
+preference, default "Calendar sources") with one native button
 per Google feed plus one for Percussion events. The buttons are
 keyboard-operable (Tab to reach, Enter or Space to toggle) and expose
 `aria-pressed` mirroring the layer visibility, with a
 `:focus-visible`-only ring so the mouse path is pixel-identical.
+
+Both group labels are widget preferences — **Source filter group
+label** and **Layout toggle group label** (English defaults as above)
+— so a non-English widget can localize the group names instead of
+announcing English; existing widgets keep the English output
+unchanged.
 
 ## Multiple widgets on one page
 

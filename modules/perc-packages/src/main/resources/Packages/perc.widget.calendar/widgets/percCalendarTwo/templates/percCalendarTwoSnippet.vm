@@ -1,3 +1,13 @@
+## Group accessible-name labels (#7030, residual of #6992): the two
+## role="group" bars below (view-toggle, source-filter) render
+## editor-overridable widget preferences with English defaults
+## preserving the pre-existing output, so pre-existing widget
+## instances (no stored pref) render exactly as before while
+## non-English widgets can localize the group names instead of
+## announcing hardcoded English. $tools.esc.html keeps editor quotes
+## from breaking the aria-label attributes at the two group sites.
+#if(!$perc_source_filter_group_label)#set($perc_source_filter_group_label = 'Calendar sources')#end
+#if(!$perc_layout_toggle_group_label)#set($perc_layout_toggle_group_label = 'Calendar layout')#end
 <div class="$!{rootclass} perc-calendar" data="$!dynamicListData">
 #if( ! $perc.widgetContents.isEmpty() )##
 #set($googleSourceCount = 0)##
@@ -5,7 +15,7 @@
 #set($googleSourceCount = $googleSourceCount + 1)##
 #end##
 #if( $perc_enable_view_toggle_buttons == "true")##
-  <div id="perc-toggle-button-container" class="perc-toggle-button-container" role="group" aria-label="Calendar layout">
+  <div id="perc-toggle-button-container" class="perc-toggle-button-container" role="group" aria-label="$tools.esc.html($perc_layout_toggle_group_label)">
   ## Slice 2 (#6919/2): aria-pressed mirrors the visible layout so the toggle
   ## state is perceivable; the handlers below keep the pair in sync. Buttons
   ## switch with show()/hide() (no fadeIn) so captured output is
@@ -255,7 +265,7 @@
 
       #if( ($googleSourceCount >= 1 || $perc_show_perc_events_button == 'Y'))
       <form>
-      <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container" role="group" aria-label="Calendar sources">
+      <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container" role="group" aria-label="$tools.esc.html($perc_source_filter_group_label)">
       ## Backward-compat (#7034 review): filter buttons keep the unsuffixed
       ## perc-<className> class alongside the scoped one, so site/theme CSS
       ## and scripts targeting the legacy hooks keep matching; the sweep
