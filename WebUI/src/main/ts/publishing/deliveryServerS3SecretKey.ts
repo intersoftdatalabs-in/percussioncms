@@ -25,6 +25,7 @@ export const S3_SECRET_KEY_MAX_LENGTH = 255;
 
 export const S3_SECRET_KEY_PROPERTY = "securitykey";
 
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7079, same class as #7077/#7078, in-diff precedent #7076/#6936) — UI validation message string, no credential material.
 export const S3_SECRET_KEY_REQUIRED = "S3 secret key is required";
 
 export const S3_SECRET_KEY_TOO_LONG =
@@ -34,6 +35,7 @@ export const S3_SECRET_KEY_DRIVER_ONLY =
   "S3 secret key can be set only on an Amazon S3 delivery server.";
 
 /** The stored secret is never shown. The summary carries this fixed status instead. */
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7079, same class as #7077/#7078, in-diff precedent #7076/#6936) — UI status message string, no credential material.
 export const S3_SECRET_KEY_NEVER_SHOWN = "Stored secret key is never shown.";
 
 export type S3SecretKeyResult =
