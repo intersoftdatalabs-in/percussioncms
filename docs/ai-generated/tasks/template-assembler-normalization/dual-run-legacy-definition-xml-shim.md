@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **RETIRED 2026-11-08** via [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852): dual-run legacy fallback hard-disabled, selection modern-only (criteria [retired/met](./definition-xml-shim-removal-criteria.md)). Gadget WebUI dual-load retired as focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810) (modern-only) |
+| **Status** | **RETIRED 2026-11-08** via [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852): dual-run legacy fallback hard-disabled, selection modern-only (criteria [retired/met](./definition-xml-shim-removal-criteria.md)). Gadget WebUI dual-load retired as focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810) (modern-only). Post-retirement shim-audit (§3 of the [deprecation audit](./shim-deprecation-audit-7051.md)) steps 1–2 executed: dead `GadgetRegistry.xml` classpath resource deleted [#7094](https://github.com/intersoftdatalabs-in/percussioncms/issues/7094) (PR #7111); Java consumer refs swept + absence-guard test [#7107](https://github.com/intersoftdatalabs-in/percussioncms/issues/7107) (PR #7137) |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) (Phase 3) |
 | **Epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
 | **Phase 5 criteria** | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835 / #2632 / criteria refresh #3132) |
@@ -46,7 +46,7 @@ Hard order for a package root or definition id (**retired to modern-only** via #
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; modern-only selection via `PSLegacyDefinitionXmlShim` (#2852) | Require modern: `widgetDao.modernPackageRoots` must have a matching `component-package.json`; **defaults (#3130):** blank property → `${rxdeploydir}/Packages/Modern` (+ classpath materialize); selection kind test-visible; XML content remains install wire format |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
-| Gadget registry | `WebUI/.../GadgetRegistry` single-load (`gadget-catalog.json`; dual-load fallback removed #6440 after the #5810 retirement; legacy `GadgetRegistry.xml` parser removed #6447) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Single-load (#2788 / #5810 / #6440 / #6447); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key removed |
+| Gadget registry | `WebUI/.../GadgetRegistry` single-load (`gadget-catalog.json`; dual-load fallback removed #6440 after the #5810 retirement; legacy `GadgetRegistry.xml` parser removed #6447; dead product classpath resource `WebUI/.../GadgetRegistry.xml` deleted #7094, absence pinned by `GadgetRegistryTest.deletedLegacyRegistryXmlIsAbsentFromClasspath` #7107) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Single-load (#2788 / #5810 / #6440 / #6447 / #7094 / #7107); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key removed |
 | Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). The Page XML load path was removed (#6446); the last remaining retired probe (Gadget, `LEGACY_GADGET_XML`) was removed by the shim-removal closeout (#6447) — no legacy probe of any kind remains |
 
 **Selection API (no Spring wiring required for unit use):**
@@ -94,7 +94,7 @@ The shim fallback and the gadget legacy fallback were retired; the conditions be
 | Install has Widget XML without a matching modern package root | Customer / residual defs still load via legacy |
 | `widgetDao.modernPackageRoots` is blank **and** product defaults (#3130) are not on the build | Pre-#3130 `main`: blank property ⇒ legacy-only selection kinds |
 | Gadget classpath missing `gadget-catalog.json` | ~~Product prefers modern; fallback is the safety net~~ — retired (#5810): modern absent now yields empty map + ERROR |
-| Agent or human is tempted to “finish Phase 5 early” | **#2852 is blocked** — deletion is not the dual-run checklist |
+| Agent or human is tempted to “finish Phase 5 early” | (Historical — [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) has since closed, retiring the shim; deletion was never the dual-run checklist) |
 
 ### How to read metrics
 
@@ -151,7 +151,7 @@ Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget
 | `widgetDao.modernPackageRoots` | `File.pathSeparator`-separated paths. **Blank default** → `PSModernPackageRootDefaults` discovers `${rxdeploydir}/Packages/Modern` (+ classpath materialize when empty). Explicit list still overrides. |
 | Widgets repository | `${rxdeploydir}/rxconfig/Widgets` (existing DAO repository directory) |
 | Gadget modern resource | Classpath `com/percussion/webui/gadget/servlets/gadget-catalog.json` |
-| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (retired fallback via #5810, unreferenced since #6440 removed `REGISTRY_RESOURCE`; never loaded — kept on classpath, **do not reintroduce** as a load path) |
+| Gadget legacy resource | **Deleted** `WebUI/src/main/resources/com/percussion/webui/gadget/servlets/GadgetRegistry.xml` (dead product classpath copy removed [#7094](https://github.com/intersoftdatalabs-in/percussioncms/issues/7094) / PR #7111; absence pinned by `GadgetRegistryTest.deletedLegacyRegistryXmlIsAbsentFromClasspath` [#7107](https://github.com/intersoftdatalabs-in/percussioncms/issues/7107) / PR #7137; retired fallback via #5810, unreferenced since #6440 removed `REGISTRY_RESOURCE` — **do not reintroduce** as a load path; customer upgrade-input XML of the same name is still read by `PSGadgetRegistryCompiler` — that upgrade path is out of scope) |
 
 ### Product / H2 default modern roots (#3130)
 
@@ -193,8 +193,9 @@ modern materialize), compilers + inventory gates keep permanently as upgrade
 inputs / G4 guards, `@Deprecated` markers rejected (would add usage-site
 warnings), `LEGACY_*` name collisions elsewhere recorded out of scope. M1
 recount: Widget XML **0**, waiver empty, `component-package.json` **77**
-(new baseline). Ordered removal plan, smallest-first Step 1 (delete the dead
-`GadgetRegistry.xml` classpath resource) filed as residual #7094. No policy
+(new baseline). Ordered removal plan executed smallest-first: Step 1 deleted the dead
+`GadgetRegistry.xml` classpath resource ([#7094](https://github.com/intersoftdatalabs-in/percussioncms/issues/7094) / PR #7111, merged); Step 2 swept the Java consumer refs + added the
+absence-guard test ([#7107](https://github.com/intersoftdatalabs-in/percussioncms/issues/7107) / PR #7137, merged); Step 3 is this doc refresh ([#7108](https://github.com/intersoftdatalabs-in/percussioncms/issues/7108)). No policy
 change — dual-run stays RETIRED.
 
 ## See also
