@@ -45,12 +45,15 @@ def _load():
 hdj = _load()
 
 
-def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), lib_listing=None):
+def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), lib_listing=None, returncodes=None):
     calls = []
+    call_kwargs = []
     lib_listing = lib_listing if lib_listing is not None else []
+    returncodes = returncodes or {}
 
     def fake_run(argv, *args, **kwargs):
         calls.append(list(argv))
+        call_kwargs.append(kwargs)
         if argv[:2] == ["docker", "ps"]:
             return subprocess.CompletedProcess(
                 args=argv,
@@ -69,19 +72,27 @@ def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), lib_listing=Non
             return subprocess.CompletedProcess(
                 args=argv, returncode=1, stdout="", stderr=""
             )
+        # The tar-pipe fallback (#7157) extracts via docker exec tar.
+        if argv[:2] == ["docker", "exec"] and "tar" in argv:
+            return subprocess.CompletedProcess(
+                args=argv,
+                returncode=returncodes.get("tar", 0),
+                stdout="",
+                stderr="",
+            )
         if argv[:2] == ["docker", "exec"]:
             return subprocess.CompletedProcess(
                 args=argv, returncode=0, stdout="", stderr=""
             )
         if argv[:2] == ["docker", "cp"]:
             return subprocess.CompletedProcess(
-                args=argv, returncode=0, stdout="", stderr=""
+                args=argv, returncode=returncodes.get("cp", 0), stdout="", stderr=""
             )
         if argv[:2] == ["docker", "restart"]:
             raise AssertionError("must not docker restart the QA cell")
         return subprocess.CompletedProcess(args=argv, returncode=0, stdout="", stderr="")
 
-    return calls, fake_run
+    return calls, call_kwargs, fake_run
 
 
 def _write_jar(path: Path, *entries: str, payload: bytes = b"class") -> None:
@@ -455,7 +466,7 @@ class TestDeploy(unittest.TestCase):
     def test_container_not_running(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess(docker_ps_names=("other",))
+            calls, _call_kwargs, fake = _stub_subprocess(docker_ps_names=("other",))
             with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
                 rc = hdj.deploy(root, dry_run=False)
             self.assertEqual(rc, hdj.EXIT_CONTAINER_NOT_RUNNING)
@@ -472,7 +483,7 @@ class TestDeploy(unittest.TestCase):
     def test_copies_snapshots_and_does_not_docker_restart(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess(
+            calls, _call_kwargs, fake = _stub_subprocess(
                 lib_listing=["perc-system-old.jar", "readme.txt"]
             )
             with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
@@ -497,10 +508,57 @@ class TestDeploy(unittest.TestCase):
                 msg=rms,
             )
 
+    def test_docker_cp_failure_falls_back_to_tar_pipe(self):
+        """#7157: ``docker cp`` fails but the tar pipe succeeds -> exit 0.
+
+        Verifies the fallback ``docker exec -i <cell> tar -xf - -C
+        <WEB-INF/lib>`` argv and that the piped archive holds the exact
+        jar bytes under the jar basename.
+        """
+        import io
+        import tarfile
+
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            calls, call_kwargs, fake = _stub_subprocess(
+                lib_listing=[], returncodes={"cp": 1}
+            )
+            with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
+                rc = hdj.deploy(root, dry_run=False, restart_jetty=False)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            tar_indexes = [
+                i for i, c in enumerate(calls)
+                if c[:2] == ["docker", "exec"] and "tar" in c
+            ]
+            self.assertTrue(tar_indexes, msg=f"expected tar fallback calls: {calls}")
+            first = calls[tar_indexes[0]]
+            self.assertEqual(first[2], "-i")
+            self.assertEqual(first[3:7], ["perc-matrix-cms-h2", "tar", "-xf", "-"])
+            self.assertEqual(first[7:], ["-C", hdj.DEFAULT_DEST])
+            payload = call_kwargs[tar_indexes[0]].get("input")
+            self.assertIsNotNone(payload, msg="tar fallback must pipe archive bytes via input=")
+            with tarfile.open(fileobj=io.BytesIO(payload), mode="r") as tf:
+                members = tf.getmembers()
+                self.assertEqual(len(members), 1)
+                expected = (root / "system" / "target").glob("perc-system-*.jar")
+                expected_names = sorted(p.name for p in expected)
+                self.assertIn(members[0].name, expected_names)
+
+    def test_docker_cp_and_tar_failure_propagates(self):
+        """#7157: ``docker cp`` AND the tar pipe fail -> exit 5."""
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            calls, _call_kwargs, fake = _stub_subprocess(
+                lib_listing=[], returncodes={"cp": 1, "tar": 1}
+            )
+            with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
+                rc = hdj.deploy(root, dry_run=False, restart_jetty=False)
+            self.assertEqual(rc, hdj.EXIT_DOCKER_FAILED)
+
     def test_does_not_remove_aws_sdk_utils_jars(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess(
+            calls, _call_kwargs, fake = _stub_subprocess(
                 lib_listing=[
                     "utils-2.50.2.jar",
                     "utils-lite-2.50.2.jar",
@@ -521,7 +579,7 @@ class TestDeploy(unittest.TestCase):
     def test_removes_stale_commons_email1(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess(
+            calls, _call_kwargs, fake = _stub_subprocess(
                 lib_listing=["commons-email-1.6.0.jar", "commons-email2-core-2.0.0-M1.jar"]
             )
             with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
@@ -540,7 +598,7 @@ class TestDeploy(unittest.TestCase):
     def test_removes_stale_jakarta_mail_1x_not_api(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess(
+            calls, _call_kwargs, fake = _stub_subprocess(
                 lib_listing=[
                     "jakarta.mail-1.6.8.jar",
                     "jakarta.mail-api-2.1.3.jar",
@@ -563,7 +621,7 @@ class TestDeploy(unittest.TestCase):
     def test_restart_jetty_is_in_cell_stop_then_detached_start(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess()
+            calls, _call_kwargs, fake = _stub_subprocess()
             with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
                 rc = hdj.deploy(root, dry_run=False, restart_jetty=True)
             self.assertEqual(rc, hdj.EXIT_OK)
@@ -595,7 +653,7 @@ class TestDeploy(unittest.TestCase):
     def test_restart_jetty_falls_back_when_truncate_missing(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
-            calls, fake = _stub_subprocess()
+            calls, _call_kwargs, fake = _stub_subprocess()
 
             def fake_with_missing_truncate(argv, *args, **kwargs):
                 if (

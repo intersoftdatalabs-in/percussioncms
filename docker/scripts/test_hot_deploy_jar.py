@@ -53,6 +53,11 @@ def _stub_subprocess(*, docker_ps_names=("percussion-cms-dts",), returncodes=Non
                 stderr="",
             )
         if argv[:2] == ["docker", "exec"]:
+            # The tar-pipe fallback (#7157) extracts via docker exec tar.
+            if "tar" in argv:
+                return subprocess.CompletedProcess(
+                    args=argv, returncode=returncodes.get("tar", 0), stdout="", stderr=""
+                )
             # The backup-existence check uses sh -c; return "EXISTS" if asked.
             if any("EXISTS" in (a if isinstance(a, str) else "") for a in argv):
                 return subprocess.CompletedProcess(
@@ -223,7 +228,8 @@ class TestRealRun(unittest.TestCase):
         self.assertEqual(restart_calls[0][0][2], "percussion-cms-dts")
 
     def test_real_run_docker_cp_failure_propagates(self):
-        calls, fake_run = _stub_subprocess(returncodes={"cp": 1})
+        # docker cp AND the tar-pipe fallback both fail -> exit 5.
+        calls, fake_run = _stub_subprocess(returncodes={"cp": 1, "tar": 1})
         with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake_run):
             rc = hdj.deploy(
                 jar_path=self.jar,
@@ -233,6 +239,52 @@ class TestRealRun(unittest.TestCase):
                 dry_run=False,
             )
         self.assertEqual(rc, hdj.EXIT_DOCKER_FAILED)
+
+    def test_docker_cp_failure_falls_back_to_tar_pipe(self):
+        """#7157: ``docker cp`` fails but the tar pipe succeeds -> exit 0.
+
+        Also verifies the fallback ``docker exec -i <cell> tar -xf - -C
+        <parent>`` argv and that the piped archive is a one-member tar
+        holding the exact jar bytes under the jar basename.
+        """
+        import io
+        import tarfile
+
+        calls, fake_run = _stub_subprocess(returncodes={"cp": 1})
+        with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake_run):
+            rc = hdj.deploy(
+                jar_path=self.jar,
+                container_name="percussion-cms-dts",
+                target="cms",
+                restart=False,
+                dry_run=False,
+            )
+        self.assertEqual(rc, hdj.EXIT_OK)
+        tar_calls = [
+            c for c in calls
+            if c[0][:2] == ["docker", "exec"] and "tar" in c[0]
+        ]
+        self.assertEqual(len(tar_calls), 1, msg=f"expected one tar fallback: {calls}")
+        argv = tar_calls[0][0]
+        self.assertEqual(
+            argv,
+            [
+                "docker", "exec", "-i", "percussion-cms-dts",
+                "tar", "-xf", "-", "-C", "/opt/Percussion/jetty/base/lib",
+            ],
+        )
+        payload = tar_calls[0][1].get("input")
+        self.assertIsNotNone(payload, msg="tar fallback must pipe archive bytes via input=")
+        with tarfile.open(fileobj=io.BytesIO(payload), mode="r") as tf:
+            members = tf.getmembers()
+            self.assertEqual(len(members), 1)
+            self.assertEqual(members[0].name, self.jar.name)
+            extracted = tf.extractfile(members[0])
+            assert extracted is not None
+            self.assertEqual(extracted.read(), self.jar.read_bytes())
+            # Codex review (P2): the archive must preserve the source
+            # mtime so Jetty Last-Modified stays ahead for stable URLs.
+            self.assertEqual(members[0].mtime, int(self.jar.stat().st_mtime))
 
     def test_no_shell_interpolation_in_docker_exec(self):
         """Security regression (kilo-code-bot review thread 3631740669):
