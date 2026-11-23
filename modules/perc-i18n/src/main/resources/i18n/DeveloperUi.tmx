@@ -4709,5 +4709,9 @@
     <tu tuid="perc.ui.developer@Could not save icon strategy.">
       <tuv xml:lang="en-us"><seg>Could not save icon strategy.</seg></tuv>
     </tu>
+    <!-- #7114: content-type hide-from-menu chrome CD-01 remainder (parent #1690). en-us only. -->
+    <tu tuid="perc.ui.developer@Hide from menu">
+      <tuv xml:lang="en-us"><seg>Hide from menu</seg></tuv>
+    </tu>
   </body>
 </tmx>
