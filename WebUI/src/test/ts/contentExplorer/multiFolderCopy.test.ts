@@ -18,7 +18,10 @@
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
-import { message } from "../../../main/ts/i18n/message";
+import {
+  fallbackLabelFromKey,
+  message,
+} from "../../../main/ts/i18n/message";
 import {
   copyCheckedItemsToFolder,
   formatMultiFolderCopyStatus,
@@ -211,5 +214,35 @@ describe("multi-select copy to one folder (#6255)", () => {
     expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
       message(EXPLORER_MSG.MULTI_COPY_NONE),
     );
+  });
+
+  it("falls back to the catalog unnamed item for a nameless row", async () => {
+    const prior = (window as unknown as { I18N?: unknown }).I18N;
+    // Simulate a non-English session catalog: a hardcoded "(unnamed)"
+    // literal would ignore this stub and fail the assertions below.
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (key: string) =>
+        key === EXPLORER_MSG.MULTI_UNNAMED_ITEM
+          ? "[article-sans-nom]"
+          : fallbackLabelFromKey(key),
+    };
+    try {
+      const result = await copyCheckedItemsToFolder(
+        [{ ...page("", ""), id: "blank" }],
+        "/Assets/Dest",
+        failCopy,
+        failCopy,
+      );
+      // Resolved through EXPLORER_MSG so session locales apply, not a
+      // hardcoded English literal.
+      expect(result.failures.map((failure) => failure.name)).toEqual([
+        "[article-sans-nom]",
+      ]);
+      expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
+        "[article-sans-nom]",
+      );
+    } finally {
+      (window as unknown as { I18N?: unknown }).I18N = prior;
+    }
   });
 });

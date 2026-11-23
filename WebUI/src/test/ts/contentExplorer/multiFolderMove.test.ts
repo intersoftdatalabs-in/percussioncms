@@ -18,7 +18,10 @@
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
-import { message } from "../../../main/ts/i18n/message";
+import {
+  fallbackLabelFromKey,
+  message,
+} from "../../../main/ts/i18n/message";
 import {
   formatMultiFolderMoveStatus,
   moveCheckedItemsToFolder,
@@ -125,5 +128,52 @@ describe("multi-select move to one folder (#4856)", () => {
     expect(formatMultiFolderMoveStatus(result, "/Assets/Dest")).toContain(
       message(EXPLORER_MSG.MULTI_MOVE_NONE),
     );
+  });
+
+  it("falls back to the catalog unnamed item for nameless rows", async () => {
+    const blank: PSPathItem = {
+      id: "blank",
+      name: "",
+      path: "",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    const blankFolder: PSPathItem = {
+      id: "blank-folder",
+      name: "",
+      path: "",
+      type: "folder",
+      category: "folder",
+      leaf: false,
+    };
+    const prior = (window as unknown as { I18N?: unknown }).I18N;
+    // Simulate a non-English session catalog: a hardcoded "(unnamed)"
+    // literal would ignore this stub and fail the assertions below.
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (key: string) =>
+        key === EXPLORER_MSG.MULTI_UNNAMED_ITEM
+          ? "[article-sans-nom]"
+          : fallbackLabelFromKey(key),
+    };
+    try {
+      const result = await moveCheckedItemsToFolder(
+        [blank, blankFolder],
+        "/Assets/Dest",
+        async () => {
+          throw new Error("must not be called");
+        },
+      );
+      // Resolved through EXPLORER_MSG so session locales apply, not a
+      // hardcoded English literal.
+      const unnamed = "[article-sans-nom]";
+      expect(result.failures.map((failure) => failure.name)).toEqual([unnamed]);
+      expect(result.skippedFolderNames).toEqual([unnamed]);
+      expect(formatMultiFolderMoveStatus(result, "/Assets/Dest")).toContain(
+        unnamed,
+      );
+    } finally {
+      (window as unknown as { I18N?: unknown }).I18N = prior;
+    }
   });
 });
