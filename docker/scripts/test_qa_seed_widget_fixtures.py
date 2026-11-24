@@ -192,7 +192,7 @@ class FakeDocker:
     def _handle_cp(self, argv: List[str]) -> Tuple[int, str, str]:
         src, dst = argv[2], argv[3]
         if src.startswith("c:"):
-            Path(dst).write_text(self.users_xml, encoding="utf-8")
+            Path(dst).write_bytes(self.users_xml.encode("utf-8"))
         elif "tomcat-users.xml" in src:
             self.users_xml = Path(src).read_text(encoding="utf-8")
         return (0, "", "")
@@ -378,7 +378,7 @@ class TarPipeFallbackTest(unittest.TestCase):
 
     def test_cp_success_never_touches_tar(self):
         local = self.staging / "tomcat-users.xml"
-        local.write_text(STOCK_USERS_XML, encoding="utf-8")
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
         run, calls = self._scripted_run(cp_rc=0)
         self.assertIsNone(
             qswf.docker_cp_in_with_tar_fallback(local, "c", "/x/tomcat-users.xml", run=run))
@@ -390,7 +390,7 @@ class TarPipeFallbackTest(unittest.TestCase):
         import tarfile as _tarfile
 
         local = self.staging / "tomcat-users.xml"
-        local.write_text(STOCK_USERS_XML, encoding="utf-8")
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
         run, calls = self._scripted_run(cp_rc=1, tar_rc=0)
         self.assertIsNone(
             qswf.docker_cp_in_with_tar_fallback(
@@ -415,7 +415,7 @@ class TarPipeFallbackTest(unittest.TestCase):
 
     def test_both_fail_mentions_recreate(self):
         local = self.staging / "tomcat-users.xml"
-        local.write_text(STOCK_USERS_XML, encoding="utf-8")
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
         run, _calls = self._scripted_run(cp_rc=1, tar_rc=1)
         detail = qswf.docker_cp_in_with_tar_fallback(
             local, "c", "/x/tomcat-users.xml", run=run)
@@ -444,7 +444,7 @@ class TarPipeFallbackTest(unittest.TestCase):
             if argv[:2] == ["docker", "cp"]:
                 src, dst = argv[2], argv[3]
                 if src.startswith("c:"):
-                    Path(dst).write_text(STOCK_USERS_XML, encoding="utf-8")
+                    Path(dst).write_bytes(STOCK_USERS_XML.encode("utf-8"))
                     return (0, "", "")
                 return (1, "", "daemon mkdirat ... file exists")
             if argv[:2] == ["docker", "exec"] and "tar" in argv:
