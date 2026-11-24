@@ -192,7 +192,7 @@ class FakeDocker:
     def _handle_cp(self, argv: List[str]) -> Tuple[int, str, str]:
         src, dst = argv[2], argv[3]
         if src.startswith("c:"):
-            Path(dst).write_text(self.users_xml, encoding="utf-8")
+            Path(dst).write_bytes(self.users_xml.encode("utf-8"))
         elif "tomcat-users.xml" in src:
             self.users_xml = Path(src).read_text(encoding="utf-8")
         return (0, "", "")
@@ -344,6 +344,135 @@ class SeedFlowTest(unittest.TestCase):
             sleep=clock.sleep, now=clock.now)
         self.assertFalse(result.ok)
         self.assertIn("no <user", result.detail)
+
+
+class TarPipeFallbackTest(unittest.TestCase):
+    """#7185: host->cell ``docker cp`` retries via tar pipe on corrupt cells.
+
+    Mirrors the hot-deploy ``_docker_cp_with_tar_fallback`` contract
+    (#7157): same argv shape, in-memory stdlib tar, source mtime
+    preserved, qa-down/qa-up recreate hint when both paths fail.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.staging = Path(self.td.name)
+
+    def _scripted_run(self, *, cp_rc: int = 0, tar_rc: int = 0):
+        """Fake ``run`` hook: host->cell ``docker cp`` fails per ``cp_rc``."""
+        calls: List[Tuple[List[str], Optional[bytes]]] = []
+
+        def run(argv, *, input=None, timeout=120):  # noqa: A002 — fake matches impl
+            argv = list(argv)
+            calls.append((argv, input))
+            if argv[:2] == ["docker", "cp"] and not argv[2].startswith("c:"):
+                return (cp_rc, "", "daemon mkdirat ... file exists" if cp_rc else "")
+            if argv[:2] == ["docker", "exec"] and "tar" in argv:
+                if tar_rc != 0:
+                    return (tar_rc, "", "tar: Cannot open: File exists")
+                return (0, "", "")
+            return (0, "", "")
+
+        return run, calls
+
+    def test_cp_success_never_touches_tar(self):
+        local = self.staging / "tomcat-users.xml"
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
+        run, calls = self._scripted_run(cp_rc=0)
+        self.assertIsNone(
+            qswf.docker_cp_in_with_tar_fallback(local, "c", "/x/tomcat-users.xml", run=run))
+        self.assertEqual(len(calls), 1)
+        self.assertFalse(any("tar" in argv for argv, _ in calls))
+
+    def test_cp_failure_falls_back_to_tar_pipe(self):
+        import io as _io
+        import tarfile as _tarfile
+
+        local = self.staging / "tomcat-users.xml"
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
+        run, calls = self._scripted_run(cp_rc=1, tar_rc=0)
+        self.assertIsNone(
+            qswf.docker_cp_in_with_tar_fallback(
+                local, "c", "/opt/Percussion/conf/tomcat-users.xml", run=run))
+        tar_calls = [c for c in calls if c[0][:2] == ["docker", "exec"] and "tar" in c[0]]
+        self.assertEqual(len(tar_calls), 1)
+        argv, payload = tar_calls[0]
+        self.assertEqual(
+            argv,
+            ["docker", "exec", "-i", "c", "tar", "-xf", "-", "-C", "/opt/Percussion/conf"],
+        )
+        self.assertIsNotNone(payload, msg="tar fallback must pipe archive bytes via input=")
+        assert payload is not None
+        with _tarfile.open(fileobj=_io.BytesIO(payload), mode="r") as tf:
+            members = tf.getmembers()
+            self.assertEqual(len(members), 1)
+            self.assertEqual(members[0].name, "tomcat-users.xml")
+            extracted = tf.extractfile(members[0])
+            assert extracted is not None
+            self.assertEqual(extracted.read(), STOCK_USERS_XML.encode("utf-8"))
+            self.assertEqual(members[0].mtime, int(local.stat().st_mtime))
+
+    def test_both_fail_mentions_recreate(self):
+        local = self.staging / "tomcat-users.xml"
+        local.write_bytes(STOCK_USERS_XML.encode("utf-8"))
+        run, _calls = self._scripted_run(cp_rc=1, tar_rc=1)
+        detail = qswf.docker_cp_in_with_tar_fallback(
+            local, "c", "/x/tomcat-users.xml", run=run)
+        self.assertIsNotNone(detail)
+        assert detail is not None
+        self.assertIn("qa-down", detail)
+        self.assertIn("qa-up", detail)
+
+    def test_unsafe_name_refuses_fallback(self):
+        local = self.staging / ".."
+        run, calls = self._scripted_run(cp_rc=1, tar_rc=0)
+        detail = qswf.docker_cp_in_with_tar_fallback(
+            local, "c", "/x/tomcat-users.xml", run=run)
+        self.assertIsNotNone(detail)
+        assert detail is not None
+        self.assertIn("refusing tar fallback", detail)
+        self.assertFalse(any("tar" in argv for argv, _ in calls))
+
+    def test_flow_survives_cp_failure_via_tar_pipe(self):
+        """End to end: every host->cell copy fails, the tar pipe ships
+        the rewritten realm, and the seed still goes green."""
+        tar_inputs: List[bytes] = []
+
+        def run(argv, *, input=None, timeout=120):  # noqa: A002 — fake matches impl
+            argv = list(argv)
+            if argv[:2] == ["docker", "cp"]:
+                src, dst = argv[2], argv[3]
+                if src.startswith("c:"):
+                    Path(dst).write_bytes(STOCK_USERS_XML.encode("utf-8"))
+                    return (0, "", "")
+                return (1, "", "daemon mkdirat ... file exists")
+            if argv[:2] == ["docker", "exec"] and "tar" in argv:
+                tar_inputs.append(input or b"")
+                return (0, "", "")
+            if "curl" in argv:
+                return (0, "200", "")
+            return (0, "", "")
+
+        clock = FakeClock()
+        result = qswf.run_seed_feed_flow(
+            _plan(staging_dir=self.staging), run=run,
+            http_get=lambda url: (200, FEED_XML),
+            sleep=clock.sleep, now=clock.now)
+        self.assertTrue(result.ok, result.detail)
+        # The fallback actually shipped the rewritten users file: the
+        # tarred tomcat-users.xml carries the provisioned digest.
+        import io as _io
+        import tarfile as _tarfile
+
+        blobs = [b for b in tar_inputs if b]
+        self.assertTrue(blobs, "expected the tar fallback to pipe archive bytes")
+        shipped = b"".join(
+            _tarfile.open(fileobj=_io.BytesIO(b), mode="r").extractfile(m).read()
+            for b in blobs
+            for m in _tarfile.open(fileobj=_io.BytesIO(b), mode="r").getmembers()
+        )
+        self.assertIn(qswf.sha1_hex(SECRET).encode("ascii"), shipped)
 
 
 class FeedFixtureParityTest(unittest.TestCase):

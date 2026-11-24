@@ -33,11 +33,13 @@ and redacted markers are printed.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import re
 import secrets
 import subprocess
+import tarfile
 import time
 import urllib.request
 from dataclasses import dataclass
@@ -264,6 +266,86 @@ def cp_to_argv(local: Path, container: str, remote: str) -> List[str]:
     return ["docker", "cp", str(local), f"{container}:{remote}"]
 
 
+def docker_cp_in_with_tar_fallback(
+    local: Path,
+    container: str,
+    remote: str,
+    *,
+    run: RunFn,
+    timeout: int = 60,
+) -> Optional[str]:
+    """Copy ``local`` into the cell, retrying via tar pipe on failure (#7185).
+
+    Same pattern as the hot-deploy ``_docker_cp_with_tar_fallback``
+    (#7157): ``docker cp`` fails deterministically on some QA cells whose
+    writable-layer state is corrupt (daemon ``mkdirat ... file exists``)
+    even though ``docker exec`` into the same cell still works. When the
+    copy fails, the same single file is retried through a ``tar`` pipe
+    (``docker exec -i <cell> tar -xf - -C <parent>``) fed from an
+    in-memory stdlib-:mod:`tarfile` archive — no host ``tar`` binary is
+    needed, so this stays cross-platform (Windows / Linux / macOS).
+
+    The archive member is the bare host basename (never a path), so a
+    hostile file name cannot escape ``<parent>`` during extraction, and
+    the source mtime is preserved on the member. The secret-free
+    ``run`` hook carries the tar bytes on stdin (``input=``), exactly
+    like the curl credential stdin elsewhere in this module.
+
+    Returns ``None`` on success, else a printable detail for the
+    :class:`_SeedAbort` message. When both paths fail the detail names
+    the ``qa-down``/``qa-up`` cell recreate (the writable layer is
+    likely corrupt beyond a copy retry).
+    """
+    rc, _out, err = run(cp_to_argv(local, container, remote), timeout=timeout)
+    if rc == 0:
+        return None
+    first_err = err.strip()[-300:]
+    member = local.name
+    if (
+        not member
+        or member in (".", "..")
+        or "/" in member
+        or "\\" in member
+    ):
+        return (
+            f"docker cp failed ({first_err}); refusing tar fallback "
+            f"for unsafe file name: {local.name!r}"
+        )
+    try:
+        payload = local.read_bytes()
+        # Preserve the source mtime on the archive member (TarInfo
+        # defaults to epoch 0); a 1970 mtime can confuse cell-side
+        # freshness checks after a changed copy.
+        mtime = int(local.stat().st_mtime)
+    except OSError as exc:
+        return f"docker cp failed ({first_err}); cannot read {local} for tar fallback: {exc}"
+    buf = io.BytesIO()
+    try:
+        with tarfile.open(fileobj=buf, mode="w") as tf:
+            info = tarfile.TarInfo(name=member)
+            info.size = len(payload)
+            info.mtime = mtime
+            tf.addfile(info, io.BytesIO(payload))
+    except (tarfile.TarError, OSError) as exc:
+        return f"docker cp failed ({first_err}); cannot build tar fallback archive for {local}: {exc}"
+    parent = remote.rpartition("/")[0] or "/"
+    rc, _out, err = run(
+        exec_argv(container, "tar", "-xf", "-", "-C", parent, interactive=True),
+        input=buf.getvalue(),
+        timeout=timeout,
+    )
+    if rc != 0:
+        stderr = err.strip()[-300:]
+        return (
+            f"docker cp AND tar-pipe fallback both failed for {local} -> "
+            f"{container}:{remote} (cp: {first_err}; tar extract: {stderr or '<empty>'}). "
+            "The cell writable layer is likely corrupt (daemon 'mkdirat ... file "
+            "exists', #7157): recreate it with 'python docker/scripts/perc-devctl.py "
+            "qa-down' then 'python docker/scripts/perc-devctl.py qa-up'."
+        )
+    return None
+
+
 def exec_argv(container: str, *cmd: str, interactive: bool = False) -> List[str]:
     """``docker exec`` argv (callers keep secrets out — use stdin config)."""
     argv = ["docker", "exec"]
@@ -468,11 +550,13 @@ class _SeedFlow:
             local_users.write_text(rewritten, encoding="utf-8")
         except OSError as exc:
             raise _SeedAbort(f"could not stage users file: {exc}") from exc
-        rc, _out, err = self.run(
-            cp_to_argv(local_users, plan.container, self.users_remote), timeout=60)
-        if rc != 0:
+        # ``docker cp`` into the cell retries via tar pipe (#7185).
+        failure = docker_cp_in_with_tar_fallback(
+            local_users, plan.container, self.users_remote,
+            run=self.run)
+        if failure is not None:
             raise _SeedAbort(
-                f"could not write cell {self.users_remote}: {err.strip()[-300:]}")
+                f"could not write cell {self.users_remote}: {failure}")
 
     def _stage_payloads(self) -> None:
         # 2. Write the seed JSONs locally and copy them into the cell.
@@ -497,10 +581,12 @@ class _SeedFlow:
             except OSError as exc:
                 raise _SeedAbort(f"could not stage {fname}: {exc}") from exc
             remote = str(CONTAINER_STAGE_DIR / fname)
-            rc, _out, err = self.run(cp_to_argv(local, plan.container, remote), timeout=60)
-            if rc != 0:
+            # ``docker cp`` into the cell retries via tar pipe (#7185).
+            failure = docker_cp_in_with_tar_fallback(
+                local, plan.container, remote, run=self.run)
+            if failure is not None:
                 raise _SeedAbort(
-                    f"could not stage {fname} in cell: {err.strip()[-300:]}")
+                    f"could not stage {fname} in cell: {failure}")
             self.remote_payloads[fname] = remote
 
     def _restart_tomcat(self) -> None:

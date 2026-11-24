@@ -3742,12 +3742,73 @@ def _qa_publish_fixture_deploy(
             ["docker", "cp", f"{plan.site_dir}/.", f"{plan.container}:{plan.context_dest}"],
         ),
     )
+    deploy_label = f"{qpf.STEP_QA_PUBLISH_FIXTURE}-deploy"
     for step_label, argv in steps:
         rc, _log_path = _run_logged(
             step_label, argv, log_dir=log_dir, cwd=repo_root, dry_run=False
         )
         if rc != EXIT_OK:
-            return rc
+            if step_label != deploy_label:
+                return rc
+            # ``docker cp`` of the staged tree failed: retry the same
+            # bytes through a tar pipe before giving up (#7185, cf.
+            # #7157 hot-deploy fallback).
+            return _qa_publish_fixture_deploy_tar_fallback(
+                plan, log_dir=log_dir, repo_root=repo_root)
+    return EXIT_OK
+
+
+def _qa_publish_fixture_deploy_tar_fallback(
+    plan: argparse.Namespace,
+    *,
+    log_dir: Path,
+    repo_root: Path,
+) -> int:
+    """Tar-pipe retry for a failed fixture-tree ``docker cp`` (#7185).
+
+    Archives the staged tree in memory (stdlib :mod:`tarfile` — no host
+    ``tar`` binary, so this stays cross-platform) and pipes it to
+    ``docker exec -i <cell> tar -xf - -C <dest>``. Returns an exit code;
+    every failure already printed its RESULT line.
+    """
+    import qa_publish_fixture as qpf
+
+    try:
+        tar_payload = qpf.stage_tar_bytes(plan.site_dir)
+    except (OSError, ValueError) as e:
+        print(
+            f"RESULT:FAIL STEP:{qpf.STEP_QA_PUBLISH_FIXTURE}-deploy-tar-fallback "
+            f"DETAIL:tar_archive_failed ERROR:{e}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    label = f"{qpf.STEP_QA_PUBLISH_FIXTURE}-deploy-tar-fallback"
+    log_file = _new_log_file(log_dir, label)
+    LOG.info(
+        "Running tar-pipe fallback: %s (%d bytes)",
+        " ".join(qpf.tar_extract_argv(plan.container, plan.context_dest)),
+        len(tar_payload),
+    )
+    with log_file.open("w", encoding="utf-8") as f:
+        completed = subprocess.run(
+            qpf.tar_extract_argv(plan.container, plan.context_dest),
+            input=tar_payload,
+            cwd=str(repo_root),
+            shell=False,
+            check=False,
+            stdout=f,
+            stderr=subprocess.STDOUT,
+        )
+    if completed.returncode != 0:
+        print(
+            f"RESULT:FAIL STEP:{label} LOG:{log_file} "
+            f"DETAIL:docker_cp_and_tar_fallback_both_failed "
+            f"The cell writable layer is likely corrupt "
+            f"(daemon 'mkdirat ... file exists', #7157): recreate it with "
+            f"'python docker/scripts/perc-devctl.py qa-down' then "
+            f"'python docker/scripts/perc-devctl.py qa-up'."
+        )
+        return EXIT_SUBPROCESS_FAILED
+    print(f"RESULT:OK STEP:{label} LOG:{log_file}")
     return EXIT_OK
 
 
