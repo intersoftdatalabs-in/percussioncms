@@ -32,3 +32,7 @@ _No active issues._
 - `paths.hardcoded_sep` on `modules/perc-i18n/src/test/java/com/percussion/i18n/PSDeveloperContentTypeKeysTmxTest.java:299` -- *Justification*: : adjudicated intentional (issue #7138, same as #7116) — backslash is a JSON-escape in the test helper message, not an OS path; real paths use Paths.get joins (via in_source_mkd)
 
 </details>
+
+### Codex review
+
+No actionable regressions were identified. The seven translation units have matching English sources, nonblank translations across the expected locale matrix, and consistent cache entries. All three focused Maven tests passed.
