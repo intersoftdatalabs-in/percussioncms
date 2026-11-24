@@ -1,7 +1,13 @@
 <controls xmlns:psxctl="urn:percussion.com/control">
-	<psxctl:ControlMeta name="sys_tinymce"
+	<!-- Test stub standing in for a shipped classic control. The frozen
+	     sys_tinymce definition was retired in #6637 (TinyMCE bundle removed
+	     in #5734), so this fixture carries no tinymce assets. The stub name is
+	     inert: PSContentTypeFileTransformerTest returns item(0) for every
+	     getControl() lookup; only the sys_xdTextCleanup Dependencies shape
+	     matters (expectedItemDef.xml pins it). -->
+	<psxctl:ControlMeta name="sys_TextArea"
 		dimension="single" choiceset="none">
-		<psxctl:Description>A simple WYSIWYG</psxctl:Description>
+		<psxctl:Description>A simple multi-line text entry control.</psxctl:Description>
 		<psxctl:ParamList>
 			<psxctl:Param name="id" datatype="String"
 				paramtype="generic">
@@ -62,11 +68,6 @@
 					and POPUP.</psxctl:Description>
 				<psxctl:DefaultValue>MODAL</psxctl:DefaultValue>
 			</psxctl:Param>
-			<psxctl:Param name="config_src_url" datatype="String"
-				paramtype="generic">
-				<psxctl:Description>tinymce config file</psxctl:Description>
-				<psxctl:DefaultValue>../sys_resources/tinymce/config/default_config.json</psxctl:DefaultValue>
-			</psxctl:Param>
 		</psxctl:ParamList>
 		<psxctl:Dependencies>
 			<psxctl:Dependency status="setupOptional"
@@ -86,66 +87,39 @@
 								<PSXTextLiteral id="0">
 									<text>html-cleaner.properties</text>
 								</PSXTextLiteral>
-							</value>
-						</PSXExtensionParamValue>
+								</value>
+							</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
 									<text>rxW2KserverPageTags.xml</text>
 								</PSXTextLiteral>
-							</value>
-						</PSXExtensionParamValue>
+								</value>
+							</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
 									<text />
 								</PSXTextLiteral>
-							</value>
-						</PSXExtensionParamValue>
+								</value>
+							</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
 									<text />
 								</PSXTextLiteral>
-							</value>
-						</PSXExtensionParamValue>
+								</value>
+							</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
 									<text>yes</text>
 								</PSXTextLiteral>
-							</value>
-						</PSXExtensionParamValue>
+								</value>
+							</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</psxctl:Default>
 			</psxctl:Dependency>
 		</psxctl:Dependencies>
-		<psxctl:AssociatedFileList>
-			<psxctl:FileDescriptor name="timepicker.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/timepicker.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery.tinymce.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>../sys_resources/tinymce/js/tinymce/tinymce.min.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery.tinymce.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>../sys_resources/tinymce/js/PercCustomStylesService.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jspellSettings.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>../../jspellEvolution/jspellSettings.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jspellEvolution.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>../../jspellEvolution/jspellEvolution.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-		</psxctl:AssociatedFileList>
 	</psxctl:ControlMeta>
 </controls>
