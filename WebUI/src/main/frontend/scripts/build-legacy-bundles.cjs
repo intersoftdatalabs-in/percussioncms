@@ -173,6 +173,21 @@ const NPM_LIBRARY_MAPPINGS = {
     "datatables.net/js/dataTables.js",
   "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css":
     "datatables.net-dt/css/dataTables.dataTables.css",
+  // Claviska dropdown from npm (issue #7176, parent audit #5627). The npm
+  // `jquery-dropdown` name is taken by an unrelated techhysahil package, but
+  // the author's own scoped package `@claviska/jquery-dropdown` 2.0.3 is the
+  // same upstream lineage (same `jqDropdown` API + `data-jq-dropdown`
+  // delegation + `.jq-dropdown-*` classes, MIT). The vendored 2013 copies
+  // were deleted; classic pages keep loading the stable jslib URLs, served
+  // from these Dependabot-tracked npm dist files via the generated-webui
+  // overlay (STANDALONE_NPM_COPIES) and bundle resolution below. Delta vs the
+  // deleted copy (unobservable: zero in-repo callers): upstream lacks the
+  // locally added cancelable `hide` event (`hideEvent.isDefaultPrevented()`)
+  // and the `text-indent: 0` CSS rule.
+  "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js":
+    "@claviska/jquery-dropdown/jquery.dropdown.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css":
+    "@claviska/jquery-dropdown/jquery.dropdown.css",
 };
 
 // List of bundle config files to process
@@ -686,6 +701,21 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "datatables.net-dt/css/dataTables.dataTables.css",
     dest: "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
+    required: true,
+  },
+  // Claviska dropdown from npm (issue #7176). Dest paths are the stable
+  // classic-UI jslib URLs (both common_js.jsp / common_css.jsp twins keep
+  // referencing them unchanged); sources are the Dependabot-tracked
+  // `@claviska/jquery-dropdown` 2.0.3 dist files. The vendored 2013 copies
+  // were deleted, so both entries are required.
+  {
+    src: "@claviska/jquery-dropdown/jquery.dropdown.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+    required: true,
+  },
+  {
+    src: "@claviska/jquery-dropdown/jquery.dropdown.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
     required: true,
   },
 ];

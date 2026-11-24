@@ -27,7 +27,8 @@
  * {@code cm/app/includes/common_js.jsp} / {@code common_css.jsp} (dashboard,
  * adminWorkflow, webmgt, …) must load the plugin cluster from the
  * npm-backed files (form 4.3.0, validation 1.22.x, jeditable 2.0.x,
- * superfish 1.7.10, timeago 1.6.7, multiselect 3.0.x, hoverintent 2.2.x —
+ * superfish 1.7.10, timeago 1.6.7, multiselect 3.0.x, hoverintent 2.2.x,
+ * claviska dropdown 2.0.3 (issue #7176) —
  * Dependabot-tracked in {@code WebUI/src/main/frontend/package.json}), and
  * the deleted dead copies (FixedHeader, standalone print-this, collapser,
  * war/api/lib ba-bbq/slideto/wiggle) must no longer resolve.</p>
@@ -51,6 +52,8 @@ const NPM_SERVED = [
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
 ];
 
 const REMOVED_DEAD = [
@@ -85,7 +88,7 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         // set_label) that the already-merged #5660 dashboard spec fails on
         // identically in this cell — unrelated to the plugin cluster.
         if (
-          /plugins\/jquery-(form|validation|jeditable|superfish|hoverintent|timeago|multiselect)/.test(
+          /plugins\/jquery-(form|validation|jeditable|superfish|hoverintent|timeago|multiselect|dropdown)/.test(
             stack,
           )
         ) {
@@ -135,7 +138,8 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         multiselect:
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.multiselect === "function",
-        // Kept-vendored controls: claviska dropdown + Dalman layout stay.
+        // Dropdown is npm-served since #7176 (@claviska/jquery-dropdown
+        // 2.0.3 at the same stable URL); Dalman layout stays keep-vendored.
         jqDropdown:
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.jqDropdown === "function",
@@ -156,7 +160,9 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
       expect(plugins.multiselect, "multiselect missing on dashboard").toBe(
         true,
       );
-      expect(plugins.jqDropdown, "kept dropdown regressed").toBe(true);
+      expect(plugins.jqDropdown, "dropdown regressed (npm-served #7176)").toBe(
+        true,
+      );
       expect(plugins.dataTable, "kept DataTables regressed").toBe(true);
 
       expect(
