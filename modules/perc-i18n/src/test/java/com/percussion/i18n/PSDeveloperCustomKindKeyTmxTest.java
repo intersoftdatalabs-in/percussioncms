@@ -55,6 +55,11 @@ import org.xml.sax.InputSource;
  * scripts/cache/i18n_translate.json} is keyed by {@code sha256(target + "\0" + source)}, so
  * the single shared {@code es + "Custom"} entry must equal the shipped {@code es} segment —
  * otherwise a pipeline re-run would write the stale wrong-sense value back over the TMX.
+ *
+ * <p>Issue #7241 extends the pin to fr / de / it across all four {@code Custom} TUs
+ * (Developer kind-chrome plus the three precedent TUs): {@code Coutume} → {@code
+ * Personnalisé}, {@code Brauch} → {@code Benutzerdefiniert}, {@code Costume} → {@code
+ * Personalizzato}, with the shared cache entries synced TMX-leads-cache-follows.
  */
 public class PSDeveloperCustomKindKeyTmxTest {
 
@@ -65,6 +70,25 @@ public class PSDeveloperCustomKindKeyTmxTest {
   /** Adjective sense ("customized"), matching the dashboard / template-layout / folder-dialog
    * precedent TUs and the ar / nl / pt sibling TUVs. */
   private static final String EXPECTED_ES = "Personalizado";
+
+  /** Issue #7241 ([7230-residual]): the same wrong-sense noun rendering shipped for fr / de /
+   * it in all four {@code Custom} TUs. Corrected adjective-sense ("customized") targets. */
+  private static final String EXPECTED_FR = "Personnalisé";
+
+  private static final String EXPECTED_DE = "Benutzerdefiniert";
+
+  private static final String EXPECTED_IT = "Personalizzato";
+
+  /**
+   * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
+   * #7230). Each TU lives in its canonical TMX file.
+   */
+  private static final Map<String, String> CUSTOM_TUID_TO_TMX =
+      Map.of(
+          "perc.ui.developer@Custom", "DeveloperUi.tmx",
+          "perc.ui.dashboard@Custom", "CmsUi.tmx",
+          "perc.ui.template.layout@Custom", "CmsUi.tmx",
+          "com.percussion.cx.PSFolderDialog@Custom", "SystemResources.tmx");
 
   @Test
   public void customKindKey_isRegisteredWithEnglishSource() throws Exception {
@@ -83,6 +107,31 @@ public class PSDeveloperCustomKindKeyTmxTest {
         TUID + " es seg must use the adjective sense (customized), not the noun (custom/habit)");
   }
 
+  @Test
+  public void customKindKey_frenchGermanItalianUseAdjectiveSense() throws Exception {
+    Map<String, String> expected =
+        Map.of("fr", EXPECTED_FR, "de", EXPECTED_DE, "it", EXPECTED_IT);
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      for (Map.Entry<String, String> want : expected.entrySet()) {
+        if (!want.getValue().equals(segs.get(want.getKey()))) {
+          offenders.add(
+              tu.getKey()
+                  + " ["
+                  + want.getKey()
+                  + "]="
+                  + segs.get(want.getKey()));
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized), not the noun (custom/habit): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -97,21 +146,34 @@ public class PSDeveloperCustomKindKeyTmxTest {
     Map<String, String> cached = parseFlatJsonStringMap(cacheFile);
 
     List<String> offenders = new ArrayList<>();
-    String seg = segs.get("es");
-    if (seg != null) {
-      String cachedValue = cached.get(translateCacheKey(SOURCE, "es"));
-      if (cachedValue != null && !cachedValue.equals(seg)) {
-        offenders.add(TUID + " [es] cache=" + cachedValue + " tmx=" + seg);
+    Map<String, String> expected =
+        Map.of(
+            "es", EXPECTED_ES,
+            "fr", EXPECTED_FR,
+            "de", EXPECTED_DE,
+            "it", EXPECTED_IT);
+    for (Map.Entry<String, String> want : expected.entrySet()) {
+      String seg = segs.get(want.getKey());
+      if (seg != null) {
+        String cachedValue = cached.get(translateCacheKey(SOURCE, want.getKey()));
+        if (cachedValue != null && !cachedValue.equals(seg)) {
+          offenders.add(TUID + " [" + want.getKey() + "] cache=" + cachedValue + " tmx=" + seg);
+        }
       }
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230): " + offenders);
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241): "
+            + offenders);
   }
 
   private static Map<String, String> loadSegs(String tuid) throws Exception {
-    Path tmx = resolveDeveloperUiTmx();
-    assertNotNull(tmx, "DeveloperUi.tmx not found");
+    return loadSegs(tuid, "DeveloperUi.tmx");
+  }
+
+  private static Map<String, String> loadSegs(String tuid, String tmxFile) throws Exception {
+    Path tmx = resolveTmx(tmxFile);
+    assertNotNull(tmx, tmxFile + " not found");
     Document doc = parse(tmx);
     NodeList tus = doc.getElementsByTagName("tu");
     for (int i = 0; i < tus.getLength(); i++) {
@@ -279,12 +341,12 @@ public class PSDeveloperCustomKindKeyTmxTest {
   }
 
   /**
-   * Resolve {@code DeveloperUi.tmx} portably: prefer the test classpath resource (Maven
-   * surefire), then fall back to common source-tree locations relative to the process working
-   * directory.
+   * Resolve a canonical {@code i18n/*.tmx} file portably: prefer the test classpath resource
+   * (Maven surefire), then fall back to common source-tree locations relative to the process
+   * working directory.
    */
-  private static Path resolveDeveloperUiTmx() throws URISyntaxException {
-    URL url = PSDeveloperCustomKindKeyTmxTest.class.getResource("/i18n/DeveloperUi.tmx");
+  private static Path resolveTmx(String tmxFile) throws URISyntaxException {
+    URL url = PSDeveloperCustomKindKeyTmxTest.class.getResource("/i18n/" + tmxFile);
     if (url != null && "file".equalsIgnoreCase(url.getProtocol())) {
       Path p = Paths.get(url.toURI());
       if (Files.isRegularFile(p)) {
@@ -293,8 +355,8 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     Path[] candidates =
         new Path[] {
-          Paths.get("src", "main", "resources", "i18n", "DeveloperUi.tmx"),
-          Paths.get("modules", "perc-i18n", "src", "main", "resources", "i18n", "DeveloperUi.tmx"),
+          Paths.get("src", "main", "resources", "i18n", tmxFile),
+          Paths.get("modules", "perc-i18n", "src", "main", "resources", "i18n", tmxFile),
         };
     for (Path c : candidates) {
       Path abs = c.toAbsolutePath().normalize();
