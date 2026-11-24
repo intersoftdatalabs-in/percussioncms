@@ -35,8 +35,30 @@ function item(overrides: Partial<PSPathItem> = {}): PSPathItem {
   };
 }
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7147).
+ * Each round trip here is purely microtask-driven (mocked {@code loadBin} /
+ * {@code runEmpty} promises → setState → render) with no real timers
+ * involved, so the gates are deterministic in outcome; the budget is
+ * strictly a backstop for loaded-worker scheduling lag. Every
+ * {@code findBy} uses it explicitly: the 1s testing-library default is
+ * the most-tripped cliff when hundreds of suite files share the worker
+ * host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT} in #7122).
+ */
+const EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7147, same load-contention rationale as
+ * {@code CONTEXT_MENU_RETRY_TEST_TIMEOUT} in #7122). The backstop gates
+ * above plus the axe gate can jointly exceed the 20s global default when
+ * the worker host is saturated. The primary gates stay progress-based
+ * (single bounded backstop per distinct state); this ceiling is strictly
+ * a last-resort backstop.
+ */
+const EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT = 30_000;
+
 describe("EmptyRecycleDialog (#6470)", () => {
-  it("lists the bin contents, empties, then reports each removed row", async () => {
+  it("lists the bin contents, empties, then reports each removed row", { timeout: EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT }, async () => {
     const runEmpty = vi.fn().mockResolvedValue(undefined);
     const onDone = vi.fn();
     const { container } = render(
@@ -48,11 +70,15 @@ describe("EmptyRecycleDialog (#6470)", () => {
       />,
     );
     expect(screen.getByTestId("explorer-empty-recycle-loading")).toBeInTheDocument();
-    const list = await screen.findByTestId("explorer-empty-recycle-list");
+    const list = await screen.findByTestId("explorer-empty-recycle-list", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     expect(list).toHaveTextContent(/qa6470/);
     expect(list).toHaveTextContent(/qa6470b/);
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
-    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    const report = await screen.findByTestId("explorer-empty-recycle-report", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     expect(report).toHaveTextContent(/Removed 2 item\(s\)/);
     expect(runEmpty).toHaveBeenCalledTimes(1);
     const rows = screen.getAllByTestId("explorer-empty-recycle-report-row");
@@ -64,7 +90,7 @@ describe("EmptyRecycleDialog (#6470)", () => {
     await renderA11yGate(container);
   });
 
-  it("disables confirm when the bin is already empty", async () => {
+  it("disables confirm when the bin is already empty", { timeout: EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT }, async () => {
     const runEmpty = vi.fn();
     const onDone = vi.fn();
     render(
@@ -75,14 +101,16 @@ describe("EmptyRecycleDialog (#6470)", () => {
         onDone={onDone}
       />,
     );
-    await screen.findByTestId("explorer-empty-recycle-empty");
+    await screen.findByTestId("explorer-empty-recycle-empty", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     expect(screen.getByTestId("explorer-empty-recycle-ok")).toBeDisabled();
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-cancel"));
     expect(runEmpty).not.toHaveBeenCalled();
     expect(onDone).toHaveBeenCalledWith({ ran: false, refresh: false });
   });
 
-  it("shows the load error with retry and recovers", async () => {
+  it("shows the load error with retry and recovers", { timeout: EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT }, async () => {
     let calls = 0;
     const runEmpty = vi.fn();
     const onDone = vi.fn();
@@ -100,14 +128,18 @@ describe("EmptyRecycleDialog (#6470)", () => {
         onDone={onDone}
       />,
     );
-    await screen.findByTestId("explorer-empty-recycle-load-error");
+    await screen.findByTestId("explorer-empty-recycle-load-error", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-retry"));
-    const list = await screen.findByTestId("explorer-empty-recycle-list");
+    const list = await screen.findByTestId("explorer-empty-recycle-list", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     expect(list).toHaveTextContent(/qa6470/);
     expect(runEmpty).not.toHaveBeenCalled();
   });
 
-  it("names the 409 failure and reports no refresh", async () => {
+  it("names the 409 failure and reports no refresh", { timeout: EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT }, async () => {
     const onDone = vi.fn();
     render(
       <EmptyRecycleDialog
@@ -119,15 +151,19 @@ describe("EmptyRecycleDialog (#6470)", () => {
         onDone={onDone}
       />,
     );
-    await screen.findByTestId("explorer-empty-recycle-list");
+    await screen.findByTestId("explorer-empty-recycle-list", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
-    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    const report = await screen.findByTestId("explorer-empty-recycle-report", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     expect(report).toHaveTextContent(/could not empty/i);
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-close"));
     expect(onDone).toHaveBeenCalledWith({ ran: true, refresh: false });
   });
 
-  it("cancel runs nothing", async () => {
+  it("cancel runs nothing", { timeout: EMPTY_RECYCLE_DIALOG_TEST_TIMEOUT }, async () => {
     const runEmpty = vi.fn();
     const onDone = vi.fn();
     render(
@@ -138,7 +174,9 @@ describe("EmptyRecycleDialog (#6470)", () => {
         onDone={onDone}
       />,
     );
-    await screen.findByTestId("explorer-empty-recycle-list");
+    await screen.findByTestId("explorer-empty-recycle-list", undefined, {
+      timeout: EMPTY_RECYCLE_DIALOG_ROUND_TRIP_TIMEOUT,
+    });
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-cancel"));
     expect(runEmpty).not.toHaveBeenCalled();
     expect(onDone).toHaveBeenCalledWith({ ran: false, refresh: false });
