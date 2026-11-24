@@ -35,6 +35,16 @@ import {
 } from "../../../main/ts/contentBrowser/selectionHelpers";
 import { renderA11yGate } from "../contentExplorer/a11y";
 
+/**
+ * Browse-tree mount + axe budgets under full-suite CPU contention (#7224).
+ * The tree root mounts before the async {@code findChildren} resolution
+ * renders the {@code tree-node-*} children; polling the root alone lets
+ * axe run on an empty {@code role=tree} and trip
+ * {@code aria-required-children} under load.
+ */
+const TREE_CHILDREN_TIMEOUT = 15_000;
+const AXE_GATE_TEST_TIMEOUT = 30_000;
+
 /** Children of {@code /Sites} — must not include a node whose path equals the parent. */
 const SAMPLE: PSPathItem[] = [
   {
@@ -188,14 +198,32 @@ describe("ContentBrowser", () => {
     expect(document.querySelector('[data-testid="detail-list"]')).toBeInTheDocument();
   });
 
-  it("passes the zero serious/critical axe-core gate (browse mode)", async () => {
-    vi.spyOn(pathApi, "findChildren").mockResolvedValue(SAMPLE);
-    const { baseElement } = render(<ContentBrowser initialPath="/Sites" />);
-    await waitFor(() =>
-      expect(document.querySelector('[data-testid="explorer-tree"]')).toBeInTheDocument(),
-    );
-    await renderA11yGate(baseElement);
-  });
+  it(
+    "passes the zero serious/critical axe-core gate (browse mode)",
+    async () => {
+      vi.spyOn(pathApi, "findChildren").mockResolvedValue(SAMPLE);
+      const { baseElement } = render(<ContentBrowser initialPath="/Sites" />);
+      await waitFor(
+        () =>
+          expect(
+            document.querySelector('[data-testid="explorer-tree"]'),
+          ).toBeInTheDocument(),
+        { timeout: TREE_CHILDREN_TIMEOUT },
+      );
+      // Wait for the async children to settle before opening the axe gate:
+      // an empty role=tree with no owned treeitems fails
+      // aria-required-children under full-suite load (#7224).
+      await waitFor(
+        () =>
+          expect(
+            document.querySelectorAll('[data-testid^="tree-node-"]').length,
+          ).toBeGreaterThan(0),
+        { timeout: TREE_CHILDREN_TIMEOUT },
+      );
+      await renderA11yGate(baseElement);
+    },
+    AXE_GATE_TEST_TIMEOUT,
+  );
 
   it("does not mount SearchPanel when enableSearch is false (default)", () => {
     render(<ContentBrowser mode="select" onConfirm={() => {}} />);
