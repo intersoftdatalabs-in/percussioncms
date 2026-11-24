@@ -29,6 +29,29 @@ import {
 } from "../../../main/ts/contentExplorer/SearchPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const SEARCH_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SEARCH_PANEL_TEST_TIMEOUT = 30_000;
+
 function makeResults(children: PSItemProperties[]): PSSearchResults {
   return { children, totalCount: children.length, startIndex: 0 };
 }
@@ -128,16 +151,18 @@ describe("saved-search catalog reducers (#6075)", () => {
 });
 
 describe("SearchPanel", () => {
-  it("renders the search input and submit button", async () => {
+  it("renders the search input and submit button", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     render(<SearchPanel listSavedSearches={emptyCatalog()} />);
     expect(screen.getByTestId("search-panel-input")).toBeTruthy();
     expect(screen.getByTestId("search-panel-submit")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("submitting the form invokes the search and renders results", async () => {
+  it("submitting the form invokes the search and renders results", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const onOpen = vi.fn();
     const onReveal = vi.fn();
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
@@ -154,11 +179,15 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(search).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search.mock.calls[0]?.[0]?.query).toBe("Welcome");
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("search-panel-result-row")).toHaveAttribute(
       "data-item-type",
       "page",
@@ -170,7 +199,7 @@ describe("SearchPanel", () => {
     expect(onReveal).toHaveBeenCalledTimes(1);
   });
 
-  it("renders the loading state while the search is in flight", async () => {
+  it("renders the loading state while the search is in flight", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     let resolveSearch!: (results: PSSearchResults) => void;
     const search = vi
       .fn()
@@ -185,19 +214,23 @@ describe("SearchPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "q" },
     });
     fireEvent.click(screen.getByTestId("search-panel-submit"));
-    expect(await screen.findByTestId("search-panel-loading")).toBeTruthy();
+    expect(await screen.findByTestId("search-panel-loading", undefined, { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     resolveSearch(makeResults([]));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("renders empty-success (not error) when submit returns no rows (#3617)", async () => {
+  it("renders empty-success (not error) when submit returns no rows (#3617)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
@@ -208,10 +241,12 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("renders the error state when the search rejects", async () => {
+  it("renders the error state when the search rejects", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockRejectedValue(new Error("boom"));
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
@@ -222,10 +257,12 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-error")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("error state exposes a Retry button that re-issues the failed query — bug fix for kilo-code-bot PR #1398 thread 3614493938", async () => {
+  it("error state exposes a Retry button that re-issues the failed query — bug fix for kilo-code-bot PR #1398 thread 3614493938", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     let attempt = 0;
     const search = vi.fn().mockImplementation(() => {
       attempt += 1;
@@ -242,14 +279,18 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-error")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(attempt).toBe(1);
     // Click Retry — same query is re-issued; this time the search
     // resolves to empty, so the panel transitions to ready + empty.
     fireEvent.click(screen.getByTestId("search-panel-retry"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(attempt).toBe(2);
     // The retry used the same query the user submitted earlier
     // (status.query) rather than re-reading the input, so this
@@ -259,14 +300,16 @@ describe("SearchPanel", () => {
     expect(search.mock.calls[1]?.[0]?.query).toBe("retry-test");
   });
 
-  it("refuses a NUL query before search and stays open (#5575)", async () => {
+  it("refuses a NUL query before search and stays open (#5575)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     const { container } = render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("search-panel-input"), {
       target: { value: "bad\u0000query" },
     });
@@ -282,7 +325,7 @@ describe("SearchPanel", () => {
     await renderA11yGate(container);
   });
 
-  it("still searches an ordinary query after a refused NUL (#5575)", async () => {
+  it("still searches an ordinary query after a refused NUL (#5575)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
@@ -298,15 +341,19 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(search).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search.mock.calls[0]?.[0]?.query).toBe("Welcome");
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("search-panel-query-error")).toBeNull();
   });
 
-  it("HTTP 400 on an ordinary query is not a results success (#5575)", async () => {
+  it("HTTP 400 on an ordinary query is not a results success (#5575)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const err = Object.assign(new Error("bad request"), { status: 400 });
     const search = vi.fn().mockRejectedValue(err);
     render(
@@ -318,13 +365,15 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-error")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("search-panel-results")).toBeNull();
     expect(screen.queryByTestId("search-panel-empty")).toBeNull();
   });
 
-  it("does not auto-search an initialQuery that contains a NUL (#5575)", async () => {
+  it("does not auto-search an initialQuery that contains a NUL (#5575)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
       <SearchPanel
@@ -335,24 +384,28 @@ describe("SearchPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-query-error")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search).not.toHaveBeenCalled();
     expect(screen.queryByTestId("search-panel-results")).toBeNull();
   });
 
-  it("skip-trim: an empty query returns to idle without calling search", async () => {
+  it("skip-trim: an empty query returns to idle without calling search", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     expect(search).not.toHaveBeenCalled();
   });
 
-  it("normalizes free-text folderPath to repository form (#3438)", async () => {
+  it("normalizes free-text folderPath to repository form (#3438)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(
       <SearchPanel
@@ -367,11 +420,13 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(search).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search.mock.calls[0]?.[0]?.folderPath).toBe("//Sites");
   });
 
-  it("initialQuery triggers a search on mount", async () => {
+  it("initialQuery triggers a search on mount", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
       <SearchPanel
@@ -382,32 +437,38 @@ describe("SearchPanel", () => {
     );
     await waitFor(() => {
       expect(search).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search.mock.calls[0]?.[0]?.query).toBe("deep link");
   });
 
-  it("empty initial query does not auto-fire a search", async () => {
+  it("empty initial query does not auto-fire a search", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn();
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(search).not.toHaveBeenCalled();
   });
 
-  it("passes the zero serious/critical axe-core gate (idle state)", async () => {
+  it("passes the zero serious/critical axe-core gate (idle state)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <SearchPanel listSavedSearches={emptyCatalog()} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
   });
 
-  it("passes the zero serious/critical axe-core gate (results state)", async () => {
+  it("passes the zero serious/critical axe-core gate (results state)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     const { container } = render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
@@ -418,11 +479,13 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
   });
 
-  it("passes the zero serious/critical axe-core gate (error state with retry)", async () => {
+  it("passes the zero serious/critical axe-core gate (error state with retry)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
     const search = vi.fn().mockRejectedValue(new Error("boom"));
     const { container } = render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
@@ -433,12 +496,14 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByTestId("search-panel-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-retry")).toBeTruthy();
-    });
+    },
+      { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
   });
 
   describe("saved-search picker (#2506)", () => {
-    it("shows loading then catalog select options", async () => {
+    it("shows loading then catalog select options", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       let resolveList!: (items: SearchDef[]) => void;
       const listSavedSearches = vi.fn(
         () =>
@@ -451,7 +516,9 @@ describe("SearchPanel", () => {
       resolveList(SAVED);
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const select = screen.getByTestId(
         "search-panel-saved-select",
       ) as HTMLSelectElement;
@@ -464,14 +531,16 @@ describe("SearchPanel", () => {
       );
     });
 
-    it("shows empty catalog state", async () => {
+    it("shows empty catalog state", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       render(<SearchPanel listSavedSearches={emptyCatalog()} />);
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
     });
 
-    it("shows catalog error and retries load", async () => {
+    it("shows catalog error and retries load", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       let attempt = 0;
       const listSavedSearches = vi.fn().mockImplementation(() => {
         attempt += 1;
@@ -483,15 +552,19 @@ describe("SearchPanel", () => {
       render(<SearchPanel listSavedSearches={listSavedSearches} />);
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-error")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("search-panel-saved-retry"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(attempt).toBe(2);
     });
 
-    it("runs the default All view (View_All) via execute", async () => {
+    it("runs the default All view (View_All) via execute", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockResolvedValue({
         children: ONE_ROW,
         totalCount: 1,
@@ -506,21 +579,27 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "View_All" },
       });
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(executeSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("View_All");
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
     });
 
-    it("runs a selected saved search via execute and shows results", async () => {
+    it("runs a selected saved search via execute and shows results", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockResolvedValue({
         children: ONE_ROW,
         totalCount: 1,
@@ -538,14 +617,18 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "All Content" },
       });
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(executeSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("All Content");
       expect(executeSavedSearch.mock.calls[0]?.[1]).toMatchObject({
         folderPath: "//Sites/Foo",
@@ -554,12 +637,14 @@ describe("SearchPanel", () => {
       });
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("search-panel-open-1"));
       expect(onOpen).toHaveBeenCalledTimes(1);
     });
 
-    it("does not scope All / View_All to Explorer root folder (#3517)", async () => {
+    it("does not scope All / View_All to Explorer root folder (#3517)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockResolvedValue({
         children: [],
         totalCount: 0,
@@ -577,24 +662,30 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "View_All" },
       });
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(executeSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const req = executeSavedSearch.mock.calls[0]?.[1] as
         | { folderPath?: string }
         | undefined;
       expect(req?.folderPath).toBeUndefined();
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
     });
 
-    it("runs a custom URL saved search and shows rows or an empty list", async () => {
+    it("runs a custom URL saved search and shows rows or an empty list", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockResolvedValue({
         children: [],
         totalCount: 0,
@@ -609,7 +700,9 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(
         (screen.getByTestId("search-panel-saved-run") as HTMLButtonElement).disabled,
       ).toBe(true);
@@ -624,14 +717,18 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(executeSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("Custom URL");
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
     });
 
-    it("keeps HTTP 403 and 404 on the error panel", async () => {
+    it("keeps HTTP 403 and 404 on the error panel", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi
         .fn()
         .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: null })
@@ -644,23 +741,29 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "Custom URL" },
       });
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-error").textContent).toMatch(/HTTP 403/);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("search-panel-retry"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-error").textContent).toMatch(/HTTP 404/);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(screen.queryByTestId("search-panel-empty")).toBeNull();
       expect(screen.queryByTestId("search-panel-results")).toBeNull();
     });
 
-    it("does not run a custom URL view from the saved-search list", async () => {
+    it("does not run a custom URL view from the saved-search list", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -677,7 +780,9 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "Outbox" },
       });
@@ -690,7 +795,7 @@ describe("SearchPanel", () => {
       expect(executeSavedSearch).not.toHaveBeenCalled();
     });
 
-    it("retries a failed saved-search execute", async () => {
+    it("retries a failed saved-search execute", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       let attempt = 0;
       const executeSavedSearch = vi.fn().mockImplementation(() => {
         attempt += 1;
@@ -707,29 +812,37 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "My Pages" },
       });
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-error")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("search-panel-retry"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(attempt).toBe(2);
       expect(executeSavedSearch.mock.calls[1]?.[0]).toBe("My Pages");
     });
 
-    it("passes axe-core with saved picker visible", async () => {
+    it("passes axe-core with saved picker visible", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const { container } = render(
         <SearchPanel listSavedSearches={readyCatalog()} />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       await renderA11yGate(container);
     });
   });
@@ -742,7 +855,9 @@ describe("SearchPanel", () => {
     async function selectManageableRow(value = "My Pages") {
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value },
       });
@@ -757,7 +872,7 @@ describe("SearchPanel", () => {
         .filter((v) => v.length > 0);
     }
 
-    it("rename saves the new label and updates the picker row", async () => {
+    it("rename saves the new label and updates the picker row", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const renameSavedSearch = vi.fn().mockResolvedValue({
         name: "My Pages",
         label: "PAGES!",
@@ -780,14 +895,18 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
       await waitFor(() => {
         expect(renameSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(renameSavedSearch.mock.calls[0]?.[0]).toBe("My Pages");
       expect(renameSavedSearch.mock.calls[0]?.[1]).toBe("PAGES!");
       await waitFor(() => {
         expect(
           screen.getByTestId("search-panel-saved-manage-notice"),
         ).toHaveTextContent(/renamed/i);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       // Dialog closes; the picker still lists both rows with the new label.
       expect(
         screen.queryByTestId("search-panel-saved-manage-dialog"),
@@ -803,7 +922,7 @@ describe("SearchPanel", () => {
       ).toBe(true);
     });
 
-    it("rename cancel calls no transport and keeps rows", async () => {
+    it("rename cancel calls no transport and keeps rows", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const renameSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -828,7 +947,7 @@ describe("SearchPanel", () => {
       );
     });
 
-    it("rename refuses a blank label before PUT (#6075)", async () => {
+    it("rename refuses a blank label before PUT (#6075)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const renameSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -856,6 +975,7 @@ describe("SearchPanel", () => {
 
     it.each([400, 403, 409])(
       "rename HTTP %i keeps rows and stays on the dialog",
+      { timeout: SEARCH_PANEL_TEST_TIMEOUT },
       async (status) => {
         const renameSavedSearch = vi
           .fn()
@@ -876,12 +996,16 @@ describe("SearchPanel", () => {
         fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
         await waitFor(() => {
           expect(renameSavedSearch).toHaveBeenCalledTimes(1);
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         await waitFor(() => {
           expect(
             screen.getByTestId("search-panel-saved-manage-error").textContent,
           ).toMatch(new RegExp(`HTTP ${status}`));
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         // Dialog stays open; no row loss.
         expect(
           screen.getByTestId("search-panel-saved-manage-dialog"),
@@ -892,7 +1016,7 @@ describe("SearchPanel", () => {
       },
     );
 
-    it("delete confirm drops the row and clears the selection", async () => {
+    it("delete confirm drops the row and clears the selection", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const deleteSavedSearch = vi.fn().mockResolvedValue(undefined);
       render(
         <SearchPanel
@@ -909,13 +1033,17 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-saved-delete-confirm"));
       await waitFor(() => {
         expect(deleteSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(deleteSavedSearch.mock.calls[0]?.[0]).toBe("My Pages");
       await waitFor(() => {
         expect(
           screen.getByTestId("search-panel-saved-manage-notice"),
         ).toHaveTextContent(/deleted/i);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(
         screen.queryByTestId("search-panel-saved-manage-dialog"),
       ).toBeNull();
@@ -926,7 +1054,7 @@ describe("SearchPanel", () => {
       ).toBe("");
     });
 
-    it("delete cancel calls no transport and keeps rows", async () => {
+    it("delete cancel calls no transport and keeps rows", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const deleteSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -949,6 +1077,7 @@ describe("SearchPanel", () => {
 
     it.each([400, 403, 409])(
       "delete HTTP %i keeps rows and stays on the dialog",
+      { timeout: SEARCH_PANEL_TEST_TIMEOUT },
       async (status) => {
         const deleteSavedSearch = vi
           .fn()
@@ -965,12 +1094,16 @@ describe("SearchPanel", () => {
         fireEvent.click(screen.getByTestId("search-panel-saved-delete-confirm"));
         await waitFor(() => {
           expect(deleteSavedSearch).toHaveBeenCalledTimes(1);
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         await waitFor(() => {
           expect(
             screen.getByTestId("search-panel-saved-manage-error").textContent,
           ).toMatch(new RegExp(`HTTP ${status}`));
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         expect(
           screen.getByTestId("search-panel-saved-manage-dialog"),
         ).toBeTruthy();
@@ -980,7 +1113,7 @@ describe("SearchPanel", () => {
       },
     );
 
-    it("rename/delete stay disabled for custom URL views", async () => {
+    it("rename/delete stay disabled for custom URL views", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       render(
         <SearchPanel
           listSavedSearches={readyCatalog([
@@ -992,7 +1125,9 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "Outbox" },
       });
@@ -1006,7 +1141,7 @@ describe("SearchPanel", () => {
       ).toBe(true);
     });
 
-    it("passes axe-core with the rename dialog open", async () => {
+    it("passes axe-core with the rename dialog open", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const { container } = render(
         <SearchPanel
           listSavedSearches={readyManageable()}
@@ -1022,7 +1157,7 @@ describe("SearchPanel", () => {
       await renderA11yGate(container);
     });
 
-    it("Escape dismisses the rename dialog with no transport and returns focus (#6398)", async () => {
+    it("Escape dismisses the rename dialog with no transport and returns focus (#6398)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const renameSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -1048,7 +1183,7 @@ describe("SearchPanel", () => {
       expect(document.activeElement).toBe(renameBtn);
     });
 
-    it("Escape dismisses the delete dialog with no transport and returns focus (#6398)", async () => {
+    it("Escape dismisses the delete dialog with no transport and returns focus (#6398)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const deleteSavedSearch = vi.fn();
       render(
         <SearchPanel
@@ -1077,7 +1212,7 @@ describe("SearchPanel", () => {
       expect(document.activeElement).toBe(deleteBtn);
     });
 
-    it("moves focus into the rename dialog and traps Tab inside (#6398)", async () => {
+    it("moves focus into the rename dialog and traps Tab inside (#6398)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       render(
         <SearchPanel
           listSavedSearches={readyManageable()}
@@ -1101,7 +1236,7 @@ describe("SearchPanel", () => {
       expect(dialog.contains(document.activeElement)).toBe(true);
     });
 
-    it("Escape while a rename is in flight keeps the dialog open (#6398)", async () => {
+    it("Escape while a rename is in flight keeps the dialog open (#6398)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const renameSavedSearch = vi
         .fn()
         .mockReturnValue(new Promise(() => {}));
@@ -1121,7 +1256,9 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
       await waitFor(() => {
         expect(renameSavedSearch).toHaveBeenCalledTimes(1);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.keyDown(window, { key: "Escape" });
       expect(
         screen.getByTestId("search-panel-saved-manage-dialog"),
@@ -1133,20 +1270,24 @@ describe("SearchPanel", () => {
     async function selectSavedRow(value = "My Pages") {
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value },
       });
     }
 
-    it("Escape in the query input clears the draft with no POST and keeps focus", async () => {
+    it("Escape in the query input clears the draft with no POST and keeps focus", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
       const { container } = render(
         <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const input = screen.getByTestId(
         "search-panel-input",
       ) as HTMLInputElement;
@@ -1167,14 +1308,16 @@ describe("SearchPanel", () => {
       await renderA11yGate(container);
     });
 
-    it("Escape clears a NUL-containing draft without POST (#6420)", async () => {
+    it("Escape clears a NUL-containing draft without POST (#6420)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
       render(
         <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const input = screen.getByTestId(
         "search-panel-input",
       ) as HTMLInputElement;
@@ -1187,14 +1330,16 @@ describe("SearchPanel", () => {
       expect(screen.queryByTestId("search-panel-results")).toBeNull();
     });
 
-    it("Escape then Submit does not execute an empty query (#6420)", async () => {
+    it("Escape then Submit does not execute an empty query (#6420)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
       render(
         <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const input = screen.getByTestId("search-panel-input");
       fireEvent.change(input, { target: { value: "Welcome" } });
       fireEvent.keyDown(input, { key: "Escape" });
@@ -1205,14 +1350,16 @@ describe("SearchPanel", () => {
       expect(screen.queryByTestId("search-panel-error")).toBeNull();
     });
 
-    it("a non-Escape key leaves the draft alone (#6420)", async () => {
+    it("a non-Escape key leaves the draft alone (#6420)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
       render(
         <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const input = screen.getByTestId(
         "search-panel-input",
       ) as HTMLInputElement;
@@ -1222,7 +1369,7 @@ describe("SearchPanel", () => {
       expect(search).not.toHaveBeenCalled();
     });
 
-    it("saved-search execute renders results and moves focus to the results region", async () => {
+    it("saved-search execute renders results and moves focus to the results region", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockResolvedValue({
         children: ONE_ROW,
         totalCount: 1,
@@ -1239,7 +1386,9 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-saved-run"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(executeSavedSearch).toHaveBeenCalledTimes(1);
       // Focus return is sane: the results region takes focus, not body.
       expect(document.activeElement).toBe(
@@ -1258,6 +1407,7 @@ describe("SearchPanel", () => {
 
     it.each([400, 403, 404])(
       "execute HTTP %i names the failure and keeps prior rows",
+      { timeout: SEARCH_PANEL_TEST_TIMEOUT },
       async (httpStatus) => {
         const executeSavedSearch = vi
           .fn()
@@ -1282,7 +1432,9 @@ describe("SearchPanel", () => {
         fireEvent.click(screen.getByTestId("search-panel-saved-run"));
         await waitFor(() => {
           expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         expect(
           screen.getAllByTestId("search-panel-result-row"),
         ).toHaveLength(1);
@@ -1293,7 +1445,9 @@ describe("SearchPanel", () => {
           expect(
             screen.getByTestId("search-panel-error").textContent,
           ).toMatch(new RegExp(`HTTP ${httpStatus}`));
-        });
+        },
+          { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+        );
         expect(screen.getByTestId("search-panel-retry")).toBeTruthy();
         expect(
           screen.getAllByTestId("search-panel-result-row"),
@@ -1303,7 +1457,7 @@ describe("SearchPanel", () => {
       },
     );
 
-    it("free-text error keeps prior rows with Retry (#6420)", async () => {
+    it("free-text error keeps prior rows with Retry (#6420)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       let attempt = 0;
       const search = vi.fn().mockImplementation(() => {
         attempt += 1;
@@ -1317,17 +1471,23 @@ describe("SearchPanel", () => {
       );
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       const input = screen.getByTestId("search-panel-input");
       fireEvent.change(input, { target: { value: "Welcome" } });
       fireEvent.click(screen.getByTestId("search-panel-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-results")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("search-panel-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-error")).toBeTruthy();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(
         screen.getByTestId("search-panel-error").textContent,
       ).toMatch(/HTTP 403/);
@@ -1337,10 +1497,12 @@ describe("SearchPanel", () => {
       fireEvent.click(screen.getByTestId("search-panel-retry"));
       await waitFor(() => {
         expect(screen.queryByTestId("search-panel-error")).toBeNull();
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
     });
 
-    it("execute failure with no prior rows shows only the error (#6420)", async () => {
+    it("execute failure with no prior rows shows only the error (#6420)", { timeout: SEARCH_PANEL_TEST_TIMEOUT }, async () => {
       const executeSavedSearch = vi.fn().mockRejectedValue({
         status: 404,
         statusText: "Not Found",
@@ -1358,7 +1520,9 @@ describe("SearchPanel", () => {
         expect(
           screen.getByTestId("search-panel-error").textContent,
         ).toMatch(/HTTP 404/);
-      });
+      },
+        { timeout: SEARCH_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(screen.queryByTestId("search-panel-results")).toBeNull();
       expect(screen.queryByTestId("search-panel-result-row")).toBeNull();
     });

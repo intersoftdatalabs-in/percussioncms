@@ -23,6 +23,29 @@ import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const SLOT_ADD_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SLOT_ADD_TEST_TIMEOUT = 30_000;
+
 vi.mock("../../../main/ts/contentBrowser/ContentBrowser", () => ({
   ContentBrowser: (props: {
     onConfirm?: (selection: {
@@ -103,7 +126,7 @@ const slotAddMenu = [
 ];
 
 describe("ContentExplorerShell slot add (#3495)", () => {
-  it("folder browse without a slot disables Slot_Add with a slot tooltip (#6915)", async () => {
+  it("folder browse without a slot disables Slot_Add with a slot tooltip (#6915)", { timeout: SLOT_ADD_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const addToSlot = vi.fn();
     renderShell(
@@ -117,7 +140,9 @@ describe("ContentExplorerShell slot add (#3495)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Slot_Add")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     // DCE parity (#6915): aria-disabled + tooltip instead of a status hint.
     const add = screen.getByTestId("action-toolbar-item-Slot_Add");
     expect(add.getAttribute("aria-disabled")).toBe("true");
@@ -128,7 +153,7 @@ describe("ContentExplorerShell slot add (#3495)", () => {
     expect(screen.queryByTestId("explorer-slot-add-dialog")).toBeNull();
   });
 
-  it("picker cancel does not POST when an AA slot is selected", async () => {
+  it("picker cancel does not POST when an AA slot is selected", { timeout: SLOT_ADD_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const addToSlot = vi.fn();
     renderShell(
@@ -146,19 +171,25 @@ describe("ContentExplorerShell slot add (#3495)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Slot_Add")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("action-toolbar-item-Slot_Add"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-slot-add-dialog")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("content-browser-cancel"));
     await waitFor(() => {
       expect(screen.queryByTestId("explorer-slot-add-dialog")).toBeNull();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     expect(addToSlot).not.toHaveBeenCalled();
   });
 
-  it("successful pick posts slot-relationship ids", async () => {
+  it("successful pick posts slot-relationship ids", { timeout: SLOT_ADD_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const addToSlot = vi.fn().mockResolvedValue({
       relationshipId: 9,
@@ -183,11 +214,15 @@ describe("ContentExplorerShell slot add (#3495)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Slot_Add")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("action-toolbar-item-Slot_Add"));
     await waitFor(() => {
       expect(screen.getByTestId("content-browser-confirm")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("content-browser-confirm"));
     await waitFor(() => {
       expect(addToSlot).toHaveBeenCalledWith({
@@ -197,6 +232,8 @@ describe("ContentExplorerShell slot add (#3495)", () => {
         templateId: 4,
         folderId: undefined,
       });
-    });
+    },
+      { timeout: SLOT_ADD_ROUND_TRIP_TIMEOUT },
+    );
   });
 });

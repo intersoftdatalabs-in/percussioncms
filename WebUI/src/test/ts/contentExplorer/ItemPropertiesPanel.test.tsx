@@ -20,6 +20,29 @@ import { describe, expect, it, vi } from "vitest";
 import { ItemPropertiesPanel } from "../../../main/ts/contentExplorer/ItemPropertiesPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const ITEM_PROPERTIES_PANEL_TEST_TIMEOUT = 30_000;
+
 function shownTitle(): string {
   return (
     screen.getByTestId("item-properties-shown-display-title-value").textContent ??
@@ -28,7 +51,7 @@ function shownTitle(): string {
 }
 
 describe("ItemPropertiesPanel (#4701)", () => {
-  it("loads name/display title and saves", async () => {
+  it("loads name/display title and saves", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     const load = vi
       .fn()
       .mockResolvedValueOnce({
@@ -55,7 +78,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("item-properties-name")).toBeTruthy();
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
     fireEvent.change(screen.getByTestId("item-properties-name"), {
       target: { value: "New" },
@@ -70,16 +95,20 @@ describe("ItemPropertiesPanel (#4701)", () => {
         name: "New",
         displayTitle: "New title",
       });
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await waitFor(() => {
       expect(onSaved).toHaveBeenCalledWith("New");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(shownTitle()).toBe("New title");
     expect(load).toHaveBeenCalledTimes(2);
     expect(load).toHaveBeenNthCalledWith(2, "/Assets/New");
   });
 
-  it("shows a display title only after reload and does not rename (#5246)", async () => {
+  it("shows a display title only after reload and does not rename (#5246)", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     let releaseReload: (value: { name: string; displayTitle: string }) => void =
       () => undefined;
     const reload = new Promise<{ name: string; displayTitle: string }>(
@@ -107,7 +136,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(shownTitle()).toBe("Old title");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("item-properties-display-title"), {
       target: { value: "New title" },
     });
@@ -119,7 +150,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
         name: "qa-item",
         displayTitle: "New title",
       });
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(shownTitle()).toBe("Old title");
     expect(load).toHaveBeenNthCalledWith(2, "/Assets/item");
     expect(onSaved).not.toHaveBeenCalled();
@@ -129,7 +162,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     releaseReload({ name: "qa-item", displayTitle: "From server" });
     await waitFor(() => {
       expect(shownTitle()).toBe("From server");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(
       (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
         .value,
@@ -140,7 +175,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
     expect(onSaved).toHaveBeenCalledWith("qa-item");
   });
 
-  it("cancel does not write and restores the display title (#5246)", async () => {
+  it("cancel does not write and restores the display title (#5246)", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     const load = vi.fn().mockResolvedValue({
       name: "qa-item",
       displayTitle: "Old title",
@@ -156,7 +191,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(shownTitle()).toBe("Old title");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("item-properties-display-title"), {
       target: { value: "Draft title" },
     });
@@ -171,6 +208,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
 
   it.each([400, 403, 409])(
     "HTTP %s leaves the previous display title in place (#5246)",
+    { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT },
     async (status) => {
       const load = vi.fn().mockResolvedValue({
         name: "qa-item",
@@ -193,14 +231,18 @@ describe("ItemPropertiesPanel (#4701)", () => {
       );
       await waitFor(() => {
         expect(shownTitle()).toBe("Old title");
-      });
+      },
+        { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("item-properties-display-title"), {
         target: { value: "Rejected title" },
       });
       fireEvent.click(screen.getByTestId("item-properties-save"));
       await waitFor(() => {
         expect(screen.getByTestId("item-properties-status")).toBeTruthy();
-      });
+      },
+        { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(
         (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
           .value,
@@ -211,7 +253,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
     },
   );
 
-  it("clear then save reloads an empty title and the same name (#5297)", async () => {
+  it("clear then save reloads an empty title and the same name (#5297)", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     let releaseReload: (value: { name: string; displayTitle: string }) => void =
       () => undefined;
     const reload = new Promise<{ name: string; displayTitle: string }>(
@@ -237,7 +279,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(shownTitle()).toBe("Old title");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
     expect(save).not.toHaveBeenCalled();
     expect(shownTitle()).toBe("Old title");
@@ -255,12 +299,16 @@ describe("ItemPropertiesPanel (#4701)", () => {
         name: "qa-item",
         displayTitle: "",
       });
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(shownTitle()).toBe("Old title");
     releaseReload({ name: "qa-item", displayTitle: "" });
     await waitFor(() => {
       expect(shownTitle()).toBe("");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(
       (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
         .value,
@@ -271,7 +319,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
     expect(load).toHaveBeenNthCalledWith(2, "/Assets/folder/qa-item");
   });
 
-  it("clear then cancel does not write (#5297)", async () => {
+  it("clear then cancel does not write (#5297)", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     const load = vi.fn().mockResolvedValue({
       name: "qa-item",
       displayTitle: "Old title",
@@ -287,7 +335,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(shownTitle()).toBe("Old title");
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
     fireEvent.click(screen.getByTestId("item-properties-cancel"));
     expect(save).not.toHaveBeenCalled();
@@ -300,6 +350,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
 
   it.each([400, 403, 409])(
     "HTTP %s after clear leaves the previous display title (#5297)",
+    { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT },
     async (status) => {
       const load = vi.fn().mockResolvedValue({
         name: "qa-item",
@@ -320,12 +371,16 @@ describe("ItemPropertiesPanel (#4701)", () => {
       );
       await waitFor(() => {
         expect(shownTitle()).toBe("Old title");
-      });
+      },
+        { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
       fireEvent.click(screen.getByTestId("item-properties-save"));
       await waitFor(() => {
         expect(screen.getByTestId("item-properties-status")).toBeTruthy();
-      });
+      },
+        { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+      );
       expect(
         (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
           .value,
@@ -338,7 +393,7 @@ describe("ItemPropertiesPanel (#4701)", () => {
     },
   );
 
-  it("does not offer clear when the caller says so (#5297)", async () => {
+  it("does not offer clear when the caller says so (#5297)", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     const load = vi.fn().mockResolvedValue({
       name: "qa-item",
       displayTitle: "Old title",
@@ -354,11 +409,13 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("item-properties-display-title")).toBeTruthy();
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("item-properties-clear-display-title")).toBeNull();
   });
 
-  it("view-only disables save", async () => {
+  it("view-only disables save", { timeout: ITEM_PROPERTIES_PANEL_TEST_TIMEOUT }, async () => {
     const load = vi.fn().mockResolvedValue({ name: "Old", displayTitle: "" });
     render(
       <ItemPropertiesPanel
@@ -370,7 +427,9 @@ describe("ItemPropertiesPanel (#4701)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("item-properties-readonly")).toBeTruthy();
-    });
+    },
+      { timeout: ITEM_PROPERTIES_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(
       (screen.getByTestId("item-properties-save") as HTMLButtonElement).disabled,
     ).toBe(true);

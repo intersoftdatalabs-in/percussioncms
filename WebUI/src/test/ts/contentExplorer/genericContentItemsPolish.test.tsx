@@ -33,6 +33,29 @@ import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
 /**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT = 30_000;
+
+/**
  * UX polish for the generic content-items list (#6596, parent #4530):
  * an empty-folder state with helpful copy, named failed-summary error
  * copy for list/open failures on Rhythmyx custom-type Item rows, and
@@ -109,7 +132,7 @@ describe("generic content-items list polish (#6596)", () => {
     expect(listLoadFailureStatus("nope")).toBeNull();
   });
 
-  it("empty folder names the empty state and hints at the create paths", async () => {
+  it("empty folder names the empty state and hints at the create paths", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse([]));
     const { container } = render(
       <DetailList
@@ -120,6 +143,7 @@ describe("generic content-items list polish (#6596)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-empty")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-list-empty")).toHaveTextContent(
       message(EXPLORER_MSG.LIST_EMPTY),
@@ -130,7 +154,7 @@ describe("generic content-items list polish (#6596)", () => {
     await renderA11yGate(container);
   });
 
-  it("no open folder keeps the bare empty state without the hint", async () => {
+  it("no open folder keeps the bare empty state without the hint", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <DetailList
         folderPath={null}
@@ -145,7 +169,7 @@ describe("generic content-items list polish (#6596)", () => {
     await renderA11yGate(container);
   });
 
-  it("403 list failure shows the named summary with a retry affordance", async () => {
+  it("403 list failure shows the named summary with a retry affordance", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     mockFetch(
       async () => new Response("denied", { status: 403, statusText: "Forbidden" }),
     );
@@ -158,6 +182,7 @@ describe("generic content-items list polish (#6596)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-error")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     const summary = screen.getByTestId("detail-list-error-summary");
     expect(summary).toHaveTextContent(message(EXPLORER_MSG.LIST_LOAD_ERROR_403));
@@ -172,7 +197,7 @@ describe("generic content-items list polish (#6596)", () => {
     await renderA11yGate(container);
   });
 
-  it("retry reloads the folder list after a failure", async () => {
+  it("retry reloads the folder list after a failure", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     let calls = 0;
     mockFetch(async () => {
       calls += 1;
@@ -190,15 +215,17 @@ describe("generic content-items list polish (#6596)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-error")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-list-retry"));
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-g-2")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     expect(calls).toBeGreaterThanOrEqual(2);
   });
 
-  it("non-HTTP failures fall back to the generic summary with detail", async () => {
+  it("non-HTTP failures fall back to the generic summary with detail", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       throw new Error("boom");
     });
@@ -211,13 +238,14 @@ describe("generic content-items list polish (#6596)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-error")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     const summary = screen.getByTestId("detail-list-error-summary");
     expect(summary).toHaveTextContent(message(EXPLORER_MSG.LIST_LOAD_ERROR));
     expect(summary.textContent ?? "").toMatch(/boom/);
   });
 
-  it("generic rows carry the focus-visible ring class for keyboard navigation", async () => {
+  it("generic rows carry the focus-visible ring class for keyboard navigation", { timeout: GENERIC_CONTENT_ITEMS_POLISH_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { container } = render(
       <DetailList
@@ -228,6 +256,7 @@ describe("generic content-items list polish (#6596)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-g-1")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_POLISH_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-g-2");
     expect(row).toHaveClass("perc-explorer-detail-row");

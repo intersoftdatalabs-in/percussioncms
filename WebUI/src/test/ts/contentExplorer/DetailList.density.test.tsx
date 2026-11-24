@@ -36,6 +36,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const DENSITY_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const DENSITY_TEST_TIMEOUT = 30_000;
+
 function item(id: string, name: string, type = "percPage"): PSPathItem {
   return {
     id,
@@ -78,6 +101,7 @@ async function renderListing(): Promise<void> {
   );
   await waitFor(() =>
     expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+    { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
   );
 }
 
@@ -113,7 +137,7 @@ describe("DetailList density rendering", () => {
     localStorage.clear();
   });
 
-  it("defaults to comfortable with the switch reading pressed", async () => {
+  it("defaults to comfortable with the switch reading pressed", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { container } = render(
       <DetailList
@@ -124,6 +148,7 @@ describe("DetailList density rendering", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+      { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
     );
     const root = screen.getByTestId("detail-list");
     expect(root).toHaveAttribute("data-density", "comfortable");
@@ -139,7 +164,7 @@ describe("DetailList density rendering", () => {
     await renderA11yGate(container);
   });
 
-  it("switching to compact tightens rows and persists the choice", async () => {
+  it("switching to compact tightens rows and persists the choice", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { container } = render(
       <DetailList
@@ -150,12 +175,14 @@ describe("DetailList density rendering", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+      { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
     );
 
     fireEvent.click(screen.getByTestId("detail-density-compact"));
     const root = screen.getByTestId("detail-list");
     await waitFor(() =>
       expect(root).toHaveAttribute("data-density", "compact"),
+      { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-density-compact")).toHaveAttribute(
       "aria-pressed",
@@ -182,7 +209,7 @@ describe("DetailList density rendering", () => {
     await renderA11yGate(container);
   });
 
-  it("switching back to comfortable restores metrics and persists", async () => {
+  it("switching back to comfortable restores metrics and persists", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     localStorage.setItem(DETAIL_DENSITY_STORAGE_KEY, '"compact"');
     await renderListing();
     expect(screen.getByTestId("detail-list")).toHaveAttribute(
@@ -194,6 +221,7 @@ describe("DetailList density rendering", () => {
     const root = screen.getByTestId("detail-list");
     await waitFor(() =>
       expect(root).toHaveAttribute("data-density", "comfortable"),
+      { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
     );
     expect(root.querySelector("table")).toHaveAttribute("style", expect.stringContaining("font-size: 0.9rem"));
     expect(screen.getByTestId("detail-cell-name-c-3")).toHaveAttribute(
@@ -203,7 +231,7 @@ describe("DetailList density rendering", () => {
     expect(JSON.parse(storedDensity() ?? '"compact"')).toBe("comfortable");
   });
 
-  it("restores persisted compact density on mount", async () => {
+  it("restores persisted compact density on mount", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     localStorage.setItem(DETAIL_DENSITY_STORAGE_KEY, '"compact"');
     await renderListing();
     expect(screen.getByTestId("detail-list")).toHaveAttribute(
@@ -219,7 +247,7 @@ describe("DetailList density rendering", () => {
     ).toHaveAttribute("style", expect.stringContaining("font-size: 0.8rem"));
   });
 
-  it("corrupt persisted density falls back to comfortable", async () => {
+  it("corrupt persisted density falls back to comfortable", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     localStorage.setItem(DETAIL_DENSITY_STORAGE_KEY, "corrupt!!");
     await renderListing();
     expect(screen.getByTestId("detail-list")).toHaveAttribute(
@@ -228,7 +256,7 @@ describe("DetailList density rendering", () => {
     );
   });
 
-  it("keeps ArrowUp/Down/Home/End nav and row positions in compact density", async () => {
+  it("keeps ArrowUp/Down/Home/End nav and row positions in compact density", { timeout: DENSITY_TEST_TIMEOUT }, async () => {
     localStorage.setItem(DETAIL_DENSITY_STORAGE_KEY, '"compact"');
     const selected: string[] = [];
     mockFetch(async () => listingResponse(ROWS));
@@ -241,6 +269,7 @@ describe("DetailList density rendering", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+      { timeout: DENSITY_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-list")).toHaveAttribute(
       "data-density",

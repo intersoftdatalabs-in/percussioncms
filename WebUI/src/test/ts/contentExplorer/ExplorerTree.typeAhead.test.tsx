@@ -27,6 +27,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const TYPE_AHEAD_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const TYPE_AHEAD_TEST_TIMEOUT = 30_000;
+
 /** Sibling folders under /Sites: Alpha, Beta, Frost. */
 function sibling(path: string, name: string): PSPathItem {
   return {
@@ -65,6 +88,7 @@ async function renderSiblingTree(onSelectFolder: (path: string) => void = () => 
   );
   await waitFor(() =>
     expect(screen.getByTestId("tree-node-/Sites/Frost")).toBeInTheDocument(),
+    { timeout: TYPE_AHEAD_ROUND_TRIP_TIMEOUT },
   );
   return rendered;
 }
@@ -118,7 +142,7 @@ describe("ExplorerTree type-ahead helpers (#5841)", () => {
 });
 
 describe("ExplorerTree type-ahead (#5841)", () => {
-  it("typing a visible prefix moves focus and selection", async () => {
+  it("typing a visible prefix moves focus and selection", { timeout: TYPE_AHEAD_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     const { container } = await renderSiblingTree(onSelectFolder);
     focusTreeItem("/Sites/Alpha");
@@ -135,7 +159,7 @@ describe("ExplorerTree type-ahead (#5841)", () => {
     await renderA11yGate(container);
   });
 
-  it("accumulates rapid keys into one prefix and wraps around", async () => {
+  it("accumulates rapid keys into one prefix and wraps around", { timeout: TYPE_AHEAD_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder);
     // Anchor on Frost; "b" wraps around to Beta.
@@ -153,7 +177,7 @@ describe("ExplorerTree type-ahead (#5841)", () => {
     );
   });
 
-  it("resets the buffer after the timeout so the next key starts fresh", async () => {
+  it("resets the buffer after the timeout so the next key starts fresh", { timeout: TYPE_AHEAD_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder);
     focusTreeItem("/Sites/Alpha");
@@ -174,7 +198,7 @@ describe("ExplorerTree type-ahead (#5841)", () => {
     );
   });
 
-  it("moves on ArrowDown and keeps selection on no-match prefix", async () => {
+  it("moves on ArrowDown and keeps selection on no-match prefix", { timeout: TYPE_AHEAD_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     const { container } = await renderSiblingTree(onSelectFolder);
     const alphaItem = focusTreeItem("/Sites/Alpha");

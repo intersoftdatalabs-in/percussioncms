@@ -17,6 +17,29 @@ import {
 import type { PSNodeRelationshipSummary } from "../../../main/ts/api/contentExplorer/relationship";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const RELATIONSHIPS_VIEW_TEST_TIMEOUT = 30_000;
+
 const SYNTHETIC_SERVER: PSNodeRelationshipSummary = {
   outgoing: { count: 2, byType: [{ type: "translation", count: 2 }] },
   incoming: { count: 1, byType: [{ type: "translation", count: 1 }] },
@@ -36,7 +59,7 @@ function mockLoad(): Promise<PSNodeRelationshipSummary> {
 }
 
 describe("RelationshipsView", () => {
-  it("renders the 4 IA-primary rows + a supplementary details panel for AA / reverse", async () => {
+  it("renders the 4 IA-primary rows + a supplementary details panel for AA / reverse", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView
         item={{ id: "1-101-708", folderPath: "/Sites/Foo" }}
@@ -49,6 +72,7 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("relationships-row-outgoing")).toBeTruthy();
     expect(screen.getByTestId("relationships-row-incoming")).toBeTruthy();
@@ -58,7 +82,7 @@ describe("RelationshipsView", () => {
     expect(screen.getByTestId("relationships-row-reverse")).toBeTruthy();
   });
 
-  it("no longer renders the client-side preview banner (US8 ships)", async () => {
+  it("no longer renders the client-side preview banner (US8 ships)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView item={{ id: "42" }} loadServerSummary={mockLoad} />,
     );
@@ -67,13 +91,14 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("relationships-client-side-preview"),
     ).toBeNull();
   });
 
-  it("passes the zero serious/critical axe-core gate", async () => {
+  it("passes the zero serious/critical axe-core gate", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -86,11 +111,12 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
 
-  it("parses a GUID id before calling /relationships (#3557)", async () => {
+  it("parses a GUID id before calling /relationships (#3557)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     expect(relationshipSummaryItemId("1-101-708")).toBe("708");
     expect(relationshipSummaryItemId(708)).toBe("708");
     const loader = vi.fn().mockResolvedValue(SYNTHETIC_SERVER);
@@ -105,11 +131,12 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(loader).toHaveBeenCalledWith("708");
   });
 
-  it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
+  it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const loader = vi.fn();
     render(<RelationshipsView item={{}} loadServerSummary={loader} />);
     await waitFor(() =>
@@ -117,11 +144,12 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "auth",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(loader).not.toHaveBeenCalled();
   });
 
-  it("does not fetch a timestamped asset title as a content id (#3811)", async () => {
+  it("does not fetch a timestamped asset title as a content id (#3811)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     expect(
       relationshipSummaryItemId("New-percSimpleTextAsset-20260820165542"),
     ).toBe("");
@@ -140,11 +168,12 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "auth",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(loader).not.toHaveBeenCalled();
   });
 
-  it("cancel leaves the relationship (#4969)", async () => {
+  it("cancel leaves the relationship (#4969)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi.fn();
     render(
       <RelationshipsView
@@ -164,6 +193,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-7"));
     fireEvent.click(screen.getByTestId("relationships-remove-cancel"));
@@ -172,7 +202,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-removed")).toBeNull();
   });
 
-  it("confirm removes the relationship and refreshes the list (#4969)", async () => {
+  it("confirm removes the relationship and refreshes the list (#4969)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     let edges = [
       {
@@ -196,19 +226,22 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-7"));
     fireEvent.click(screen.getByTestId("relationships-remove-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-removed")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(remove).toHaveBeenCalledWith("42", 7);
     await waitFor(() =>
       expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("HTTP 409 stays on the panel and does not claim success (#4969)", async () => {
+  it("HTTP 409 stays on the panel and does not claim success (#4969)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi.fn().mockRejectedValue({ status: 409 });
     render(
       <RelationshipsView
@@ -228,17 +261,19 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-7"));
     fireEvent.click(screen.getByTestId("relationships-remove-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-remove-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-removed")).toBeNull();
     expect(screen.getByTestId("relationships-edge-7")).toBeTruthy();
   });
 
-  it("cancel leaves every owned relationship (#4988)", async () => {
+  it("cancel leaves every owned relationship (#4988)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi.fn();
     render(
       <RelationshipsView
@@ -265,6 +300,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-remove-all")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-all"));
     fireEvent.click(screen.getByTestId("relationships-remove-all-cancel"));
@@ -274,7 +310,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-removed-all")).toBeNull();
   });
 
-  it("confirm removes every owned relationship and keeps the folder row (#4988)", async () => {
+  it("confirm removes every owned relationship and keeps the folder row (#4988)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     let edges = [
       {
@@ -312,11 +348,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-all"));
     fireEvent.click(screen.getByTestId("relationships-remove-all-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-removed-all")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(remove.mock.calls).toEqual([
       ["42", 7],
@@ -324,12 +362,13 @@ describe("RelationshipsView", () => {
     ]);
     await waitFor(() =>
       expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
     expect(screen.getByTestId("relationships-folder-3")).toBeTruthy();
   });
 
-  it("HTTP 409 on a later row does not claim every relationship was removed (#4988)", async () => {
+  it("HTTP 409 on a later row does not claim every relationship was removed (#4988)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const remove = vi
       .fn()
       .mockResolvedValueOnce(undefined)
@@ -365,20 +404,23 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-remove-all"));
     fireEvent.click(screen.getByTestId("relationships-remove-all-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-remove-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-removed-all")).toBeNull();
     await waitFor(() =>
       expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("relationships-edge-11")).toBeTruthy();
   });
 
-  it("cancel does not add a relationship (#5036)", async () => {
+  it("cancel does not add a relationship (#5036)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const add = vi.fn();
     render(
       <RelationshipsView
@@ -393,6 +435,7 @@ describe("RelationshipsView", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-add"));
     fireEvent.change(screen.getByTestId("relationships-add-target"), {
@@ -403,7 +446,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-added")).toBeNull();
   });
 
-  it("confirm adds one relationship and shows it only after success (#5036)", async () => {
+  it("confirm adds one relationship and shows it only after success (#5036)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const created = {
       relationshipId: 11,
       configName: "Translation",
@@ -426,6 +469,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
     fireEvent.click(screen.getByTestId("relationships-add"));
@@ -435,14 +479,16 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-add-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-added")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(add).toHaveBeenCalledWith("42", "9", "Translation");
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("HTTP 409 does not claim a relationship was added (#5036)", async () => {
+  it("HTTP 409 does not claim a relationship was added (#5036)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const add = vi.fn().mockRejectedValue(Object.assign(new Error("no"), { status: 409 }));
     render(
       <RelationshipsView
@@ -454,6 +500,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-add"));
     fireEvent.change(screen.getByTestId("relationships-add-target"), {
@@ -462,12 +509,13 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-add-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-add-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-added")).toBeNull();
     expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
   });
 
-  it("a folder relationship type does not call the server (#5036)", async () => {
+  it("a folder relationship type does not call the server (#5036)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const add = vi.fn();
     render(
       <RelationshipsView
@@ -479,6 +527,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-add"));
     fireEvent.change(screen.getByTestId("relationships-add-target"), {
@@ -522,7 +571,7 @@ describe("RelationshipsView", () => {
     );
   }
 
-  it("the first Active Assembly row cannot move up and the last cannot move down (#5201)", async () => {
+  it("the first Active Assembly row cannot move up and the last cannot move down (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView
         item={{ id: "42" }}
@@ -532,6 +581,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-move-up-71")).toBeNull();
     expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy();
@@ -542,7 +592,7 @@ describe("RelationshipsView", () => {
     expect(screen.getByTestId("relationships-remove-73")).toBeTruthy();
   });
 
-  it("a single Active Assembly row has no move controls (#5201)", async () => {
+  it("a single Active Assembly row has no move controls (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView
         item={{ id: "42" }}
@@ -552,12 +602,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-move-up-71")).toBeNull();
     expect(screen.queryByTestId("relationships-move-down-71")).toBeNull();
   });
 
-  it("cancel does not move a relationship (#5201)", async () => {
+  it("cancel does not move a relationship (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const move = vi.fn();
     render(
       <RelationshipsView
@@ -569,6 +620,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-move-down-71"));
     fireEvent.click(screen.getByTestId("relationships-move-cancel"));
@@ -580,7 +632,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-moved")).toBeNull();
   });
 
-  it("confirm moves one relationship and updates the list only after success (#5201)", async () => {
+  it("confirm moves one relationship and updates the list only after success (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     let rows = [aaFirst, aaLast];
     let release: () => void = () => {};
     const gate = new Promise<void>((resolve) => {
@@ -600,6 +652,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-move-down-71"));
     fireEvent.click(screen.getByTestId("relationships-move-confirm"));
@@ -611,12 +664,14 @@ describe("RelationshipsView", () => {
     release();
     await waitFor(() =>
       expect(screen.getByTestId("relationships-moved")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await waitFor(() =>
       expect(edgeOrder()).toEqual([
         "relationships-edge-72",
         "relationships-edge-71",
       ]),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(move).toHaveBeenCalledWith(71, "DOWN");
     expect(screen.queryByTestId("relationships-move-up-72")).toBeNull();
@@ -637,11 +692,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-up-72")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-move-up-72"));
     fireEvent.click(screen.getByTestId("relationships-move-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-moved")).toBeNull();
     expect(edgeOrder()).toEqual([
@@ -651,19 +708,19 @@ describe("RelationshipsView", () => {
     expect(move).toHaveBeenCalledWith(72, "UP");
   }
 
-  it("HTTP 400 keeps the previous relationship order (#5201)", async () => {
+  it("HTTP 400 keeps the previous relationship order (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectMoveKeepsOrder(400);
   });
 
-  it("HTTP 403 keeps the previous relationship order (#5201)", async () => {
+  it("HTTP 403 keeps the previous relationship order (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectMoveKeepsOrder(403);
   });
 
-  it("HTTP 409 keeps the previous relationship order (#5201)", async () => {
+  it("HTTP 409 keeps the previous relationship order (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectMoveKeepsOrder(409);
   });
 
-  it("move controls pass the zero serious/critical axe-core gate (#5201)", async () => {
+  it("move controls pass the zero serious/critical axe-core gate (#5201)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -673,6 +730,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-move-down-71"));
@@ -719,10 +777,11 @@ describe("RelationshipsView", () => {
     return openRelated;
   }
 
-  it("cancel and Escape do not open the related item (#5218)", async () => {
+  it("cancel and Escape do not open the related item (#5218)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const openRelated = renderRelatedList(vi.fn());
     await waitFor(() =>
       expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-open-82")).toBeNull();
     expect(screen.queryByTestId("relationships-open-83")).toBeNull();
@@ -741,18 +800,20 @@ describe("RelationshipsView", () => {
     expect(screen.getByTestId("relationships-edge-81")).toBeTruthy();
   });
 
-  it("confirm opens EditorHost only after the related content id is known (#5218)", async () => {
+  it("confirm opens EditorHost only after the related content id is known (#5218)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const openRelated = renderRelatedList();
     await waitFor(() =>
       expect(screen.getByTestId("relationships-open-81")).toHaveAttribute(
         "data-content-id",
         "9",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-open-81"));
     fireEvent.click(screen.getByTestId("relationships-open-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-opened")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(openRelated).toHaveBeenCalledWith(
       { contentId: 9, folder: false },
@@ -763,7 +824,7 @@ describe("RelationshipsView", () => {
     expect(screen.getByTestId("relationships-folder-82")).toBeTruthy();
   });
 
-  it("HTTP 403 and 404 do not claim the related item opened (#5218)", async () => {
+  it("HTTP 403 and 404 do not claim the related item opened (#5218)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const openRelated = renderRelatedList(
       vi
         .fn()
@@ -772,6 +833,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-open-81"));
     fireEvent.click(screen.getByTestId("relationships-open-confirm"));
@@ -779,6 +841,7 @@ describe("RelationshipsView", () => {
       expect(screen.getByTestId("relationships-open-error")).toHaveTextContent(
         "HTTP 403",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-opened")).toBeNull();
     expect(screen.getByText(/Sites\/Foo\/page/)).toBeTruthy();
@@ -789,12 +852,13 @@ describe("RelationshipsView", () => {
       expect(screen.getByTestId("relationships-open-error")).toHaveTextContent(
         "HTTP 404",
       ),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-opened")).toBeNull();
     expect(openRelated).toHaveBeenCalledTimes(2);
   });
 
-  it("open dialog passes the zero serious/critical axe-core gate (#5218)", async () => {
+  it("open dialog passes the zero serious/critical axe-core gate (#5218)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -806,6 +870,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-open-81"));
@@ -857,7 +922,7 @@ describe("RelationshipsView", () => {
     );
   }
 
-  it("a folder relationship has no snippet template control (#5219)", async () => {
+  it("a folder relationship has no snippet template control (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView
         item={{ id: "42" }}
@@ -867,13 +932,14 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-change-template-82")).toBeNull();
     expect(screen.queryByTestId("relationships-change-template-73")).toBeNull();
     expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
   });
 
-  it("cancel and an empty choice do not change the snippet template (#5219)", async () => {
+  it("cancel and an empty choice do not change the snippet template (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const change = vi.fn();
     render(
       <RelationshipsView
@@ -886,11 +952,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(templateText(71)).toContain("Brief");
     fireEvent.click(screen.getByTestId("relationships-change-template-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-template-confirm"));
     expect(change).not.toHaveBeenCalled();
@@ -907,7 +975,7 @@ describe("RelationshipsView", () => {
     expect(templateText(71)).toContain("Brief");
   });
 
-  it("confirm writes one template and shows it only after success (#5219)", async () => {
+  it("confirm writes one template and shows it only after success (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     let release: (value: {
       relationshipId: number;
       ownerId: number;
@@ -938,10 +1006,12 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-change-template-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-template-select"), {
       target: { value: "8" },
@@ -960,6 +1030,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-template-changed")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-edge-71")).toBeNull();
     expect(templateText(91)).toContain("Full story");
@@ -986,10 +1057,12 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-change-template-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-template-select"), {
       target: { value: "8" },
@@ -997,6 +1070,7 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-template-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-template-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
     expect(templateText(71)).toContain("Brief");
@@ -1007,19 +1081,19 @@ describe("RelationshipsView", () => {
     expect(change).toHaveBeenCalledWith(71, 5, 8, 0);
   }
 
-  it("HTTP 400 leaves the previous snippet template (#5219)", async () => {
+  it("HTTP 400 leaves the previous snippet template (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectTemplateStays(400);
   });
 
-  it("HTTP 403 leaves the previous snippet template (#5219)", async () => {
+  it("HTTP 403 leaves the previous snippet template (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectTemplateStays(403);
   });
 
-  it("HTTP 409 leaves the previous snippet template (#5219)", async () => {
+  it("HTTP 409 leaves the previous snippet template (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectTemplateStays(409);
   });
 
-  it("template dialog passes the zero serious/critical axe-core gate (#5219)", async () => {
+  it("template dialog passes the zero serious/critical axe-core gate (#5219)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -1030,11 +1104,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-change-template-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -1060,7 +1136,7 @@ describe("RelationshipsView", () => {
       .getAttribute("data-slot-id");
   }
 
-  it("a folder and a slot with no relationship do not offer a move (#5265)", async () => {
+  it("a folder and a slot with no relationship do not offer a move (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     render(
       <RelationshipsView
         item={{ id: "42" }}
@@ -1072,6 +1148,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-move-slot-82")).toBeNull();
     expect(screen.queryByTestId("relationships-move-slot-73")).toBeNull();
@@ -1080,7 +1157,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-slot-group-5")).toBeNull();
   });
 
-  it("cancel and an empty slot choice do not move the relationship (#5265)", async () => {
+  it("cancel and an empty slot choice do not move the relationship (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const move = vi.fn();
     render(
       <RelationshipsView
@@ -1093,12 +1170,14 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(slotOf(71)).toBe("5");
     expect(screen.getByTestId("relationships-slot-group-5")).toBeTruthy();
     fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByRole("option", { name: "Sidebar" })).toBeNull();
     fireEvent.click(screen.getByTestId("relationships-slot-move-confirm"));
@@ -1117,7 +1196,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-slot-group-9")).toBeNull();
   });
 
-  it("confirm lists the item in the destination slot only after success (#5265)", async () => {
+  it("confirm lists the item in the destination slot only after success (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     let release: (value: {
       relationshipId: number;
       ownerId: number;
@@ -1148,10 +1227,12 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-slot-move-select"), {
       target: { value: "9" },
@@ -1172,6 +1253,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-slot-moved")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-edge-71")).toBeNull();
     expect(slotOf(91)).toBe("9");
@@ -1199,10 +1281,12 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-slot-move-select"), {
       target: { value: "9" },
@@ -1210,6 +1294,7 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-slot-move-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-slot-move-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-slot-moved")).toBeNull();
     expect(slotOf(71)).toBe("5");
@@ -1218,19 +1303,19 @@ describe("RelationshipsView", () => {
     expect(move).toHaveBeenCalledWith(71, 9, 4);
   }
 
-  it("HTTP 400 leaves the relationship on the previous slot (#5265)", async () => {
+  it("HTTP 400 leaves the relationship on the previous slot (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectSlotStays(400);
   });
 
-  it("HTTP 403 leaves the relationship on the previous slot (#5265)", async () => {
+  it("HTTP 403 leaves the relationship on the previous slot (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectSlotStays(403);
   });
 
-  it("HTTP 409 leaves the relationship on the previous slot (#5265)", async () => {
+  it("HTTP 409 leaves the relationship on the previous slot (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectSlotStays(409);
   });
 
-  it("move-to-slot dialog passes the zero serious/critical axe-core gate (#5265)", async () => {
+  it("move-to-slot dialog passes the zero serious/critical axe-core gate (#5265)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -1241,11 +1326,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -1260,7 +1347,7 @@ describe("RelationshipsView", () => {
     );
   }
 
-  it("a folder row is not a slot and does not link an item (#5266)", async () => {
+  it("a folder row is not a slot and does not link an item (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const link = vi.fn();
     render(
       <RelationshipsView
@@ -1273,6 +1360,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-link-slot-5")).toBeNull();
     expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
@@ -1284,7 +1372,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
   });
 
-  it("cancel and a blank or missing target do not link into the slot (#5266)", async () => {
+  it("cancel and a blank or missing target do not link into the slot (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const link = vi.fn();
     const add = vi.fn();
     render(
@@ -1299,11 +1387,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(idsInSlot(5)).toEqual(["71", "72"]);
     fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
     expect(link).not.toHaveBeenCalled();
@@ -1333,7 +1423,7 @@ describe("RelationshipsView", () => {
     expect(idsInSlot(5)).toEqual(["71", "72"]);
   });
 
-  it("lists the item in the selected slot only after the slot add succeeds (#5266)", async () => {
+  it("lists the item in the selected slot only after the slot add succeeds (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     let release: (value: {
       relationshipId: number;
       ownerId: number;
@@ -1364,11 +1454,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-select-slot-5"));
     fireEvent.click(screen.getByTestId("relationships-link-existing"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
       target: { value: "88" },
@@ -1396,6 +1488,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-done")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(idsInSlot(5)).toEqual(["71", "72", "91"]);
     expect(screen.getByTestId("relationships-edge-91")).toHaveAttribute(
@@ -1424,10 +1517,12 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
       target: { value: "88" },
@@ -1438,6 +1533,7 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
     expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
@@ -1445,19 +1541,19 @@ describe("RelationshipsView", () => {
     expect(link).toHaveBeenCalledTimes(1);
   }
 
-  it("HTTP 400 does not list the item in the slot (#5266)", async () => {
+  it("HTTP 400 does not list the item in the slot (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectLinkStays(400);
   });
 
-  it("HTTP 403 does not list the item in the slot (#5266)", async () => {
+  it("HTTP 403 does not list the item in the slot (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectLinkStays(403);
   });
 
-  it("HTTP 409 does not list the item in the slot (#5266)", async () => {
+  it("HTTP 409 does not list the item in the slot (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectLinkStays(409);
   });
 
-  it("link-into-slot dialog passes the zero serious/critical axe-core gate (#5266)", async () => {
+  it("link-into-slot dialog passes the zero serious/critical axe-core gate (#5266)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RelationshipsView
         item={{ id: "42", folderPath: "/p" }}
@@ -1468,11 +1564,13 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -1498,6 +1596,7 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-create-slot-5"));
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Page" })).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
   }
 
@@ -1513,7 +1612,7 @@ describe("RelationshipsView", () => {
     });
   }
 
-  it("a folder row is not a slot and does not create an item (#5267)", async () => {
+  it("a folder row is not a slot and does not create an item (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const create = vi.fn();
     render(
       <RelationshipsView
@@ -1527,6 +1626,7 @@ describe("RelationshipsView", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("relationships-create-slot-5")).toBeNull();
     fireEvent.click(screen.getByTestId("relationships-create-in-slot"));
@@ -1536,13 +1636,14 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
   });
 
-  it("cancel and a missing type, folder, or template do not create (#5267)", async () => {
+  it("cancel and a missing type, folder, or template do not create (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const create = vi.fn();
     const link = vi.fn();
     const open = vi.fn();
     renderCreate({ createItem: create, linkCreated: link, openCreated: open });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(idsInSlot(5)).toEqual(["71", "72"]);
     await openCreateDialog();
@@ -1583,7 +1684,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
   });
 
-  it("lists the item and opens the editor only after the link succeeds (#5267)", async () => {
+  it("lists the item and opens the editor only after the link succeeds (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     let releaseCreate: (value: { itemId: string; name: string }) => void = () => {};
     const created = new Promise<{ itemId: string; name: string }>((resolve) => {
       releaseCreate = resolve;
@@ -1619,6 +1720,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await openCreateDialog();
     fillCreate();
@@ -1639,6 +1741,7 @@ describe("RelationshipsView", () => {
         slotId: 5,
         templateId: 4,
       }),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(open).not.toHaveBeenCalled();
     expect(idsInSlot(5)).toEqual(["71", "72"]);
@@ -1652,6 +1755,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-done")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(open).toHaveBeenCalledWith(
       { id: 99, mode: "edit" },
@@ -1687,12 +1791,14 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await openCreateDialog();
     fillCreate();
     fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(link).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
@@ -1702,19 +1808,19 @@ describe("RelationshipsView", () => {
     expect(idsInSlot(5)).toEqual(["71", "72"]);
   }
 
-  it("HTTP 400 does not list a created item in the slot (#5267)", async () => {
+  it("HTTP 400 does not list a created item in the slot (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectCreateStays(400);
   });
 
-  it("HTTP 403 does not list a created item in the slot (#5267)", async () => {
+  it("HTTP 403 does not list a created item in the slot (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectCreateStays(403);
   });
 
-  it("HTTP 409 does not list a created item in the slot (#5267)", async () => {
+  it("HTTP 409 does not list a created item in the slot (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     await expectCreateStays(409);
   });
 
-  it("a failed link does not list the item or open the editor (#5267)", async () => {
+  it("a failed link does not list the item or open the editor (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const create = vi.fn().mockResolvedValue({
       itemId: "1-101-99",
       name: "New page",
@@ -1726,12 +1832,14 @@ describe("RelationshipsView", () => {
     renderCreate({ createItem: create, linkCreated: link, openCreated: open });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await openCreateDialog();
     fillCreate();
     fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(create).toHaveBeenCalledTimes(1);
     expect(link).toHaveBeenCalledTimes(1);
@@ -1740,7 +1848,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
   });
 
-  it("does not claim success when the editor does not open (#5267)", async () => {
+  it("does not claim success when the editor does not open (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const open = vi.fn().mockResolvedValue(false);
     renderCreate({
       createItem: async () => ({ itemId: "99", name: "New page" }),
@@ -1756,22 +1864,25 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await openCreateDialog();
     fillCreate();
     fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(open).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
     expect(idsInSlot(5)).toEqual(["71", "72", "91"]);
   });
 
-  it("create-in-slot dialog passes the zero serious/critical axe-core gate (#5267)", async () => {
+  it("create-in-slot dialog passes the zero serious/critical axe-core gate (#5267)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = renderCreate();
     await waitFor(() =>
       expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     await openCreateDialog();
@@ -1794,10 +1905,11 @@ describe("RelationshipsView", () => {
     );
   }
 
-  it("an empty clipboard disables paste-as-link and a row selection is not a slot (#6103)", async () => {
+  it("an empty clipboard disables paste-as-link and a row selection is not a slot (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     renderPaste();
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("relationships-paste-link")).toHaveAttribute(
       "disabled",
@@ -1805,7 +1917,7 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
   });
 
-  it("cancel posts nothing and a cut clipboard is not pasted (#6103)", async () => {
+  it("cancel posts nothing and a cut clipboard is not pasted (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const paste = vi.fn();
     renderPaste({
       clipboard: { operation: "copy", contentIds: [88] },
@@ -1813,10 +1925,12 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("relationships-paste-link-summary").textContent,
@@ -1828,7 +1942,7 @@ describe("RelationshipsView", () => {
     expect(idsInSlot(5)).toEqual(["71", "72"]);
   });
 
-  it("the panel button needs a selected slot and pastes every clipboard id (#6103)", async () => {
+  it("the panel button needs a selected slot and pastes every clipboard id (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const paste = vi
       .fn()
       .mockImplementation(async (request: { dependentId: number }) => ({
@@ -1845,6 +1959,7 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link"));
     expect(paste).not.toHaveBeenCalled();
@@ -1855,10 +1970,12 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-paste-link"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-done")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(paste).toHaveBeenCalledTimes(2);
     expect(paste).toHaveBeenNthCalledWith(1, {
@@ -1879,7 +1996,7 @@ describe("RelationshipsView", () => {
     ).toHaveAttribute("data-dependent-id", "88");
   });
 
-  it("a cut clipboard and HTTP 400/403/409 do not claim pasted links (#6103)", async () => {
+  it("a cut clipboard and HTTP 400/403/409 do not claim pasted links (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const paste = vi.fn();
     renderPaste({
       clipboard: { operation: "cut", contentIds: [88] },
@@ -1887,21 +2004,24 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(paste).not.toHaveBeenCalled();
     expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
     expect(idsInSlot(5)).toEqual(["71", "72"]);
   });
 
-  it("HTTP failures keep the slot unchanged (#6103)", async () => {
+  it("HTTP failures keep the slot unchanged (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     for (const status of [400, 403, 409]) {
       const paste = vi.fn().mockRejectedValue({ status });
       const { unmount } = renderPaste({
@@ -1910,16 +2030,19 @@ describe("RelationshipsView", () => {
       });
       await waitFor(() =>
         expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+        { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
       );
       fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
       await waitFor(() =>
         expect(
           screen.getByTestId("relationships-paste-link-dialog"),
         ).toBeTruthy(),
+        { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
       );
       fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
       await waitFor(() =>
         expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+        { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
       );
       expect(paste).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
@@ -1928,7 +2051,7 @@ describe("RelationshipsView", () => {
     }
   });
 
-  it("a later POST failure keeps already-created rows (#6103)", async () => {
+  it("a later POST failure keeps already-created rows (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const paste = vi
       .fn()
       .mockResolvedValueOnce({
@@ -1946,16 +2069,19 @@ describe("RelationshipsView", () => {
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
     await waitFor(() =>
       expect(
         screen.getByTestId("relationships-paste-link-dialog"),
       ).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(paste).toHaveBeenCalledTimes(2);
     expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
@@ -1965,17 +2091,19 @@ describe("RelationshipsView", () => {
     ).toHaveAttribute("data-dependent-id", "88");
   });
 
-  it("paste-as-link dialog passes the zero serious/critical axe-core gate (#6103)", async () => {
+  it("paste-as-link dialog passes the zero serious/critical axe-core gate (#6103)", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const { container } = renderPaste({
       clipboard: { operation: "copy", contentIds: [88] },
     });
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
     fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
     await waitFor(() =>
       expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -2007,49 +2135,53 @@ describe("RelationshipsView snippet preview (#6224)", () => {
     );
   }
 
-  it("offers a per-row preview affordance for snippet rows", async () => {
+  it("offers a per-row preview affordance for snippet rows", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const preview = vi.fn().mockResolvedValue(undefined);
     renderWithEdges([aaEdge], preview);
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     const button = screen.getByTestId("relationships-preview-snippet-7");
     expect(button).toHaveAttribute("data-content-id", "55");
     expect(button).toHaveAttribute("data-template-id", "4");
     fireEvent.click(button);
-    await waitFor(() => expect(preview).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(preview).toHaveBeenCalledTimes(1), { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT });
     expect(preview).toHaveBeenCalledWith({ contentId: 55, templateId: 4 });
     expect(
       screen.queryByTestId("relationships-preview-snippet-error"),
     ).toBeNull();
   });
 
-  it("a failed preview stays on the panel instead of opening", async () => {
+  it("a failed preview stays on the panel instead of opening", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     const preview = vi.fn().mockRejectedValue(new Error("nope"));
     renderWithEdges([aaEdge], preview);
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("relationships-preview-snippet-7"));
     await waitFor(() =>
       expect(
         screen.getByTestId("relationships-preview-snippet-error"),
       ).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(preview).toHaveBeenCalledTimes(1);
   });
 
-  it("rows without a snippet template have no preview affordance", async () => {
+  it("rows without a snippet template have no preview affordance", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     renderWithEdges([{ ...aaEdge, templateId: 0 }]);
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("relationships-preview-snippet-7"),
     ).toBeNull();
   });
 
-  it("non-assembly rows have no preview affordance", async () => {
+  it("non-assembly rows have no preview affordance", { timeout: RELATIONSHIPS_VIEW_TEST_TIMEOUT }, async () => {
     renderWithEdges([
       {
         relationshipId: 7,
@@ -2064,6 +2196,7 @@ describe("RelationshipsView snippet preview (#6224)", () => {
     ]);
     await waitFor(() =>
       expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+      { timeout: RELATIONSHIPS_VIEW_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("relationships-preview-snippet-7"),

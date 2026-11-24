@@ -36,6 +36,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const COLUMNS_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const COLUMNS_TEST_TIMEOUT = 30_000;
+
 function item(id: string, name: string, type = "percPage"): PSPathItem {
   return {
     id,
@@ -78,6 +101,7 @@ async function renderListing(): Promise<{ container: HTMLElement }> {
   );
   await waitFor(() =>
     expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+    { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
   );
   return { container };
 }
@@ -131,7 +155,7 @@ describe("DetailList column visibility rendering", () => {
     localStorage.clear();
   });
 
-  it("shows the Columns toggle with a closed menu by default", async () => {
+  it("shows the Columns toggle with a closed menu by default", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     await renderListing();
     expect(screen.getByTestId("detail-columns-toggle")).toHaveAttribute(
       "aria-expanded",
@@ -143,7 +167,7 @@ describe("DetailList column visibility rendering", () => {
     expect(screen.getByTestId("detail-col-header-path")).toBeInTheDocument();
   });
 
-  it("unchecking a column hides its header and cells and persists the choice", async () => {
+  it("unchecking a column hides its header and cells and persists the choice", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     await renderListing();
     fireEvent.click(screen.getByTestId("detail-columns-toggle"));
     expect(screen.getByTestId("detail-columns-menu")).toBeInTheDocument();
@@ -153,6 +177,7 @@ describe("DetailList column visibility rendering", () => {
       expect(
         screen.queryByTestId("detail-col-header-type"),
       ).not.toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("detail-cell-type-c-3"),
@@ -167,7 +192,7 @@ describe("DetailList column visibility rendering", () => {
     ).toEqual(["type"]);
   });
 
-  it("re-checking a hidden column shows it again", async () => {
+  it("re-checking a hidden column shows it again", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     await renderListing();
     fireEvent.click(screen.getByTestId("detail-columns-toggle"));
     fireEvent.click(screen.getByTestId("detail-column-toggle-type"));
@@ -175,15 +200,17 @@ describe("DetailList column visibility rendering", () => {
       expect(
         screen.queryByTestId("detail-col-header-type"),
       ).not.toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-column-toggle-type"));
     await waitFor(() =>
       expect(screen.getByTestId("detail-col-header-type")).toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-cell-type-c-3")).toBeInTheDocument();
   });
 
-  it("locks the last visible column on so the list never renders columnless", async () => {
+  it("locks the last visible column on so the list never renders columnless", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     await renderListing();
     fireEvent.click(screen.getByTestId("detail-columns-toggle"));
     fireEvent.click(screen.getByTestId("detail-column-toggle-type"));
@@ -192,6 +219,7 @@ describe("DetailList column visibility rendering", () => {
       expect(
         screen.queryByTestId("detail-col-header-path"),
       ).not.toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
     // Only name remains: its checkbox is disabled and stays checked.
     const nameToggle = screen.getByTestId("detail-column-toggle-name");
@@ -202,7 +230,7 @@ describe("DetailList column visibility rendering", () => {
     expect(screen.getByTestId("detail-cell-name-c-3")).toBeInTheDocument();
   });
 
-  it("restores persisted hidden columns on mount", async () => {
+  it("restores persisted hidden columns on mount", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     localStorage.setItem(
       DETAIL_COLUMN_VISIBILITY_STORAGE_KEY,
       JSON.stringify(["path"]),
@@ -215,7 +243,7 @@ describe("DetailList column visibility rendering", () => {
     expect(screen.getByTestId("detail-col-header-type")).toBeInTheDocument();
   });
 
-  it("keeps arrow-key row navigation working with a hidden column", async () => {
+  it("keeps arrow-key row navigation working with a hidden column", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     const selected: string[] = [];
     mockFetch(async () => listingResponse(ROWS));
     render(
@@ -227,6 +255,7 @@ describe("DetailList column visibility rendering", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-columns-toggle"));
     fireEvent.click(screen.getByTestId("detail-column-toggle-type"));
@@ -234,6 +263,7 @@ describe("DetailList column visibility rendering", () => {
       expect(
         screen.queryByTestId("detail-col-header-type"),
       ).not.toBeInTheDocument(),
+      { timeout: COLUMNS_ROUND_TRIP_TIMEOUT },
     );
 
     const first = screen.getByTestId("detail-row-c-3");
@@ -245,7 +275,7 @@ describe("DetailList column visibility rendering", () => {
     );
   });
 
-  it("columns-menu surface has no serious a11y violations", async () => {
+  it("columns-menu surface has no serious a11y violations", { timeout: COLUMNS_TEST_TIMEOUT }, async () => {
     const { container } = await renderListing();
     fireEvent.click(screen.getByTestId("detail-columns-toggle"));
     expect(screen.getByTestId("detail-columns-menu")).toBeInTheDocument();

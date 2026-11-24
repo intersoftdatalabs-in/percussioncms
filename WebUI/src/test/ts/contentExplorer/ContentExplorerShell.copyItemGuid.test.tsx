@@ -24,6 +24,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const COPY_ITEM_GUID_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -66,7 +89,7 @@ describe("Content → Copy item id (#4989)", () => {
     vi.restoreAllMocks();
   });
 
-  it("copies the selected page content id and shows success", async () => {
+  it("copies the selected page content id and shows success", { timeout: COPY_ITEM_GUID_TEST_TIMEOUT }, async () => {
     stubList([
       {
         id: PAGE_ID,
@@ -91,6 +114,7 @@ describe("Content → Copy item id (#4989)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId(`detail-row-${PAGE_ID}`)).toBeInTheDocument(),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId(`detail-row-${PAGE_ID}`));
     await waitFor(() =>
@@ -98,6 +122,7 @@ describe("Content → Copy item id (#4989)", () => {
         "data-selected-item-id",
         PAGE_ID,
       ),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
@@ -105,7 +130,9 @@ describe("Content → Copy item id (#4989)", () => {
         "data-kind",
         "success",
       );
-    });
+    },
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeText).toHaveBeenCalledWith(PAGE_ID);
     expect(screen.getByTestId("explorer-copy-item-guid-status")).toHaveAttribute(
       "data-copied-guid",
@@ -118,7 +145,7 @@ describe("Content → Copy item id (#4989)", () => {
     await renderA11yGate(container);
   });
 
-  it("does not write the clipboard when no row is selected", async () => {
+  it("does not write the clipboard when no row is selected", { timeout: COPY_ITEM_GUID_TEST_TIMEOUT }, async () => {
     stubList([]);
     const writeText = vi.fn();
     Object.defineProperty(navigator, "clipboard", {
@@ -134,6 +161,7 @@ describe("Content → Copy item id (#4989)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
@@ -141,7 +169,9 @@ describe("Content → Copy item id (#4989)", () => {
         "data-reason",
         "none",
       );
-    });
+    },
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeText).not.toHaveBeenCalled();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
@@ -149,7 +179,7 @@ describe("Content → Copy item id (#4989)", () => {
     );
   });
 
-  it("names a selected folder and does not write the clipboard", async () => {
+  it("names a selected folder and does not write the clipboard", { timeout: COPY_ITEM_GUID_TEST_TIMEOUT }, async () => {
     stubList([
       {
         id: "16777215-101-703",
@@ -173,6 +203,7 @@ describe("Content → Copy item id (#4989)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-16777215-101-703")).toBeInTheDocument(),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-row-16777215-101-703"));
     await waitFor(() =>
@@ -180,6 +211,7 @@ describe("Content → Copy item id (#4989)", () => {
         "data-selected-item-id",
         "16777215-101-703",
       ),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
@@ -187,11 +219,13 @@ describe("Content → Copy item id (#4989)", () => {
       expect(status).toHaveAttribute("data-kind", "error");
       expect(status).toHaveAttribute("data-reason", "folder");
       expect(status).toHaveTextContent("Corporate Investments");
-    });
+    },
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeText).not.toHaveBeenCalled();
   });
 
-  it("shows clipboard failure and keeps the selection", async () => {
+  it("shows clipboard failure and keeps the selection", { timeout: COPY_ITEM_GUID_TEST_TIMEOUT }, async () => {
     stubList([
       {
         id: PAGE_ID,
@@ -217,6 +251,7 @@ describe("Content → Copy item id (#4989)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId(`detail-row-${PAGE_ID}`)).toBeInTheDocument(),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId(`detail-row-${PAGE_ID}`));
     await waitFor(() =>
@@ -224,6 +259,7 @@ describe("Content → Copy item id (#4989)", () => {
         "data-selected-item-id",
         PAGE_ID,
       ),
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
@@ -231,7 +267,9 @@ describe("Content → Copy item id (#4989)", () => {
       expect(status).toHaveAttribute("data-kind", "error");
       expect(status).toHaveAttribute("data-reason", "clipboard");
       expect(status).toHaveAttribute("data-copied-guid", PAGE_ID);
-    });
+    },
+      { timeout: COPY_ITEM_GUID_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
       PAGE_ID,

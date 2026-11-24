@@ -27,6 +27,29 @@ import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
 /**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const GENERIC_CONTENT_ITEMS_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const GENERIC_CONTENT_ITEMS_TEST_TIMEOUT = 30_000;
+
+/**
  * Rhythmyx parity (#6514, parent #4530): an upgrade site has no Pages or
  * Assets — it has Items of custom content types / snippets. The folder
  * list must show generic items with type-aware rows (name/title/type),
@@ -71,7 +94,7 @@ function listingResponse(rows: PSPathItem[]): Response {
 }
 
 describe("generic content items (#6514)", () => {
-  it("lists custom-type items with type-aware rows, not folder rows", async () => {
+  it("lists custom-type items with type-aware rows, not folder rows", { timeout: GENERIC_CONTENT_ITEMS_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { container } = render(
       <DetailList
@@ -82,6 +105,7 @@ describe("generic content items (#6514)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-g-3")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-g-3");
     expect(row).toHaveAttribute("data-row-kind", "item");
@@ -100,7 +124,7 @@ describe("generic content items (#6514)", () => {
     await renderA11yGate(container);
   });
 
-  it("Enter and double-click activate a custom-type row for open", async () => {
+  it("Enter and double-click activate a custom-type row for open", { timeout: GENERIC_CONTENT_ITEMS_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const activated: string[] = [];
     render(
@@ -113,6 +137,7 @@ describe("generic content items (#6514)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-g-3")).toBeInTheDocument(),
+      { timeout: GENERIC_CONTENT_ITEMS_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-g-3");
     row.focus();
@@ -122,7 +147,7 @@ describe("generic content items (#6514)", () => {
     expect(activated).toEqual(["g-3", "g-3"]);
   });
 
-  it("recycle confirm names items, not just pages/assets (#6514)", async () => {
+  it("recycle confirm names items, not just pages/assets (#6514)", { timeout: GENERIC_CONTENT_ITEMS_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RecycleConfirmDialog onConfirm={() => undefined} onCancel={() => undefined} />,
     );
@@ -138,7 +163,7 @@ describe("generic content items (#6514)", () => {
     await renderA11yGate(container);
   });
 
-  it("purge confirm names recycled items, not just pages/assets (#6514)", async () => {
+  it("purge confirm names recycled items, not just pages/assets (#6514)", { timeout: GENERIC_CONTENT_ITEMS_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <PurgeConfirmDialog onConfirm={() => undefined} onCancel={() => undefined} />,
     );
