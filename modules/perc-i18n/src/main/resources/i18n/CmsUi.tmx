@@ -1615,11 +1615,11 @@
     <tuv xml:lang="ru"><seg>Имя файла</seg></tuv><tuv xml:lang="he"><seg>שם הקובץ</seg></tuv><tuv xml:lang="uk"><seg>Ім'я файлу</seg></tuv><tuv xml:lang="lou"><seg>Non fiché</seg></tuv><tuv xml:lang="pl"><seg>Nazwa pliku</seg></tuv><tuv xml:lang="tr"><seg>Dosya adı</seg></tuv><tuv xml:lang="nb"><seg>Filnavn</seg></tuv><tuv xml:lang="sv"><seg>Filnamn</seg></tuv></tu>
     <tu tuid="perc.ui.publish.title@Type">
       <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-      <tuv xml:lang="ar"><seg>يكتب</seg></tuv>
+      <tuv xml:lang="ar"><seg>النوع</seg></tuv>
       <tuv xml:lang="bn"><seg>টাইপ</seg></tuv>
       <tuv xml:lang="de"><seg>Typ</seg></tuv>
-      <tuv xml:lang="es"><seg>Escribe</seg></tuv>
-      <tuv xml:lang="fr"><seg>Taper</seg></tuv>
+      <tuv xml:lang="es"><seg>Tipo</seg></tuv>
+      <tuv xml:lang="fr"><seg>Type</seg></tuv>
       <tuv xml:lang="hi"><seg>प्रकार</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo</seg></tuv>
       <tuv xml:lang="ja-jp"><seg>タイプ</seg></tuv>
@@ -4773,11 +4773,11 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
     <tuv xml:lang="ru"><seg>Название раздела</seg></tuv><tuv xml:lang="he"><seg>שם המדור</seg></tuv><tuv xml:lang="uk"><seg>Назва розділу</seg></tuv><tuv xml:lang="lou"><seg>Section non</seg></tuv><tuv xml:lang="pl"><seg>Nazwa sekcji</seg></tuv><tuv xml:lang="tr"><seg>Bölüm adı</seg></tuv><tuv xml:lang="nb"><seg>Navn på seksjon</seg></tuv><tuv xml:lang="sv"><seg>Sektionens namn</seg></tuv></tu>
     <tu tuid="perc.ui.newSectionDialog.label@Type">
       <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-      <tuv xml:lang="ar"><seg>يكتب</seg></tuv>
+      <tuv xml:lang="ar"><seg>النوع</seg></tuv>
       <tuv xml:lang="bn"><seg>টাইপ</seg></tuv>
       <tuv xml:lang="de"><seg>Typ</seg></tuv>
       <tuv xml:lang="es"><seg>Tipo</seg></tuv>
-      <tuv xml:lang="fr"><seg>Taper</seg></tuv>
+      <tuv xml:lang="fr"><seg>Type</seg></tuv>
       <tuv xml:lang="hi"><seg>प्रकार</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo</seg></tuv>
       <tuv xml:lang="ja-jp"><seg>タイプ</seg></tuv>
@@ -19082,11 +19082,11 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tuv xml:lang="ru"><seg>Устарело (ожидает удаления)</seg></tuv><tuv xml:lang="he"><seg>הוצא משימוש (בהמתנה להסרה)</seg></tuv><tuv xml:lang="uk"><seg>Застаріло (очікує на видалення)</seg></tuv><tuv xml:lang="lou"><seg>Deprecated (An atant Removal)</seg></tuv><tuv xml:lang="pl"><seg>Przestarzałe (oczekujące na usunięcie)</seg></tuv><tuv xml:lang="tr"><seg>Kullanımdan Kaldırıldı (Kaldırılmayı Bekliyor)</seg></tuv><tuv xml:lang="nb"><seg>Avviklet (venter på fjerning)</seg></tuv><tuv xml:lang="sv"><seg>Utfasad (Väntar på borttagning)</seg></tuv></tu>
     <tu tuid="perc.ui.dashboard@Type">
       <tuv xml:lang="en-us"><seg>Type:</seg></tuv>
-      <tuv xml:lang="ar"><seg>يكتب:</seg></tuv>
+      <tuv xml:lang="ar"><seg>النوع:</seg></tuv>
       <tuv xml:lang="bn"><seg>প্রকার:</seg></tuv>
       <tuv xml:lang="de"><seg>Typ:</seg></tuv>
       <tuv xml:lang="es"><seg>Tipo:</seg></tuv>
-      <tuv xml:lang="fr"><seg>Taper:</seg></tuv>
+      <tuv xml:lang="fr"><seg>Type:</seg></tuv>
       <tuv xml:lang="hi"><seg>प्रकार:</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo:</seg></tuv>
       <tuv xml:lang="ja-jp"><seg>タイプ：</seg></tuv>
@@ -19095,7 +19095,7 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="te"><seg>రకం:</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>类型：</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>型別：</seg></tuv>
-    <tuv xml:lang="ru"><seg>Тип:</seg></tuv><tuv xml:lang="he"><seg>סוּג:</seg></tuv><tuv xml:lang="uk"><seg>тип:</seg></tuv><tuv xml:lang="lou"><seg>Tip:</seg></tuv><tuv xml:lang="pl"><seg>Typ:</seg></tuv><tuv xml:lang="tr"><seg>Tip:</seg></tuv><tuv xml:lang="nb"><seg>Type:</seg></tuv><tuv xml:lang="sv"><seg>Typ:</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Тип:</seg></tuv><tuv xml:lang="he"><seg>סוּג:</seg></tuv><tuv xml:lang="uk"><seg>Тип:</seg></tuv><tuv xml:lang="lou"><seg>Tip:</seg></tuv><tuv xml:lang="pl"><seg>Typ:</seg></tuv><tuv xml:lang="tr"><seg>Tip:</seg></tuv><tuv xml:lang="nb"><seg>Type:</seg></tuv><tuv xml:lang="sv"><seg>Typ:</seg></tuv></tu>
     <tu tuid="perc.ui.dashboard@Category">
       <tuv xml:lang="en-us"><seg>Category:</seg></tuv>
       <tuv xml:lang="ar"><seg>فئة:</seg></tuv>
@@ -20968,11 +20968,11 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tuv xml:lang="ru"><seg>Этикетка</seg></tuv><tuv xml:lang="he"><seg>מַדבֵּקָה</seg></tuv><tuv xml:lang="uk"><seg>Мітка</seg></tuv><tuv xml:lang="lou"><seg>Label</seg></tuv><tuv xml:lang="pl"><seg>Etykieta</seg></tuv><tuv xml:lang="tr"><seg>Etiket</seg></tuv><tuv xml:lang="nb"><seg>Merkelapp</seg></tuv><tuv xml:lang="sv"><seg>Märka</seg></tuv></tu>
     <tu tuid="perc.ui.widget.builder@Type">
       <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-      <tuv xml:lang="ar"><seg>يكتب</seg></tuv>
+      <tuv xml:lang="ar"><seg>النوع</seg></tuv>
       <tuv xml:lang="bn"><seg>টাইপ</seg></tuv>
       <tuv xml:lang="de"><seg>Typ</seg></tuv>
       <tuv xml:lang="es"><seg>Tipo</seg></tuv>
-      <tuv xml:lang="fr"><seg>Taper</seg></tuv>
+      <tuv xml:lang="fr"><seg>Type</seg></tuv>
       <tuv xml:lang="hi"><seg>प्रकार</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo</seg></tuv>
       <tuv xml:lang="ja-jp"><seg>タイプ</seg></tuv>
@@ -23128,11 +23128,11 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tuv xml:lang="ru"><seg>Размер</seg></tuv><tuv xml:lang="he"><seg>גוֹדֶל</seg></tuv><tuv xml:lang="uk"><seg>Розмір</seg></tuv><tuv xml:lang="lou"><seg>Size</seg></tuv><tuv xml:lang="pl"><seg>Rozmiar</seg></tuv><tuv xml:lang="tr"><seg>Boyut</seg></tuv><tuv xml:lang="nb"><seg>Størrelse</seg></tuv><tuv xml:lang="sv"><seg>Storlek</seg></tuv></tu>
     <tu tuid="perc.ui.gadget.bulkUpload@Type">
       <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-      <tuv xml:lang="ar"><seg>يكتب</seg></tuv>
+      <tuv xml:lang="ar"><seg>النوع</seg></tuv>
       <tuv xml:lang="bn"><seg>টাইপ</seg></tuv>
       <tuv xml:lang="de"><seg>Typ</seg></tuv>
       <tuv xml:lang="es"><seg>Tipo</seg></tuv>
-      <tuv xml:lang="fr"><seg>Taper</seg></tuv>
+      <tuv xml:lang="fr"><seg>Type</seg></tuv>
       <tuv xml:lang="hi"><seg>प्रकार</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo</seg></tuv>
       <tuv xml:lang="ja-jp"><seg>タイプ</seg></tuv>
