@@ -44,6 +44,10 @@ const {
   treeNodeMatchesFoldedSite,
   pickSiteTreeNodeTestId,
   classifyListSnapshot,
+  candidateRestFoldersForSites,
+  isListedPageKid,
+  isRestFolderKid,
+  nestedRestFolderRel,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -536,6 +540,88 @@ describe("explorer-preview-view helpers (#2733)", () => {
       ),
       "tree-node-/Sites/Corporate_Investments/",
     );
+  });
+
+  it("candidateRestFoldersForSites enumerates list path, Pages, and name fallbacks (#7212)", () => {
+    assert.deepEqual(candidateRestFoldersForSites([]), []);
+    assert.deepEqual(candidateRestFoldersForSites(null), []);
+    assert.deepEqual(
+      candidateRestFoldersForSites([
+        { folderPath: "//Sites/CorporateInvestments", name: "CorporateInvestments" },
+      ]),
+      [
+        "Sites/CorporateInvestments",
+        "Sites/CorporateInvestments/Pages",
+        "Sites/CorporateInvestments",
+        "Sites/CorporateInvestments/Pages",
+      ],
+    );
+    // A site without a list path still contributes the name fallbacks.
+    assert.deepEqual(candidateRestFoldersForSites([{ name: "Demo" }]), [
+      "Sites/Demo",
+      "Sites/Demo/Pages",
+    ]);
+    // A nameless entry with no path contributes nothing.
+    assert.deepEqual(candidateRestFoldersForSites([{}]), []);
+  });
+
+  it("isListedPageKid covers listed pages and previewable items, not folders (#7212)", () => {
+    assert.equal(
+      isListedPageKid({ type: "percPage", path: "/Sites/Demo/Home", id: "1" }),
+      true,
+    );
+    assert.equal(
+      isListedPageKid({ type: "rffImage", path: "/Assets/x.png", id: "2" }),
+      true,
+    );
+    assert.equal(
+      isListedPageKid({ type: "Folder", path: "/Sites/Demo/", id: "3" }),
+      false,
+    );
+  });
+
+  it("isRestFolderKid matches folders, sites, and trailing-slash paths (#7212)", () => {
+    assert.equal(isRestFolderKid({ type: "Folder", path: "/Sites/Demo" }), true);
+    assert.equal(
+      isRestFolderKid({ type: "Site", category: "", path: "/Sites/Demo" }),
+      true,
+    );
+    assert.equal(
+      isRestFolderKid({ type: "percPage", path: "/Sites/Demo/" }),
+      true,
+    );
+    assert.equal(
+      isRestFolderKid({ type: "percPage", path: "/Sites/Demo/Home" }),
+      false,
+    );
+    assert.equal(isRestFolderKid(null), false);
+  });
+
+  it("nestedRestFolderRel prefers the list path, else parent plus name (#7212)", () => {
+    assert.equal(
+      nestedRestFolderRel(
+        { folderPath: "//Sites/Demo/Pages", name: "Pages" },
+        "Sites/Demo",
+      ),
+      "Sites/Demo/Pages",
+    );
+    assert.equal(
+      nestedRestFolderRel({ name: "Assets" }, "Sites/Demo"),
+      "Sites/Demo/Assets",
+    );
+  });
+
+  it("content-editor spec decomposes the complexity-flagged REST/nav helpers (#7212)", () => {
+    const specPath = path.join(__dirname, "..", "explorer-content-editor.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /candidateRestFoldersForSites/);
+    assert.match(src, /isListedPageKid/);
+    assert.match(src, /isRestFolderKid/);
+    assert.match(src, /nestedRestFolderRel/);
+    assert.match(src, /expandSitesTreeNodes/);
+    assert.match(src, /clickPickedSiteNode/);
+    assert.match(src, /openSiteRowIfNeeded/);
+    assert.match(src, /awaitListedCandidateRow/);
   });
 
   it("classifyListSnapshot drives the settled poll state machine (#7193)", () => {
