@@ -194,6 +194,10 @@ test.describe("React Content Editor remove from staging", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.unstage}"]`)).toBeVisible({
         timeout: 20_000,
       });
+      // The done region stays mounted and empty until removal completes
+      // (persistent live region, #7169) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeEmpty();
       await page.locator(`[data-testid="${TEST_IDS.unstage}"]`).click();
       await expect.poll(() => unstageCalls.length).toBe(1);
       expect(unstageCalls[0].method).toBe("GET");
@@ -203,6 +207,7 @@ test.describe("React Content Editor remove from staging", () => {
         itemId: "42",
       });
       await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).not.toBeEmpty();
       await expect(page.locator(`[data-testid="${TEST_IDS.unstageError}"]`)).toHaveCount(0);
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
@@ -227,7 +232,7 @@ test.describe("React Content Editor remove from staging", () => {
       });
       await page.locator(`[data-testid="${TEST_IDS.unstage}"]`).click();
       expect(unstageCalls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeEmpty();
     },
   );
 
@@ -253,7 +258,7 @@ test.describe("React Content Editor remove from staging", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.unstageError}"]`)).toContainText(
         /Could not remove this item from staging/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeEmpty();
     },
   );
 
@@ -279,7 +284,7 @@ test.describe("React Content Editor remove from staging", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.unstageError}"]`)).toContainText(
         /Could not remove this item from staging/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeEmpty();
     },
   );
 
@@ -316,6 +321,7 @@ test.describe("React Content Editor remove from staging", () => {
       expect(isResourceStagingTakedownUrl(unstageCalls[0].url)).toBe(true);
       expect(parseStagingTakedownUrl(unstageCalls[0].url).itemId).toBe("99");
       await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.unstageDone}"]`)).not.toBeEmpty();
     },
   );
 });

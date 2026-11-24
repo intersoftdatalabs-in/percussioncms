@@ -5330,26 +5330,46 @@ export function EditorHost({
               {message(EDITOR_MSG.REMOVE_INCREMENTAL_DONE)}
             </span>
           ) : null}
-          {stageDone ? (
-            <span className={styles.meta} data-testid="editor-stage-done">
-              {message(EDITOR_MSG.STAGE_DONE)}
-            </span>
-          ) : null}
-          {unstageDone ? (
-            <span className={styles.meta} data-testid="editor-unstage-done">
-              {message(EDITOR_MSG.REMOVE_FROM_STAGING_DONE)}
-            </span>
-          ) : null}
-          {takedownDone ? (
-            <span className={styles.meta} data-testid="editor-takedown-done">
-              {message(EDITOR_MSG.TAKEDOWN_DONE)}
-            </span>
-          ) : null}
-          {previewDone ? (
-            <span className={styles.meta} data-testid="editor-preview-done">
-              {message(EDITOR_MSG.PREVIEW_DONE)}
-            </span>
-          ) : null}
+          {/*
+            Stage/takedown/preview results (#7169, parent #4532): each status
+            region stays mounted and only its text changes. A live region
+            mounted together with its text is missed by most SR/browser
+            combos, so the completion announcement would be unreliable (same
+            pattern as the workflow transition result, #7134, and the publish
+            result, #7135).
+          */}
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-stage-done"
+          >
+            {stageDone ? message(EDITOR_MSG.STAGE_DONE) : ""}
+          </span>
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-unstage-done"
+          >
+            {unstageDone ? message(EDITOR_MSG.REMOVE_FROM_STAGING_DONE) : ""}
+          </span>
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-takedown-done"
+          >
+            {takedownDone ? message(EDITOR_MSG.TAKEDOWN_DONE) : ""}
+          </span>
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-preview-done"
+          >
+            {previewDone ? message(EDITOR_MSG.PREVIEW_DONE) : ""}
+          </span>
           {closedAfterRecycle ? (
             <span className={styles.meta} data-testid="editor-recycle-done">
               {message(EDITOR_MSG.RECYCLED)}

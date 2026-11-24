@@ -209,12 +209,17 @@ test.describe("React Content Editor Take down", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.takedown}"]`)).toBeVisible({
         timeout: 20_000,
       });
+      // The done region stays mounted and empty until takedown completes
+      // (persistent live region, #7169) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toBeEmpty();
       await page.locator(`[data-testid="${TEST_IDS.takedown}"]`).click();
       await expect.poll(() => takedownCalls.length).toBe(1);
       expect(isPageTakedownUrl(takedownCalls[0].url)).toBe(true);
       expect(takedownCalls[0].method).toBe("PUT");
       expect(parseTakedownUrl(takedownCalls[0].url).itemId).toBe("42");
       await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).not.toBeEmpty();
       await expect(page.locator(`[data-testid="${TEST_IDS.takedownError}"]`)).toHaveCount(0);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
@@ -247,7 +252,7 @@ test.describe("React Content Editor Take down", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.takedownError}"]`)).toContainText(
         /Publication stopped|FORBIDDEN/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toBeEmpty();
     },
   );
 
@@ -266,7 +271,7 @@ test.describe("React Content Editor Take down", () => {
       });
       await page.locator(`[data-testid="${TEST_IDS.takedown}"]`).click();
       expect(takedownCalls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.takedownDone}"]`)).toBeEmpty();
     },
   );
 

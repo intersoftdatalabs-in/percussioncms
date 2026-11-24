@@ -211,6 +211,10 @@ test.describe("React Content Editor Preview", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.preview}"]`)).toBeVisible({
         timeout: 20_000,
       });
+      // The done region stays mounted and empty until preview opens
+      // (persistent live region, #7169) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeEmpty();
       const popupPromise = page.waitForEvent("popup");
       await page.locator(`[data-testid="${TEST_IDS.preview}"]`).click();
       const popup = await popupPromise;
@@ -221,6 +225,7 @@ test.describe("React Content Editor Preview", () => {
       expect(isEditorHostPreviewUrl(popup.url())).toBe(false);
       expect(isPageRenderPreviewUrl(popup.url())).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).not.toBeEmpty();
       await expect(page.locator(`[data-testid="${TEST_IDS.previewError}"]`)).toHaveCount(0);
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
@@ -253,6 +258,7 @@ test.describe("React Content Editor Preview", () => {
       const popup = await popupPromise;
       expect(isPageRenderPreviewUrl(popup.url())).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).not.toBeEmpty();
     },
   );
 
@@ -275,7 +281,7 @@ test.describe("React Content Editor Preview", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.previewError}"]`)).toContainText(
         /FORBIDDEN|403|Forbidden/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeEmpty();
     },
   );
 
@@ -295,7 +301,7 @@ test.describe("React Content Editor Preview", () => {
       });
       await page.locator(`[data-testid="${TEST_IDS.preview}"]`).click();
       await expect(page.locator(`[data-testid="${TEST_IDS.previewError}"]`)).toBeVisible();
-      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeEmpty();
     },
   );
 
@@ -314,7 +320,7 @@ test.describe("React Content Editor Preview", () => {
       });
       await page.locator(`[data-testid="${TEST_IDS.fieldTitle}"]`).fill("Draft title");
       await page.locator(`[data-testid="${TEST_IDS.preview}"]`).click();
-      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeEmpty();
       expect(previewCalls.filter(isPageRenderPreviewUrl)).toEqual([]);
     },
   );
@@ -342,6 +348,7 @@ test.describe("React Content Editor Preview", () => {
       );
       expect(isEditorHostPreviewUrl(popup.url())).toBe(false);
       await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).not.toBeEmpty();
     },
   );
 
