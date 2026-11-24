@@ -189,7 +189,7 @@
     --%>
 
     <%-- --%>
-    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.xmldom-1.0.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percxmldom.js"></script>
 
     <script src="../widgets/PercSimpleMenu/PercSimpleMenu.js"></script>
     <script src="../widgets/PercPageDataTable/PercPageDataTable.js"></script>

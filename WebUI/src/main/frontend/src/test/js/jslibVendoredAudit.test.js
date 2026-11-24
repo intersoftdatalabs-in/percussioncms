@@ -47,9 +47,9 @@
  * | retiredjs/timepicker.js | 0.2.1 Milesich 2009 (copyright, no grant) | UNSTATED | common_js.jsp; Schedule/Finder/Page views | partial (different lineage) | #7179 |
  * | retiredjs/datepicker.js | UNKNOWN (@VERSION never built) | MIT (jQuery Fdn header) | NONE (dead) | n/a (UI npm #5660) | #7179 |
  * | libraries/perc-retiredjs/date.js | v1.02 Matt Kruse | MIT/GPL | NONE (dead; moment npm #5665) | n/a | #7179 |
- * | retiredjs/jquery.jsonp.js | 2012 Aubourg | MIT | common-ui-bundle | none | #7180 |
- * | retiredjs/jquery.jfeed.js | 2007 Hovinne | MIT/GPL | common-ui-bundle | none | #7180 |
- * | retiredjs/jquery.xmldom-1.0.js + libraries duplicate | v1.0 2009 Out West | MIT/GPL | webmgt/editTemplate packs + JSP tags | none | #7180 |
+ * | retiredjs/jquery.jsonp.js | 2012 Aubourg | MIT | REMOVED #7180 (zero callers; CORS $.ajax) | none |
+ * | retiredjs/jquery.jfeed.js | 2007 Hovinne | MIT/GPL | REMOVED #7180 (native jfeed-shim) | none |
+ * | retiredjs/jquery.xmldom-1.0.js + libraries duplicate | v1.0 2009 Out West | MIT/GPL | REMOVED #7180 (first-party percxmldom shim) | none |
  * | retiredjs/jquery.jmodal.js | v2.0 2009 Jericho | GPL-ONLY | REMOVED #7181 (confirm_dialog) | n/a |
  * | retiredjs/tools.scrollable-1.1.2.js + mousewheel | 2009 Piirainen | MIT/GPL-2+ | REMOVED #7181 (percscrollable shim) | n/a |
  * | libraries/perc-retiredjs/rAF.js | 2011 Moller polyfill | snippet/PD | REMOVED #7181 (native rAF) | n/a |
@@ -122,12 +122,11 @@ const THIRD_PARTY = [
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/timepicker.js`, /jQuery UI Timepicker 0\.2\.1/, null, 7179],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/datepicker.js`, /@VERSION/, /MIT license/, 7179],
   [`${JSLIB}/libraries/perc-retiredjs/date.js`, /\$VERSION = 1\.02/, /Dual licensed/, 7179],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jsonp.js`, /jaubourg/i, /MIT License/, 7180],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jfeed.js`, /Hovinne/, /MIT/, 7180],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.xmldom-1.0.js`, /xmlDOM Plugin v1\.0/, /MIT and GPL/, 7180],
-  [`${JSLIB}/libraries/perc-retiredjs/jquery.xmldom-1.0.js`, /xmlDOM Plugin v1\.0/, /MIT and GPL/, 7180],
-  // #7181 rows removed: jmodal / tools.scrollable pair / rAF / testrunner /
-  // json2 were deleted from all three trees (see RETIRED_7181 below).
+  // #7180 rows removed: jsonp / jfeed / both xmldom dupes were retired (see
+  // RETIRED_7180 below). The full bundle now concatenates the native
+  // ../../delivery/common/js/shims/jfeed-shim.js and the slim bundle is just
+  // PercServiceUtils (jsonp had zero callers); webmgt/editTemplate packs and
+  // JSP tags load the first-party jquery.percxmldom.js shim instead.
 ];
 
 const FIRST_PARTY = [
@@ -136,6 +135,30 @@ const FIRST_PARTY = [
   // #7181 carousel shim: same $.fn.scrollable API as the retired jTools
   // plugin, first-party maintained.
   `${JSLIB}/jquery/plugins/jquery-percutils/jquery.percscrollable.js`,
+  // #7180 xmlDOM shim: same $.xmlDOM API as the retired Out West Media
+  // plugin (native DOMParser, no IE ActiveX fallback), first-party
+  // maintained.
+  `${JSLIB}/jquery/plugins/jquery-percutils/jquery.percxmldom.js`,
+];
+
+/** Issue #7180 retired feed/XML cluster: deleted from all three trees. */
+const RETIRED_7180 = [
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jsonp.js`,
+    needles: ["jquery-perc-retiredjs/jquery.jsonp", "$.jsonp"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jfeed.js`,
+    needles: ["jquery-perc-retiredjs/jquery.jfeed", "jquery.jfeed"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.xmldom-1.0.js`,
+    needles: ["jquery-perc-retiredjs/jquery.xmldom", "jquery.xmldom-1.0"],
+  },
+  {
+    rel: `${JSLIB}/libraries/perc-retiredjs/jquery.xmldom-1.0.js`,
+    needles: ["libraries/perc-retiredjs/jquery.xmldom", "jquery.xmldom-1.0"],
+  },
 ];
 
 /** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
@@ -276,6 +299,77 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
       }
       expect(hits, `retired ${base} still referenced`).toEqual([]);
     }
+  });
+
+  it("retired #7180 feed/XML cluster stays deleted and unreferenced (native shims in)", () => {
+    // jsonp had zero callers (delivery calls use CORS $.ajax), jfeed is
+    // replaced by the native delivery jfeed-shim, and both xmldom dupes are
+    // replaced by the first-party jquery.percxmldom.js shim: the vendored
+    // files are deleted and no reference to them (or their APIs) may remain
+    // outside the shims that document what they replace.
+    for (const { rel, needles } of RETIRED_7180) {
+      for (const tree of [WEBAPP_CM, WAR_ROOT]) {
+        const relNoJslib = rel.replace(/^jslib\//, "");
+        const candidates =
+          tree === WEBAPP_CM
+            ? [
+                path.join(tree, rel),
+                path.join(tree, "vendor/js/legacy", relNoJslib),
+              ]
+            : [path.join(tree, rel)];
+        for (const abs of candidates) {
+          expect(fs.existsSync(abs), `retired file resurrected: ${abs}`).toBe(
+            false,
+          );
+        }
+      }
+    }
+    const roots = [WEBAPP_CM, MINIFY_DIR];
+    const skipDir = (p) =>
+      p.split(path.sep).includes("jslib") ||
+      p.split(path.sep).includes("vendor");
+    for (const { rel, needles } of RETIRED_7180) {
+      const base = path.basename(rel);
+      const hits = [];
+      for (const root of roots) {
+        const walk = (dir) => {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              if (!skipDir(full)) walk(full);
+            } else if (/\.(jsp|html|xls|xsl|js|json|css)$/.test(entry.name)) {
+              // The first-party shim documents what it replaces in prose
+              // ("retired jQuery xmlDOM Plugin"); only dotted file/API
+              // references count as resurrections.
+              if (full.endsWith("jquery.percxmldom.js")) continue;
+              const content = fs.readFileSync(full, "utf8");
+              for (const needle of needles) {
+                if (content.includes(needle)) hits.push(`${full} :: ${needle}`);
+              }
+            }
+          }
+        };
+        walk(root);
+      }
+      expect(hits, `retired ${base} still referenced`).toEqual([]);
+    }
+    // The replacement shim ships in all three trees (byte-identical).
+    const shim = `${JSLIB}/jquery/plugins/jquery-percutils/jquery.percxmldom.js`;
+    const shimNoJslib = shim.replace(/^jslib\//, "");
+    const copies = [
+      path.join(WEBAPP_CM, shim),
+      path.join(WEBAPP_CM, "vendor/js/legacy", shimNoJslib),
+      path.join(WAR_ROOT, shim),
+    ];
+    for (const abs of copies) {
+      expect(fs.existsSync(abs), `percxmldom shim missing: ${abs}`).toBe(true);
+    }
+    expect(fs.readFileSync(copies[0]).equals(fs.readFileSync(copies[1]))).toBe(
+      true,
+    );
+    expect(fs.readFileSync(copies[0]).equals(fs.readFileSync(copies[2]))).toBe(
+      true,
+    );
   });
 
   it("marks first-party shims with the Intersoft header (no migration)", () => {
