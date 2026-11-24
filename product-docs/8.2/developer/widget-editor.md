@@ -31,15 +31,20 @@ There is no `sys_resources/tinymce` dependency left in either package, so
 published forms and comment forms keep working now that the CMS TinyMCE bundle
 is removed (#5734).
 
-## Classic `sys_tinymce` control retired (#6637)
+## Classic `sys_tinymce` control retired and renamed (#6637, #6834)
 
 The classic `sys_tinymce` ControlMeta definition and the `perc_tinymce_init`
 runtime template were removed from `sys_Templates.xsl` after the #5734 bundle
-removal (#6637, superseding the #5874 freeze). For widget and template authors:
+removal (#6637, superseding the #5874 freeze). The emitted control name was
+then renamed to `sys_default_richtext_editor` (#6834, owner decision
+2026-11-24): new widget-builder `RICH_TEXT` fields and the shipped packages
+declare `sys_default_richtext_editor` ControlRefs. For widget and template authors:
 
 - Stored content types may still declare `sys_tinymce` ControlRefs; the CMS
   renders those fields through the TipTap surface (the same mapping the React
-  Content Editor uses), so no content change is needed.
+  Content Editor uses), so no content change is needed. The `sys_tinymce`
+  name remains a supported legacy alias until the installer upgrade task
+  migrates stored types.
 - The legacy `InlineLinkTitleField` control setting keeps working through
   that mapping.
 - Do not re-add `sys_resources/tinymce` or `rx_resources/tinymce`

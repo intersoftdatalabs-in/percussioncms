@@ -1,7 +1,9 @@
 <controls xmlns:psxctl="urn:percussion.com/control">
 	<!-- Test stub standing in for a shipped classic control. The frozen
 	     sys_tinymce definition was retired in #6637 (TinyMCE bundle removed
-	     in #5734), so this fixture carries no tinymce assets. The stub name is
+	     in #5734), and the emitted name was renamed to
+	     sys_default_richtext_editor in #6834 (owner decision 2026-11-24,
+	     supersedes #5874 freeze), so this fixture carries no tinymce assets. The stub name is
 	     inert: PSContentTypeFileTransformerTest returns item(0) for every
 	     getControl() lookup; only the sys_xdTextCleanup Dependencies shape
 	     matters (expectedItemDef.xml pins it). -->

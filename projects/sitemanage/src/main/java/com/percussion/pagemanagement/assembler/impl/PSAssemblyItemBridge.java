@@ -407,7 +407,11 @@ public class PSAssemblyItemBridge {
     }
   }
 
-  private static List<String> htmlControls = asList("sys_tinymce");
+  // #6834: renamed RTE control (owner decision 2026-11-24) plus the legacy
+  // sys_tinymce alias for stored content types not yet migrated by the
+  // installer upgrade task (slice #7236).
+  private static List<String> htmlControls =
+      asList("sys_default_richtext_editor", "sys_tinymce");
 
   /**
    * Determines if the field for a given content type is an html field.

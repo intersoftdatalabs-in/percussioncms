@@ -26,6 +26,11 @@ import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 describe("classifyEditorControl", () => {
   it("maps TinyMCE / file / image / keyword / community controls", () => {
     expect(classifyEditorControl({ control: "sys_tinymce" }, "body")).toBe("html");
+    // #6834 rename: the new emitted name maps to html; the legacy alias
+    // keeps working until the installer upgrade task migrates stored types.
+    expect(classifyEditorControl({ control: "sys_default_richtext_editor" }, "body")).toBe(
+      "html",
+    );
     expect(classifyEditorControl({ control: "sys_File" }, "item_file_attachment")).toBe(
       "file",
     );

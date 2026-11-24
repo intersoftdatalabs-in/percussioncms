@@ -156,7 +156,7 @@
                            <Label>
                               <PSXDisplayText>Text:</PSXDisplayText>
                            </Label>
-                           <PSXControlRef id="10010" name="sys_tinymce">
+                           <PSXControlRef id="10010" name="sys_default_richtext_editor">
                               <PSXParam name="config_src_url">
                                  <DataLocator>
                                     <PSXTextLiteral id="0">

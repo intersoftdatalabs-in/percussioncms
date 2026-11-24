@@ -1029,7 +1029,7 @@
                            <Label>
                               <PSXDisplayText>Personal caption:</PSXDisplayText>
                            </Label>
-                           <PSXControlRef id="1011" name="sys_tinymce">
+                           <PSXControlRef id="1011" name="sys_default_richtext_editor">
                               <PSXParam name="requirescleanup">
                                  <DataLocator>
                                     <PSXTextLiteral id="0">

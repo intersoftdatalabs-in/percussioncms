@@ -150,10 +150,14 @@ public class PSContentTypeFileTransformerTest {
 
     /* (non-Javadoc)
      * @see com.percussion.widgetbuilder.utils.xform.IPSControlManager#getControl(java.lang.String)
+     *
+     * Name-aware like the production registry: only the legacy alias carries
+     * ControlMeta, so the golden itemDef test proves the #6834 fallback in
+     * addTextCleanupExtension (new name -> legacy metadata).
      */
     @Override
     public PSControlMeta getControl(String name) {
-      return ctrlMeta;
+      return "sys_tinymce".equals(name) ? ctrlMeta : null;
     }
   }
 }
