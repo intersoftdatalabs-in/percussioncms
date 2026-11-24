@@ -22,3 +22,7 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review
+
+The refactor preserves classification conditions, precedence, and fallback behavior. No actionable regressions were found, and the existing controlKinds test suite passes (3 tests).
