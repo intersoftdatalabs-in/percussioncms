@@ -22,6 +22,29 @@ import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const RECYCLE_CONTEXT_MENU_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -87,7 +110,7 @@ function mockRecycleBin(onRestore: (url: string) => void) {
 }
 
 describe("ContentExplorerShell recycled-row context menu (#6254)", () => {
-  it("offers Restore + Purge on a recycled row and restores without the toolbar", async () => {
+  it("offers Restore + Purge on a recycled row and restores without the toolbar", { timeout: RECYCLE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const restoreUrls: string[] = [];
     mockRecycleBin((url) => {
       restoreUrls.push(url);
@@ -102,11 +125,11 @@ describe("ContentExplorerShell recycled-row context menu (#6254)", () => {
       />,
     );
 
-    const row = await screen.findByTestId("detail-row-1-101-9");
+    const row = await screen.findByTestId("detail-row-1-101-9", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     fireEvent.contextMenu(row);
 
     // The server catalog is empty here, so both leaves are injected (#6254).
-    const restoreItem = await screen.findByTestId("context-menu-item-Restore");
+    const restoreItem = await screen.findByTestId("context-menu-item-Restore", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     expect(
       screen.queryByTestId("context-menu-item-Purge"),
     ).not.toBeNull();
@@ -114,13 +137,13 @@ describe("ContentExplorerShell recycled-row context menu (#6254)", () => {
 
     await waitFor(() => {
       expect(restoreUrls.length).toBeGreaterThan(0);
-    });
+    }, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     expect(
       restoreUrls.every((u) => u.includes("/recycle/restore/1-101-9")),
     ).toBe(true);
   });
 
-  it("purges a recycled row from the context menu after confirm", async () => {
+  it("purges a recycled row from the context menu after confirm", { timeout: RECYCLE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const purgeUrls: string[] = [];
     mockFetch(async (input, init) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -163,21 +186,21 @@ describe("ContentExplorerShell recycled-row context menu (#6254)", () => {
         />,
       );
 
-      const row = await screen.findByTestId("detail-row-1-101-9");
+      const row = await screen.findByTestId("detail-row-1-101-9", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
       fireEvent.contextMenu(row);
 
-      const purgeItem = await screen.findByTestId("context-menu-item-Purge");
+      const purgeItem = await screen.findByTestId("context-menu-item-Purge", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
       fireEvent.click(purgeItem);
 
       await waitFor(() => {
         expect(purgeUrls.length).toBeGreaterThan(0);
-      });
+      }, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     } finally {
       window.confirm = realConfirm;
     }
   });
 
-  it("offers no Restore on a live row context menu", async () => {
+  it("offers no Restore on a live row context menu", { timeout: RECYCLE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.includes("paginatedFolder") || url.includes("/folder/")) {
@@ -208,10 +231,10 @@ describe("ContentExplorerShell recycled-row context menu (#6254)", () => {
       />,
     );
 
-    const row = await screen.findByTestId("detail-row-2-101-9");
+    const row = await screen.findByTestId("detail-row-2-101-9", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     fireEvent.contextMenu(row);
 
-    await screen.findByTestId("context-menu");
+    await screen.findByTestId("context-menu", undefined, { timeout: RECYCLE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
     expect(screen.queryByTestId("context-menu-item-Restore")).toBeNull();
   });
 });

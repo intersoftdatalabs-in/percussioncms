@@ -42,6 +42,29 @@ import { isWorkflowEligibleItem } from "../../../main/ts/contentExplorer/workflo
 import { renderA11yGate } from "./a11y";
 
 /**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const GENERIC_CHECKOUT_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const GENERIC_CHECKOUT_TEST_TIMEOUT = 30_000;
+
+/**
  * Checkout trio for generic custom-type rows (#6651 / parent #4530).
  *
  * <p>{@link resolvePublishKind} returns {@code "none"} for rows outside
@@ -172,7 +195,7 @@ describe("generic checkout trio enablement (#6651)", () => {
     expect(menu).toContain("Force_Checkin");
   });
 
-  it("renders the trio with accessible names and passes the a11y gate", async () => {
+  it("renders the trio with accessible names and passes the a11y gate", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const actions = filterToolbarActions([], undefined, genericItem(), true);
     const { container } = render(
       <ActionToolbar actions={actions} ariaLabel="Server actions" />,
@@ -189,7 +212,7 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
     vi.restoreAllMocks();
   });
 
-  it("single Check In prompts then posts the editor check-in for the generic id", async () => {
+  it("single Check In prompts then posts the editor check-in for the generic id", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const workflowCheckIn = vi
       .spyOn(itemWorkflowApi, "checkInItem")
       .mockResolvedValue(undefined);
@@ -207,7 +230,7 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
     expect(workflowCheckIn).not.toHaveBeenCalled();
   });
 
-  it("single Force Check-in submits the generic id on the default REST path", async () => {
+  it("single Force Check-in submits the generic id on the default REST path", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const force = vi
       .spyOn(itemWorkflowApi, "forceCheckInItem")
       .mockResolvedValue(undefined);
@@ -220,7 +243,7 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
     expect(force).toHaveBeenCalledWith("88");
   });
 
-  it("multi-select Check In and Force Check-in include generic rows and skip folders", async () => {
+  it("multi-select Check In and Force Check-in include generic rows and skip folders", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const checkIn = vi
       .spyOn(itemWorkflowApi, "checkInItem")
       .mockResolvedValue(undefined);
@@ -258,7 +281,7 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
     expect(forced.messageText).toMatch(/Folders are not force checked in: News/i);
   });
 
-  it("checkout-owner panel names the holder for a generic row (a11y gate)", async () => {
+  it("checkout-owner panel names the holder for a generic row (a11y gate)", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <CheckoutOwnerPanel
         itemId="88"
@@ -270,7 +293,7 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
       />,
     );
     expect(
-      await screen.findByTestId("explorer-checkout-owner-user"),
+      await screen.findByTestId("explorer-checkout-owner-user", undefined, { timeout: GENERIC_CHECKOUT_ROUND_TRIP_TIMEOUT }),
     ).toHaveTextContent("editor");
     await renderA11yGate(container);
   });
@@ -317,7 +340,7 @@ describe("generic checkout-owner panel gate (#6838)", () => {
     ).toBeNull();
   });
 
-  it("renders the owner line for an untyped generic selection (a11y gate)", async () => {
+  it("renders the owner line for an untyped generic selection (a11y gate)", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const itemId = shellOwnerItemId(untypedGenericItem());
     const { container } = render(
       <CheckoutOwnerPanel
@@ -330,12 +353,12 @@ describe("generic checkout-owner panel gate (#6838)", () => {
       />,
     );
     expect(
-      await screen.findByTestId("explorer-checkout-owner-user"),
+      await screen.findByTestId("explorer-checkout-owner-user", undefined, { timeout: GENERIC_CHECKOUT_ROUND_TRIP_TIMEOUT }),
     ).toHaveTextContent("editor");
     await renderA11yGate(container);
   });
 
-  it("single Check Out of an untyped row reloads the owner line", async () => {
+  it("single Check Out of an untyped row reloads the owner line", { timeout: GENERIC_CHECKOUT_TEST_TIMEOUT }, async () => {
     const checkOut = vi
       .spyOn(itemWorkflowApi, "checkOutItem")
       .mockResolvedValue(undefined);

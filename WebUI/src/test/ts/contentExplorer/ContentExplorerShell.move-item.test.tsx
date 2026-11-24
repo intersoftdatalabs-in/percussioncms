@@ -24,6 +24,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const MOVE_ITEM_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const MOVE_ITEM_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -76,7 +99,7 @@ const SRC_FOLDER = {
 };
 
 describe("ContentExplorerShell move item (#4601)", () => {
-  it("POSTs move/item for a selected asset and refreshes the dest list", async () => {
+  it("POSTs move/item for a selected asset and refreshes the dest list", { timeout: MOVE_ITEM_TEST_TIMEOUT }, async () => {
     let moved = false;
     const moveUrls: string[] = [];
     mockFetch(async (input) => {
@@ -121,12 +144,12 @@ describe("ContentExplorerShell move item (#4601)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-4601-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-4601-src", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    const moveBtn = await screen.findByTestId("action-move");
+    const moveBtn = await screen.findByTestId("action-move", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     expect(moveBtn).toBeEnabled();
     fireEvent.click(moveBtn);
-    const destInput = await screen.findByTestId("explorer-move-dest-input");
+    const destInput = await screen.findByTestId("explorer-move-dest-input", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.change(destInput, { target: { value: "/Assets/qa4601_dst" } });
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
 
@@ -136,11 +159,11 @@ describe("ContentExplorerShell move item (#4601)", () => {
       expect(moveUrls.some((u) => u.includes("/rest/folders/move/folder"))).toBe(
         false,
       );
-    });
+    }, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     await renderA11yGate(container);
   });
 
-  it("does not POST move/item when the destination contains a NUL (#5552)", async () => {
+  it("does not POST move/item when the destination contains a NUL (#5552)", { timeout: MOVE_ITEM_TEST_TIMEOUT }, async () => {
     const moveUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -182,10 +205,10 @@ describe("ContentExplorerShell move item (#4601)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-4601-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-4601-src", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    fireEvent.click(await screen.findByTestId("action-move"));
-    fireEvent.change(await screen.findByTestId("explorer-move-dest-input"), {
+    fireEvent.click(await screen.findByTestId("action-move", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT }));
+    fireEvent.change(await screen.findByTestId("explorer-move-dest-input", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT }), {
       target: { value: "/Assets/qa4601_dst\u0000" },
     });
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
@@ -199,7 +222,7 @@ describe("ContentExplorerShell move item (#4601)", () => {
     await renderA11yGate(container);
   });
 
-  it("does not POST move/item when the destination is blank (#5574)", async () => {
+  it("does not POST move/item when the destination is blank (#5574)", { timeout: MOVE_ITEM_TEST_TIMEOUT }, async () => {
     const moveUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -241,10 +264,10 @@ describe("ContentExplorerShell move item (#4601)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-4601-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-4601-src", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    fireEvent.click(await screen.findByTestId("action-move"));
-    fireEvent.change(await screen.findByTestId("explorer-move-dest-input"), {
+    fireEvent.click(await screen.findByTestId("action-move", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT }));
+    fireEvent.change(await screen.findByTestId("explorer-move-dest-input", undefined, { timeout: MOVE_ITEM_ROUND_TRIP_TIMEOUT }), {
       target: { value: "   " },
     });
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));

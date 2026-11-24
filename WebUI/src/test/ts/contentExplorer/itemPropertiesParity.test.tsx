@@ -24,6 +24,29 @@ import { describe, expect, it, vi } from "vitest";
 import { ItemPropertiesPanel } from "../../../main/ts/contentExplorer/ItemPropertiesPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const ITEM_PROPERTIES_TEST_TIMEOUT = 30_000;
+
 const LOADED = {
   itemPath: "/Sites/Demo/Home",
   name: "Home",
@@ -60,11 +83,11 @@ function renderPanel(overrides: Record<string, unknown> = {}) {
 }
 
 describe("item-properties groups (FR-004)", () => {
-  it("renders General and Display groups with server values", async () => {
+  it("renders General and Display groups with server values", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     renderPanel();
-    expect(await screen.findByTestId("item-properties-general-group")).toBeTruthy();
-    expect(await screen.findByTestId("item-properties-display-group")).toBeTruthy();
-    expect(await screen.findByTestId("item-properties-path-value")).toHaveTextContent(
+    expect(await screen.findByTestId("item-properties-general-group", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-display-group", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-path-value", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toHaveTextContent(
       "/Sites/Demo/Home",
     );
     expect(screen.getByTestId("item-properties-name")).toHaveValue("Home");
@@ -75,12 +98,12 @@ describe("item-properties groups (FR-004)", () => {
 });
 
 describe("edit-persist round trip (FR-005)", () => {
-  it("saves the edited title and shows the committed value", async () => {
+  it("saves the edited title and shows the committed value", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     const { save } = renderPanel();
-    const input = await screen.findByTestId("item-properties-display-title");
+    const input = await screen.findByTestId("item-properties-display-title", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT });
     fireEvent.change(input, { target: { value: "Home RENAMED" } });
     fireEvent.click(screen.getByTestId("item-properties-save"));
-    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1), { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT });
     expect(save).toHaveBeenCalledWith(
       expect.objectContaining({ displayTitle: "Home RENAMED" }),
     );
@@ -88,28 +111,30 @@ describe("edit-persist round trip (FR-005)", () => {
       expect(
         screen.getByTestId("item-properties-shown-display-title-value"),
       ).toHaveTextContent("Home RENAMED"),
+      { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT },
     );
   });
 });
 
 describe("denied edits (FR-009)", () => {
-  it("renders read-only with disabled inputs when editing is not permitted", async () => {
+  it("renders read-only with disabled inputs when editing is not permitted", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     renderPanel({ canEdit: false });
-    expect(await screen.findByTestId("item-properties-readonly")).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-readonly", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     expect(screen.getByTestId("item-properties-name")).toBeDisabled();
     expect(screen.getByTestId("item-properties-display-title")).toBeDisabled();
   });
 
-  it("surfaces a clear message when the server rejects the save", async () => {
+  it("surfaces a clear message when the server rejects the save", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     const save = vi.fn(async () => {
       throw { status: 403, statusText: "Forbidden", body: "denied" };
     });
     renderPanel({ save });
-    const input = await screen.findByTestId("item-properties-display-title");
+    const input = await screen.findByTestId("item-properties-display-title", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT });
     fireEvent.change(input, { target: { value: "Nope" } });
     fireEvent.click(screen.getByTestId("item-properties-save"));
     await waitFor(() =>
       expect(screen.getByTestId("item-properties-status")).toBeTruthy(),
+      { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT },
     );
     // Previous committed value is kept, not silently replaced.
     expect(
@@ -119,16 +144,16 @@ describe("denied edits (FR-009)", () => {
 });
 
 describe("a11y gate (residual #6179)", () => {
-  it("editable panel surface has no serious a11y violations", async () => {
+  it("editable panel surface has no serious a11y violations", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     const { container } = renderPanel();
-    expect(await screen.findByTestId("item-properties-general-group")).toBeTruthy();
-    expect(await screen.findByTestId("item-properties-display-group")).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-general-group", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-display-group", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     await renderA11yGate(container);
   });
 
-  it("read-only panel surface has no serious a11y violations", async () => {
+  it("read-only panel surface has no serious a11y violations", { timeout: ITEM_PROPERTIES_TEST_TIMEOUT }, async () => {
     const { container } = renderPanel({ canEdit: false });
-    expect(await screen.findByTestId("item-properties-readonly")).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-readonly", undefined, { timeout: ITEM_PROPERTIES_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     await renderA11yGate(container);
   });
 });

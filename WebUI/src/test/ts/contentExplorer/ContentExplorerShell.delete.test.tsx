@@ -25,6 +25,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const DELETE_FOLDER_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const DELETE_FOLDER_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -50,7 +73,7 @@ const DISPOSABLE = {
 };
 
 describe("ContentExplorerShell delete folder (#3646)", () => {
-  it("POSTs deleteFolder then refreshes list and tree", async () => {
+  it("POSTs deleteFolder then refreshes list and tree", { timeout: DELETE_FOLDER_TEST_TIMEOUT }, async () => {
     let deleted = false;
     const deleteUrls: string[] = [];
     mockFetch(async (input) => {
@@ -98,29 +121,29 @@ describe("ContentExplorerShell delete folder (#3646)", () => {
       />,
     );
 
-    const row = await screen.findByTestId("detail-row-n-3646");
+    const row = await screen.findByTestId("detail-row-n-3646", undefined, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     fireEvent.click(row);
 
-    const deleteBtn = await screen.findByTestId("action-delete");
+    const deleteBtn = await screen.findByTestId("action-delete", undefined, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     expect(deleteBtn).toBeEnabled();
     fireEvent.click(deleteBtn);
 
     await waitFor(() => {
       expect(deleteUrls.length).toBeGreaterThan(0);
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     expect(deleteUrls.every((u) => u.includes("deleteFolder"))).toBe(true);
     await waitFor(() => {
       expect(screen.queryByTestId("detail-row-n-3646")).not.toBeInTheDocument();
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     await waitFor(() => {
       expect(
         screen.queryByTestId("tree-node-/Sites/qa3646"),
       ).not.toBeInTheDocument();
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     await renderA11yGate(container);
   });
 
-  it("drops the deleted name from the tree when product initialPath is / (#3653)", async () => {
+  it("drops the deleted name from the tree when product initialPath is / (#3653)", { timeout: DELETE_FOLDER_TEST_TIMEOUT }, async () => {
     const SITES = {
       id: "sites-root",
       path: "/Sites",
@@ -187,29 +210,29 @@ describe("ContentExplorerShell delete folder (#3646)", () => {
       />,
     );
 
-    const sitesNode = await screen.findByTestId("tree-node-/Sites");
+    const sitesNode = await screen.findByTestId("tree-node-/Sites", undefined, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     const toggle = sitesNode.querySelector('[aria-hidden="true"]');
     expect(toggle).toBeTruthy();
     fireEvent.click(toggle!);
     await waitFor(() => {
       expect(screen.getByTestId("tree-node-/Sites/qa3646")).toBeInTheDocument();
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
 
-    const row = await screen.findByTestId("detail-row-n-3646");
+    const row = await screen.findByTestId("detail-row-n-3646", undefined, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     fireEvent.click(row);
 
-    const deleteBtn = await screen.findByTestId("action-delete");
+    const deleteBtn = await screen.findByTestId("action-delete", undefined, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     expect(deleteBtn).toBeEnabled();
     fireEvent.click(deleteBtn);
 
     await waitFor(() => {
       expect(screen.queryByTestId("detail-row-n-3646")).not.toBeInTheDocument();
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     await waitFor(() => {
       expect(
         screen.queryByTestId("tree-node-/Sites/qa3646"),
       ).not.toBeInTheDocument();
-    });
+    }, { timeout: DELETE_FOLDER_ROUND_TRIP_TIMEOUT });
     expect(screen.queryByText("qa3646")).not.toBeInTheDocument();
     await renderA11yGate(container);
   });

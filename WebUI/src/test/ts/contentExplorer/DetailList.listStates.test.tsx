@@ -24,6 +24,29 @@ import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
 /**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const LIST_STATES_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const LIST_STATES_TEST_TIMEOUT = 30_000;
+
+/**
  * Item-list loading/empty/error states on i18n keys (#7036, parent
  * #4530): every user-visible list-state string resolves through
  * EXPLORER_MSG, loading announces via role=status without duplicate
@@ -54,7 +77,7 @@ function listingResponse(rows: PSPathItem[], total?: number): Response {
 }
 
 describe("DetailList list states (#7036)", () => {
-  it("announces loading through a single role=status region on the i18n key", async () => {
+  it("announces loading through a single role=status region on the i18n key", { timeout: LIST_STATES_TEST_TIMEOUT }, async () => {
     mockFetch(() => new Promise<Response>(() => undefined));
     const { container, rerender } = render(
       <DetailList
@@ -63,7 +86,7 @@ describe("DetailList list states (#7036)", () => {
         onSelectItem={() => undefined}
       />,
     );
-    const loading = await screen.findByTestId("detail-list-loading");
+    const loading = await screen.findByTestId("detail-list-loading", undefined, { timeout: LIST_STATES_ROUND_TRIP_TIMEOUT });
     expect(loading).toHaveAttribute("role", "status");
     expect(loading).toHaveTextContent(message(EXPLORER_MSG.LIST_LOADING));
     expect(loading.textContent ?? "").toMatch(/Loading items/);
@@ -83,7 +106,7 @@ describe("DetailList list states (#7036)", () => {
     await renderA11yGate(container);
   });
 
-  it("keeps stable empty testids with accessible names on the i18n keys", async () => {
+  it("keeps stable empty testids with accessible names on the i18n keys", { timeout: LIST_STATES_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse([]));
     const { container } = render(
       <DetailList
@@ -94,6 +117,7 @@ describe("DetailList list states (#7036)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-empty")).toBeInTheDocument(),
+      { timeout: LIST_STATES_ROUND_TRIP_TIMEOUT },
     );
     const empty = screen.getByTestId("detail-list-empty");
     expect(empty).toHaveAttribute("role", "status");
@@ -107,7 +131,7 @@ describe("DetailList list states (#7036)", () => {
     await renderA11yGate(container);
   });
 
-  it("names the failed folder and Retry re-runs the list fetch", async () => {
+  it("names the failed folder and Retry re-runs the list fetch", { timeout: LIST_STATES_TEST_TIMEOUT }, async () => {
     let calls = 0;
     mockFetch(async () => {
       calls += 1;
@@ -125,6 +149,7 @@ describe("DetailList list states (#7036)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-list-error")).toBeInTheDocument(),
+      { timeout: LIST_STATES_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-list-error")).toHaveAttribute(
       "role",
@@ -143,13 +168,14 @@ describe("DetailList list states (#7036)", () => {
     fireEvent.click(retry);
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-s-1")).toBeInTheDocument(),
+      { timeout: LIST_STATES_ROUND_TRIP_TIMEOUT },
     );
     expect(calls).toBeGreaterThanOrEqual(2);
     expect(screen.queryByTestId("detail-list-error")).not.toBeInTheDocument();
     await renderA11yGate(container);
   });
 
-  it("keys the incremental-approval badge and the pager chrome", async () => {
+  it("keys the incremental-approval badge and the pager chrome", { timeout: LIST_STATES_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse([ROW], 60));
     const { container } = render(
       <DetailList
@@ -161,6 +187,7 @@ describe("DetailList list states (#7036)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-s-1")).toBeInTheDocument(),
+      { timeout: LIST_STATES_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("detail-incremental-approved-s-1"),

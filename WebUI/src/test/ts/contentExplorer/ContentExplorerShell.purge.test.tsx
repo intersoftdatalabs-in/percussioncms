@@ -23,6 +23,29 @@ import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const PURGE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const PURGE_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -49,7 +72,7 @@ const RECYCLED = {
 };
 
 describe("ContentExplorerShell recycle purge one (#4763)", () => {
-  it("DELETEs one recycled guid after confirm then drops the row", async () => {
+  it("DELETEs one recycled guid after confirm then drops the row", { timeout: PURGE_TEST_TIMEOUT }, async () => {
     let purged = false;
     const purgeUrls: string[] = [];
     mockFetch(async (input, init) => {
@@ -95,17 +118,17 @@ describe("ContentExplorerShell recycle purge one (#4763)", () => {
         />,
       );
 
-      const row = await screen.findByTestId("detail-row-1-101-9");
+      const row = await screen.findByTestId("detail-row-1-101-9", undefined, { timeout: PURGE_ROUND_TRIP_TIMEOUT });
       fireEvent.click(row);
-      const purgeBtn = await screen.findByTestId("action-purge");
+      const purgeBtn = await screen.findByTestId("action-purge", undefined, { timeout: PURGE_ROUND_TRIP_TIMEOUT });
       fireEvent.click(purgeBtn);
 
       await waitFor(() => {
         expect(purgeUrls.length).toBeGreaterThan(0);
-      });
+      }, { timeout: PURGE_ROUND_TRIP_TIMEOUT });
       await waitFor(() => {
         expect(screen.queryByTestId("detail-row-1-101-9")).not.toBeInTheDocument();
-      });
+      }, { timeout: PURGE_ROUND_TRIP_TIMEOUT });
     } finally {
       window.confirm = realConfirm;
     }
