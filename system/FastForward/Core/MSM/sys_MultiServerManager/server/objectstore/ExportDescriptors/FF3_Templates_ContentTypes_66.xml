@@ -3683,8 +3683,8 @@
 											</PSXDeployableObject>
 											<PSXDeployableObject>
 												<PSXDependency autoDep="no" autoExpand="yes"
-													dependencyId="sys_tinymce" dependencyType="System"
-													displayName="sys_tinymce" isIncluded="no"
+													dependencyId="sys_default_richtext_editor" dependencyType="System"
+													displayName="sys_default_richtext_editor" isIncluded="no"
 													objectType="Control" objectTypeName="Control"
 													supportsIdMapping="no" supportsIdTypes="no"
 													supportsParentId="no" supportsUserDependencies="yes" />
@@ -8783,8 +8783,8 @@
 								</PSXDeployableObject>
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="sys_tinymce" dependencyType="System"
-										displayName="sys_tinymce" isIncluded="no" objectType="Control"
+										dependencyId="sys_default_richtext_editor" dependencyType="System"
+										displayName="sys_default_richtext_editor" isIncluded="no" objectType="Control"
 										objectTypeName="Control" supportsIdMapping="no"
 										supportsIdTypes="no" supportsParentId="no"
 										supportsUserDependencies="yes" />
