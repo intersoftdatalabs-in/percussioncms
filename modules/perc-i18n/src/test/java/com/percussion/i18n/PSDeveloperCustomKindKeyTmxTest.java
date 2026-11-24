@@ -1,0 +1,333 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.i18n;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+/**
+ * Pins the Spanish rendering of the Developer kind-chrome {@code Custom} string for issue
+ * #7230 (follow-up to the Erlang review of PR #7223).
+ *
+ * <p>{@code perc.ui.developer@Custom} labels the <em>custom</em> kind of a search, view, or
+ * API-key preset (standard | custom | user) — the adjective sense "customized", not the noun
+ * "custom/habit". The pipeline backfill for #7138 rendered the wrong sense ({@code
+ * Costumbre}); the same English source already ships as {@code Personalizado} for {@code
+ * perc.ui.dashboard@Custom}, {@code perc.ui.template.layout@Custom}, and {@code
+ * com.percussion.cx.PSFolderDialog@Custom}, and the sibling Developer TUVs agree with the
+ * adjective sense (ar {@code مخصص}, nl {@code Aangepast}, pt {@code Personalizado}).
+ *
+ * <p>The cache-agreement test below guards the #7116 invariant for this key: {@code
+ * scripts/cache/i18n_translate.json} is keyed by {@code sha256(target + "\0" + source)}, so
+ * the single shared {@code es + "Custom"} entry must equal the shipped {@code es} segment —
+ * otherwise a pipeline re-run would write the stale wrong-sense value back over the TMX.
+ */
+public class PSDeveloperCustomKindKeyTmxTest {
+
+  private static final String TUID = "perc.ui.developer@Custom";
+
+  private static final String SOURCE = "Custom";
+
+  /** Adjective sense ("customized"), matching the dashboard / template-layout / folder-dialog
+   * precedent TUs and the ar / nl / pt sibling TUVs. */
+  private static final String EXPECTED_ES = "Personalizado";
+
+  @Test
+  public void customKindKey_isRegisteredWithEnglishSource() throws Exception {
+    Map<String, String> segs = loadSegs(TUID);
+    assertNotNull(segs, "DeveloperUi.tmx missing <tu> " + TUID);
+    assertEquals(SOURCE, segs.get("en-us"), TUID + " en-us seg differs from TS fallback");
+  }
+
+  @Test
+  public void customKindKey_spanishUsesAdjectiveSense() throws Exception {
+    Map<String, String> segs = loadSegs(TUID);
+    assertNotNull(segs, "DeveloperUi.tmx missing <tu> " + TUID);
+    assertEquals(
+        EXPECTED_ES,
+        segs.get("es"),
+        TUID + " es seg must use the adjective sense (customized), not the noun (custom/habit)");
+  }
+
+  /**
+   * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
+   * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
+   * fail.
+   */
+  @Test
+  public void customKindCache_agreesWithShippedTmx() throws Exception {
+    Map<String, String> segs = loadSegs(TUID);
+    assertNotNull(segs, "DeveloperUi.tmx missing <tu> " + TUID);
+    Path cacheFile = resolveTranslateCache();
+    assertNotNull(cacheFile, "i18n_translate.json not found");
+    Map<String, String> cached = parseFlatJsonStringMap(cacheFile);
+
+    List<String> offenders = new ArrayList<>();
+    String seg = segs.get("es");
+    if (seg != null) {
+      String cachedValue = cached.get(translateCacheKey(SOURCE, "es"));
+      if (cachedValue != null && !cachedValue.equals(seg)) {
+        offenders.add(TUID + " [es] cache=" + cachedValue + " tmx=" + seg);
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230): " + offenders);
+  }
+
+  private static Map<String, String> loadSegs(String tuid) throws Exception {
+    Path tmx = resolveDeveloperUiTmx();
+    assertNotNull(tmx, "DeveloperUi.tmx not found");
+    Document doc = parse(tmx);
+    NodeList tus = doc.getElementsByTagName("tu");
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      if (!tuid.equals(tu.getAttribute("tuid"))) {
+        continue;
+      }
+      Map<String, String> segs = new LinkedHashMap<>();
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLang(readXmlLang(tuv));
+        if (lang.isBlank()) {
+          continue;
+        }
+        NodeList segNodes = tuv.getElementsByTagName("seg");
+        if (segNodes.getLength() > 0) {
+          segs.putIfAbsent(lang, segNodes.item(0).getTextContent());
+        }
+      }
+      return segs;
+    }
+    return null;
+  }
+
+  /** Mirror of {@code i18n_translate.cache_key}: {@code sha256(target + "\0" + text)}. */
+  private static String translateCacheKey(String text, String target) throws Exception {
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    digest.update(target.getBytes(StandardCharsets.UTF_8));
+    digest.update((byte) 0);
+    digest.update(text.getBytes(StandardCharsets.UTF_8));
+    return HexFormat.of().formatHex(digest.digest());
+  }
+
+  /**
+   * Resolve {@code scripts/cache/i18n_translate.json} portably: prefer the module-relative path
+   * (Maven surefire runs with the module dir as CWD), then fall back to repo-root-relative.
+   */
+  private static Path resolveTranslateCache() {
+    Path[] candidates =
+        new Path[] {
+          Paths.get("scripts", "cache", "i18n_translate.json"),
+          Paths.get(
+              "modules", "perc-i18n", "scripts", "cache", "i18n_translate.json"),
+        };
+    for (Path c : candidates) {
+      Path abs = c.toAbsolutePath().normalize();
+      if (Files.isRegularFile(abs)) {
+        return abs;
+      }
+    }
+    return null;
+  }
+
+  /** Parse a flat JSON {@code {"key": "value", ...}} object of string keys/values. */
+  private static Map<String, String> parseFlatJsonStringMap(Path json) throws Exception {
+    String raw = Files.readString(json, StandardCharsets.UTF_8).trim();
+    Map<String, String> map = new LinkedHashMap<>();
+    int[] pos = {0};
+    skipWs(raw, pos);
+    expect(raw, pos, '{');
+    skipWs(raw, pos);
+    if (peek(raw, pos) == '}') {
+      return map;
+    }
+    while (true) {
+      skipWs(raw, pos);
+      String key = readJsonString(raw, pos);
+      skipWs(raw, pos);
+      expect(raw, pos, ':');
+      skipWs(raw, pos);
+      String value = readJsonString(raw, pos);
+      map.put(key, value);
+      skipWs(raw, pos);
+      char c = peek(raw, pos);
+      if (c == ',') {
+        pos[0]++;
+        continue;
+      }
+      if (c == '}') {
+        break;
+      }
+      throw new IllegalArgumentException("Unexpected char '" + c + "' in cache JSON");
+    }
+    return map;
+  }
+
+  private static void skipWs(String raw, int[] pos) {
+    while (pos[0] < raw.length()
+        && (raw.charAt(pos[0]) == ' '
+            || raw.charAt(pos[0]) == '\n'
+            || raw.charAt(pos[0]) == '\r'
+            || raw.charAt(pos[0]) == '\t')) {
+      pos[0]++;
+    }
+  }
+
+  private static char peek(String raw, int[] pos) {
+    if (pos[0] >= raw.length()) {
+      throw new IllegalArgumentException("Truncated cache JSON");
+    }
+    return raw.charAt(pos[0]);
+  }
+
+  private static void expect(String raw, int[] pos, char want) {
+    if (peek(raw, pos) != want) {
+      throw new IllegalArgumentException("Expected '" + want + "' in cache JSON");
+    }
+    pos[0]++;
+  }
+
+  private static String readJsonString(String raw, int[] pos) {
+    expect(raw, pos, '"');
+    StringBuilder sb = new StringBuilder();
+    while (true) {
+      char c = peek(raw, pos);
+      if (c == '"') {
+        pos[0]++;
+        return sb.toString();
+      }
+      if (c != '\\') {
+        sb.append(c);
+        pos[0]++;
+        continue;
+      }
+      pos[0]++;
+      char e = peek(raw, pos);
+      pos[0]++;
+      switch (e) {
+        case '"':
+          sb.append('"');
+          break;
+        case '\\':
+          sb.append('\\');
+          break;
+        case '/':
+          sb.append('/');
+          break;
+        case 'b':
+          sb.append('\b');
+          break;
+        case 'f':
+          sb.append('\f');
+          break;
+        case 'n':
+          sb.append('\n');
+          break;
+        case 'r':
+          sb.append('\r');
+          break;
+        case 't':
+          sb.append('\t');
+          break;
+        case 'u':
+          if (pos[0] + 4 > raw.length()) {
+            throw new IllegalArgumentException("Truncated unicode escape in cache JSON");
+          }
+          sb.append((char) Integer.parseInt(raw.substring(pos[0], pos[0] + 4), 16));
+          pos[0] += 4;
+          break;
+        default:
+          throw new IllegalArgumentException("Bad escape '\\" + e + "' in cache JSON"); // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7230, same as #7138/#7116) — backslash is a JSON-escape in the test helper message, not an OS path; real paths use Paths.get joins
+      }
+    }
+  }
+
+  /**
+   * Resolve {@code DeveloperUi.tmx} portably: prefer the test classpath resource (Maven
+   * surefire), then fall back to common source-tree locations relative to the process working
+   * directory.
+   */
+  private static Path resolveDeveloperUiTmx() throws URISyntaxException {
+    URL url = PSDeveloperCustomKindKeyTmxTest.class.getResource("/i18n/DeveloperUi.tmx");
+    if (url != null && "file".equalsIgnoreCase(url.getProtocol())) {
+      Path p = Paths.get(url.toURI());
+      if (Files.isRegularFile(p)) {
+        return p;
+      }
+    }
+    Path[] candidates =
+        new Path[] {
+          Paths.get("src", "main", "resources", "i18n", "DeveloperUi.tmx"),
+          Paths.get("modules", "perc-i18n", "src", "main", "resources", "i18n", "DeveloperUi.tmx"),
+        };
+    for (Path c : candidates) {
+      Path abs = c.toAbsolutePath().normalize();
+      if (Files.isRegularFile(abs)) {
+        return abs;
+      }
+    }
+    return null;
+  }
+
+  private static Document parse(Path tmx) throws Exception {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    try (var reader = Files.newBufferedReader(tmx)) {
+      return factory.newDocumentBuilder().parse(new InputSource(reader));
+    }
+  }
+
+  private static String readXmlLang(Element tuv) {
+    String lang = tuv.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang");
+    if (lang == null || lang.isBlank()) {
+      lang = tuv.getAttribute("xml:lang");
+    }
+    if (lang == null || lang.isBlank()) {
+      lang = tuv.getAttribute("lang");
+    }
+    return lang != null ? lang : "";
+  }
+
+  private static String normalizeLang(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return "";
+    }
+    return raw.trim().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
+  }
+}
