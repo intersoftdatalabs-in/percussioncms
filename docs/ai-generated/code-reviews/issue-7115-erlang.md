@@ -43,7 +43,7 @@ loanwords `Host`/`Port`/`主机`/`端口`/`Poort`/`Хост`, noun `Type`/`ال�
 aligned with the engine's own compound translations; translation-cache synced),
 plus mechanical `* `-spacing normalization. The five pre-existing catalog TUs
 that render bare `Type` as fr `Taper` (other namespaces) were left untouched
-as out-of-scope (see residual #TBD).
+as out-of-scope (residual #7218).
 
 Round 2 (final diff): "No actionable defects found. All 4,368 added
 translation cells preserve placeholders and agree with the translation cache
