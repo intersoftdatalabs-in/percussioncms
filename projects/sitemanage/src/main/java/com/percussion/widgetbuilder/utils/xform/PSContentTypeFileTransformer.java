@@ -62,7 +62,20 @@ public class PSContentTypeFileTransformer implements IPSWidgetFileTransformer {
   private static final String PAGE_PATH_LEN = "1000";
   private static final String LINK_LEN = "15";
   private static final String SUFFIX = ".contentType";
-  private static final String RTE_CONTROL = "sys_tinymce";
+  // #6834 (owner rename decision 2026-11-24, supersedes #5874 freeze):
+  // new widget-builder RICH_TEXT fields emit the renamed control.
+  // Stored sys_tinymce ControlRefs keep working via the legacy alias
+  // accepted in PSAssemblyItemBridge.htmlControls and the React
+  // classifyEditorControl mapping until the installer upgrade task
+  // (slice #7236) migrates them.
+  private static final String RTE_CONTROL = "sys_default_richtext_editor";
+  /**
+   * Legacy alias for {@link #RTE_CONTROL}. Stored content types still declare it, and the classic
+   * control registry still carries its {@code ControlMeta} (the #6637 retirement removed only the
+   * {@code sys_Templates.xsl} rendering); metadata lookups fall back to it until the installer
+   * upgrade task (#7236) migrates stored types. See {@link #addTextCleanupExtension}.
+   */
+  private static final String LEGACY_RTE_CONTROL = "sys_tinymce";
   private static final String REQUIRES_CLEANUP = "yes";
 
   private static PSJdbcDataTypeMap dataTypeMap;
@@ -337,6 +350,11 @@ public class PSContentTypeFileTransformer implements IPSWidgetFileTransformer {
   private void addTextCleanupExtension(PSDisplayMapping mapping, PSItemDefinition itemDef) {
     var depMap = itemDef.getPipe().getControlDependencyMap();
     var ctrlMeta = ctrlMgr.getControl(mapping.getUISet().getControl().getName());
+    if (ctrlMeta == null) {
+      // #6834: the renamed control ships no classic ControlMeta of its own, so reuse the
+      // legacy alias cleanup dependencies (Codex review P1 on #7235).
+      ctrlMeta = ctrlMgr.getControl(LEGACY_RTE_CONTROL);
+    }
     // PSControlMeta#getDependencies() is a raw List in design objectstore.
     List<PSDependency> deps = new ArrayList<>();
     for (Object depObj : ctrlMeta.getDependencies()) {

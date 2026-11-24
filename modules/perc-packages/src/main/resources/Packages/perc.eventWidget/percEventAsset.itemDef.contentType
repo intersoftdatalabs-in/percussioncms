@@ -445,7 +445,7 @@
                            <Label>
                               <PSXDisplayText>Description:</PSXDisplayText>
                            </Label>
-                           <PSXControlRef id="10000" name="sys_tinymce">
+                           <PSXControlRef id="10000" name="sys_default_richtext_editor">
                               <PSXParam name="width">
                                  <DataLocator>
                                     <PSXTextLiteral id="0">

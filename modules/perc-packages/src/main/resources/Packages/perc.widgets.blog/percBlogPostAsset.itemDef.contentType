@@ -253,7 +253,7 @@
                            <Label>
                               <PSXDisplayText>Post:</PSXDisplayText>
                            </Label>
-                           <PSXControlRef id="10002" name="sys_tinymce">
+                           <PSXControlRef id="10002" name="sys_default_richtext_editor">
                               <PSXParam name="requirescleanup">
                                  <DataLocator>
                                     <PSXTextLiteral id="0">

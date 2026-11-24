@@ -121,6 +121,7 @@ export function classifyEditorControl(
     return "date";
   }
   if (
+    control === "sys_default_richtext_editor" ||
     control.includes("tinymce") ||
     control.includes("editlive") ||
     control.includes("html") ||

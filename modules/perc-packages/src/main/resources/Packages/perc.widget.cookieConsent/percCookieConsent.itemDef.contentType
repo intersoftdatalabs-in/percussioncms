@@ -472,7 +472,7 @@
                            <Label>
                               <PSXDisplayText>Cookie Disclaimer:</PSXDisplayText>
                            </Label>
-                           <PSXControlRef id="10002" name="sys_tinymce"/>
+                           <PSXControlRef id="10002" name="sys_default_richtext_editor"/>
                            <ErrorLabel>
                               <PSXDisplayText>Consent text:</PSXDisplayText>
                            </ErrorLabel>
