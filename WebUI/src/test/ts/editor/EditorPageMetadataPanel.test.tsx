@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EditorFieldRow } from "../../../main/ts/editor/controlKinds";
@@ -39,6 +39,31 @@ function row(name: string, value = ""): EditorFieldRow {
     required: false,
   };
 }
+
+/**
+ * Single wall-clock budget for every polling gate in this file (#7209).
+ * Each round trip here is purely microtask-driven (resolved/rejected-promise
+ * {@code loadSiteImpact} mocks → setState → render → focus effect) with no
+ * real timers involved, so the gates are deterministic in outcome; the
+ * budget is strictly a backstop for loaded-worker scheduling lag. Every
+ * {@code findByTestId} / {@code waitFor} uses it explicitly: the 1s
+ * testing-library default is the most-tripped cliff when hundreds of suite
+ * files share the worker host (same rationale as
+ * {@code TAKEDOWN_ROUND_TRIP_TIMEOUT} in #7189, {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122, and {@code PICKER_MOUNT_TIMEOUT} in #7151).
+ */
+const SITE_IMPACT_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7209, same load-contention rationale as
+ * {@code TAKEDOWN_TEST_TIMEOUT} in #7189 and
+ * {@code CONTEXT_MENU_RETRY_TEST_TIMEOUT} in #7122). The sequential gates
+ * in the retry tests can jointly exceed the 20s global default when the
+ * worker host is saturated. The primary gates stay progress-based (single
+ * bounded backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SITE_IMPACT_TEST_TIMEOUT = 30_000;
 
 describe("page metadata groups panel (#5739)", () => {
   afterEach(() => {
@@ -130,7 +155,7 @@ describe("page site impact panel (#5739)", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders impacting pages and templates", async () => {
+  it("renders impacting pages and templates", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     render(
       <EditorSiteImpactPanel
         itemId="42"
@@ -150,21 +175,27 @@ describe("page site impact panel (#5739)", () => {
       />,
     );
     expect(
-      await screen.findByTestId("editor-site-impact-pages-table"),
+      await screen.findByTestId("editor-site-impact-pages-table", undefined, {
+        timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+      }),
     ).toBeTruthy();
     expect(screen.getByTestId("editor-site-impact-page-row").textContent).toContain(
       "Home",
     );
     expect(
-      await screen.findByTestId("editor-site-impact-templates-table"),
+      await screen.findByTestId("editor-site-impact-templates-table", undefined, {
+        timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+      }),
     ).toBeTruthy();
   });
 
-  it("renders empty and error states", async () => {
+  it("renders empty and error states", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     const { unmount } = render(
       <EditorSiteImpactPanel itemId="42" loadSiteImpact={async () => ({ pages: [], templates: [] })} />,
     );
-    expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-empty", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     expect(
       screen.getByTestId("editor-site-impact-templates-empty"),
     ).toBeTruthy();
@@ -178,10 +209,12 @@ describe("page site impact panel (#5739)", () => {
         }}
       />,
     );
-    expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-error", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
   });
 
-  it("retry re-runs the load and renders rows after a failure (#6771)", async () => {
+  it("retry re-runs the load and renders rows after a failure (#6771)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     let calls = 0;
     render(
       <EditorSiteImpactPanel
@@ -207,15 +240,19 @@ describe("page site impact panel (#5739)", () => {
         }}
       />,
     );
-    const retry = await screen.findByTestId("editor-retry-site-impact");
+    const retry = await screen.findByTestId("editor-retry-site-impact", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    });
     expect(screen.getByTestId("editor-site-impact-error")).toBeTruthy();
     fireEvent.click(retry);
-    expect(await screen.findByTestId("editor-site-impact-pages-table")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-pages-table", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     expect(screen.queryByTestId("editor-site-impact-error")).toBeNull();
     expect(calls).toBe(2);
   });
 
-  it("a repeated failure keeps the alert and offers retry again (#6771)", async () => {
+  it("a repeated failure keeps the alert and offers retry again (#6771)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     let calls = 0;
     render(
       <EditorSiteImpactPanel
@@ -226,37 +263,54 @@ describe("page site impact panel (#5739)", () => {
         }}
       />,
     );
-    expect(await screen.findByTestId("editor-retry-site-impact")).toBeTruthy();
+    expect(await screen.findByTestId("editor-retry-site-impact", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     fireEvent.click(screen.getByTestId("editor-retry-site-impact"));
-    expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
+    // Deterministic drain (#7209, #7189 pattern): the rejected-promise mock
+    // is microtask-only, so flushing with act settles the error commit
+    // without wall-clock polling. The bounded gate below is strictly a
+    // backstop for loaded-worker lag.
+    await act(async () => {});
+    expect(await screen.findByTestId("editor-site-impact-error", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     expect(screen.getByTestId("editor-retry-site-impact")).toBeTruthy();
     expect(calls).toBeGreaterThanOrEqual(2);
   });
 
-  it("shows the loading indicator while the load is pending (#6771)", async () => {
+  it("shows the loading indicator while the load is pending (#6771)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     let resolveLoad: (value: { pages: never[]; templates: never[] }) => void = () => undefined;
     const pending = new Promise<{ pages: never[]; templates: never[] }>((resolve) => {
       resolveLoad = resolve;
     });
     render(<EditorSiteImpactPanel itemId="42" loadSiteImpact={() => pending} />);
-    expect(await screen.findByTestId("editor-site-impact-loading")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-loading", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     resolveLoad({ pages: [], templates: [] });
-    expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-empty", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
   });
 
-  it("announces the loading state through a live region (#6786)", async () => {
+  it("announces the loading state through a live region (#6786)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     let resolveLoad: (value: { pages: never[]; templates: never[] }) => void = () => undefined;
     const pending = new Promise<{ pages: never[]; templates: never[] }>((resolve) => {
       resolveLoad = resolve;
     });
     render(<EditorSiteImpactPanel itemId="42" loadSiteImpact={() => pending} />);
-    const loading = await screen.findByTestId("editor-site-impact-loading");
+    const loading = await screen.findByTestId("editor-site-impact-loading", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    });
     expect(loading.getAttribute("role")).toBe("status");
     resolveLoad({ pages: [], templates: [] });
-    expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
+    expect(await screen.findByTestId("editor-site-impact-empty", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
   });
 
-  it("retry success moves focus to the panel heading (#6786)", async () => {
+  it("retry success moves focus to the panel heading (#6786)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     let calls = 0;
     render(
       <EditorSiteImpactPanel
@@ -282,15 +336,34 @@ describe("page site impact panel (#5739)", () => {
         }}
       />,
     );
-    const retry = await screen.findByTestId("editor-retry-site-impact");
+    const retry = await screen.findByTestId("editor-retry-site-impact", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    });
     fireEvent.click(retry);
-    expect(await screen.findByTestId("editor-site-impact-pages-table")).toBeTruthy();
-    const heading = screen.getByTestId("editor-site-impact-heading");
-    expect(document.activeElement).toBe(heading);
+    // Deterministic drain (#7209, #7189 pattern): the mocked second load
+    // resolves on the microtask queue, so flushing with act settles the
+    // success commit without wall-clock polling. The bounded gates below
+    // are strictly backstops for loaded-worker lag.
+    await act(async () => {});
+    expect(await screen.findByTestId("editor-site-impact-pages-table", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
+    // Poll the focus landing, not just the table mount (#7209): the
+    // completion effect moves focus after the success commit, so a
+    // single-shot assertion can race effect scheduling under full-suite
+    // load while the mount gate above already passed.
+    await waitFor(
+      () => {
+        expect(document.activeElement).toBe(
+          screen.getByTestId("editor-site-impact-heading"),
+        );
+      },
+      { timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT },
+    );
     expect(document.activeElement?.tagName).not.toBe("BODY");
   });
 
-  it("a repeated failure returns focus to the retry button (#6786)", async () => {
+  it("a repeated failure returns focus to the retry button (#6786)", { timeout: SITE_IMPACT_TEST_TIMEOUT }, async () => {
     render(
       <EditorSiteImpactPanel
         itemId="42"
@@ -299,11 +372,29 @@ describe("page site impact panel (#5739)", () => {
         }}
       />,
     );
-    expect(await screen.findByTestId("editor-retry-site-impact")).toBeTruthy();
+    expect(await screen.findByTestId("editor-retry-site-impact", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
     fireEvent.click(screen.getByTestId("editor-retry-site-impact"));
-    expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
-    expect(document.activeElement?.getAttribute("data-testid")).toBe(
-      "editor-retry-site-impact",
+    // Deterministic drain (#7209, #7189 pattern): the rejected-promise mock
+    // is microtask-only, so flushing with act settles the error commit
+    // without wall-clock polling. The bounded gates below are strictly
+    // backstops for loaded-worker lag.
+    await act(async () => {});
+    expect(await screen.findByTestId("editor-site-impact-error", undefined, {
+      timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT,
+    })).toBeTruthy();
+    // Poll the focus landing, not just the error mount (#7209): the
+    // completion effect moves focus after the error commit, so a
+    // single-shot assertion can race effect scheduling under full-suite
+    // load while the mount gate above already passed.
+    await waitFor(
+      () => {
+        expect(document.activeElement?.getAttribute("data-testid")).toBe(
+          "editor-retry-site-impact",
+        );
+      },
+      { timeout: SITE_IMPACT_ROUND_TRIP_TIMEOUT },
     );
     expect(document.activeElement?.tagName).not.toBe("BODY");
   });
