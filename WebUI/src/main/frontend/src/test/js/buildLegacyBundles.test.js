@@ -1626,11 +1626,11 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
  *      any shipped classic call-site source (canonical + legacy twin).
  *   4. Keep-vendored disposition with rationale: jquery-layout (Dalman UI
  *      Layout 1.6.3, live via common_js.jsp + bundles; npm `jquery-layout`
- *      is a different library by scravy — no upstream), jquery-dropdown
- *      (claviska jqDropdown, live; npm `jquery-dropdown` is a different
- *      plugin by techhysahil — no upstream).
- *      Each stays vendored in all three trees with its live reference
- *      intact.
+ *      is a different library by scravy — no upstream).
+ *      jquery-dropdown left this list in issue #7176: the author's own
+ *      scoped package `@claviska/jquery-dropdown` 2.0.3 is the same
+ *      upstream lineage, so the pair is npm-served at the same stable
+ *      URLs (pinned in the #7176 block below), not keep-vendored.
  *      NOTE (issue #7181, parent audit #5627): jquery-testrunner
  *      (Resig/Zaefferer 2009) was dropped from this keep-vendored list —
  *      its only references were broken `../jslib//jslib/...` script tags
@@ -1678,6 +1678,10 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
   // NOTE (issue #7181): jquery-testrunner was removed from KEPT — its four
   // manual-testing-page references were broken `../jslib//jslib/...` tags
   // (dead 404 links); the file and tags were deleted outright.
+  // NOTE (issue #7176): jquery-dropdown was removed from KEPT — the
+  // author's scoped `@claviska/jquery-dropdown` 2.0.3 is the same upstream
+  // lineage, so the pair is npm-served at the same stable URLs (pinned in
+  // the #7176 block below), not keep-vendored.
   const KEPT = [
     {
       dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
@@ -1688,16 +1692,6 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
       dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
       refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
       refRe: /jquery-layout\/jquery\.layout_customresizer\.js/,
-    },
-    {
-      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
-      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
-      refRe: /jquery-dropdown\/jquery\.dropdown\.js/,
-    },
-    {
-      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
-      refs: ["app/includes/common_css.jsp", "pages/app/includes/common_css.jsp"],
-      refRe: /jquery-dropdown\/jquery\.dropdown\.css/,
     },
   ];
 
@@ -1855,7 +1849,7 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     }
   });
 
-  it("keeps vendored layout/dropdown with live references intact", () => {
+  it("keeps vendored layout with live references intact", () => {
     for (const { dest } of KEPT) {
       const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
         (k) => k === dest,
@@ -1876,43 +1870,207 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     }
   });
 
-  it("pins the jquery-dropdown MIT copyright notice in all three trees (issue #6751)", () => {
+  it("pins the MIT license chain for the npm-served dropdown (issue #7176 supersedes #6751)", () => {
     // Residual of the #6734 vendored-JS sweep (grandparent audit #5627):
     // the claviska jquery-dropdown twins declared `@license: MIT` with a
-    // Contribute link but named no copyright holder/year, so the notice was
-    // weaker than every other pinned payload row (hoverIntent, superfish,
-    // FullCalendar, qTip2, Lightbox, gcal, BBQ-derived deparam).
+    // Contribute link but named no copyright holder/year, so issue #6751
+    // restored the README-attested "Copyright (c) 2013 Cory LaViska for
+    // A Beautiful Site, LLC." banner in both vendored twins.
     //
-    // Upstream archaeology (November 2026): the master file headers at
-    // claviska/jquery-dropdown (now soundasleep/jquery-dropdown) ship the
-    // same holder-less banner — the copyright lives in the upstream README
-    // ("Copyright A Beautiful Site, LLC", MIT licensed) and the surviving
-    // fork READMEs ("Copyright 2013 Cory LaViska for
-    // A Beautiful Site, LLC."). Same-author precedent: the MiniColors twins
-    // carry "Developed by Cory LaViska for A Beautiful Site, LLC" with the
-    // same MIT license line. There is no npm migration path (npm
-    // `jquery-dropdown` is a different plugin by techhysahil), so the pair
-    // stays keep-vendored with the README-attested holder/year restored in
-    // the banner of both twins. This test fails if either twin in any tree
-    // loses the copyright or permission notice.
-    const DROPDOWN_TWINS = [
-      "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
-      "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
-    ];
-    for (const dest of DROPDOWN_TWINS) {
+    // Issue #7176 migrates the pair to the author's scoped npm package
+    // `@claviska/jquery-dropdown` 2.0.3 (same upstream lineage, MIT), so
+    // the hand-edited banners retired with the vendored copies: the served
+    // bytes are byte-canonical upstream. The license chain is preserved —
+    // this test pins the MIT grant in the served dist, the MIT license
+    // field + author attribution in the npm package metadata, and the
+    // Dependabot-tracked dependency pin.
+    const pkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "@claviska/jquery-dropdown/package.json"),
+        "utf8",
+      ),
+    );
+    expect(pkg.name).toBe("@claviska/jquery-dropdown");
+    expect(pkg.version).toBe("2.0.3");
+    expect(pkg.license).toBe("MIT");
+    expect(pkg.author, "npm package lost upstream author attribution").toMatch(
+      /Cory LaViska/,
+    );
+    const frontendPkg = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    expect(
+      (frontendPkg.dependencies || {})["@claviska/jquery-dropdown"],
+      "dropdown is not Dependabot-tracked in frontend/package.json",
+    ).toBe("2.0.3");
+    const distJs = fs.readFileSync(
+      path.join(NODE_MODULES, "@claviska/jquery-dropdown/jquery.dropdown.js"),
+      "utf8",
+    );
+    expect(distJs, "npm dropdown dist lost its MIT grant").toMatch(
+      /@license: MIT license: http:\/\/opensource\.org\/licenses\/MIT/,
+    );
+  });
+});
+
+/**
+ * Claviska dropdown from npm (issue #7176, parent audit #5627).
+ *
+ * The vendored 2013 Cory LaViska jquery-dropdown twins (js + css, plus the
+ * stale unreferenced `cm/css/` and `cm/app/css/legacy/` duplicates) are
+ * deleted from all three trees. The same stable jslib URLs are now served
+ * from the author's scoped npm package `@claviska/jquery-dropdown` 2.0.3
+ * (Dependabot-tracked in frontend/package.json) — same `jqDropdown` API,
+ * same `data-jq-dropdown` delegation, same `.jq-dropdown-*` classes — via
+ * the generated-webui overlay (STANDALONE_NPM_COPIES) and bundle resolution
+ * (NPM_LIBRARY_MAPPINGS), so both common_js.jsp / common_css.jsp twins and
+ * both minify bundle configs keep referencing them unchanged. (The bare
+ * npm name `jquery-dropdown` is an unrelated techhysahil package; the
+ * scoped package is the same upstream lineage.)
+ *
+ * Recorded delta vs the deleted copy (unobservable in-product: the plugin
+ * has zero in-repo callers — no `jqDropdown()` invocations, no
+ * `data-jq-dropdown` markup, no `.jq-dropdown-*` selectors outside the
+ * vendored files themselves): upstream 2.0.3 lacks the locally added
+ * cancelable `hide` event (`hideEvent.isDefaultPrevented()`) and the
+ * `text-indent: 0` CSS rule. Behavioral parity of the shipped API is
+ * pinned in `jqueryDropdownNpm.test.js`.
+ *
+ * These tests pin:
+ *
+ *   1. Both stable URLs are npm-mapped + standalone-required.
+ *   2. Served bytes are byte-identical to the npm 2.0.3 dist; no vendored
+ *      copy (including the stale css duplicates) remains in any tree.
+ *   3. Bundle resolution lands in node_modules, not vendored files.
+ *   4. The stable URLs are still referenced from both JSP twins and the
+ *      minify bundle configs.
+ */
+describe("classic-UI claviska dropdown from npm (issue #7176)", () => {
+  const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBUI_DIR = path.dirname(path.dirname(path.dirname(FRONTEND_ROOT)));
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+
+  const DROPDOWN = [
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+      src: "@claviska/jquery-dropdown/jquery.dropdown.js",
+      versionRe: /jQuery Dropdown/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+      src: "@claviska/jquery-dropdown/jquery.dropdown.css",
+      versionRe: /jQuery Dropdown/,
+    },
+  ];
+
+  // The vendor mirror roots at vendor/js/legacy and the war mirror at
+  // war/jslib (no jslib/ segment in either), while WAR_DIR roots at the
+  // jslib/ segment.
+  const WAR_JSLIB_MIRROR = path.join(WAR_MIRROR, "jslib");
+  const TREES = [WAR_DIR, VENDOR_MIRROR, WAR_JSLIB_MIRROR];
+  const inTree = (root, dest) =>
+    root === WAR_DIR
+      ? path.join(root, dest)
+      : path.join(root, dest.replace(/^jslib\//, ""));
+
+  // Stale unreferenced duplicates of the same 2013 asset outside jslib/.
+  const STALE_CSS_DUPES = [
+    path.join(WAR_DIR, "css/jquery.dropdown.css"),
+    path.join(WAR_DIR, "app/css/legacy/jquery.dropdown.css"),
+    path.join(WAR_MIRROR, "css/jquery.dropdown.css"),
+  ];
+
+  it("pins the dropdown pair in NPM_LIBRARY_MAPPINGS + STANDALONE_NPM_COPIES", () => {
+    for (const { dest, src } of DROPDOWN) {
+      expect(NPM_LIBRARY_MAPPINGS[dest], `no npm mapping for ${dest}`).toBe(
+        src,
+      );
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("serves dropdown bytes identical to the npm 2.0.3 dist, vendored copies gone", () => {
+    const missing = DROPDOWN.map(({ src }) =>
+      path.join(NODE_MODULES, src),
+    ).filter((p) => !fs.existsSync(p));
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { dest, src, versionRe } of DROPDOWN) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      // The deleted vendored copies must not leak back into any tree.
       for (const root of TREES) {
-        const file = inTree(root, dest);
-        const text = fs.readFileSync(file, "utf8");
         expect(
-          text,
-          `${file} missing upstream copyright holder`,
-        ).toContain("Copyright (c) 2013 Cory LaViska for A Beautiful Site, LLC.");
-        expect(
-          text,
-          `${file} missing MIT permission notice`,
-        ).toMatch(/MIT license: http:\/\/opensource\.org\/licenses\/MIT/);
+          fs.existsSync(inTree(root, dest)),
+          `vendored dropdown still present: ${inTree(root, dest)}`,
+        ).toBe(false);
       }
     }
+    for (const dupe of STALE_CSS_DUPES) {
+      expect(
+        fs.existsSync(dupe),
+        `stale dropdown css duplicate still present: ${dupe}`,
+      ).toBe(false);
+    }
+  });
+
+  it("resolves dropdown bundle paths into node_modules, not vendored files", () => {
+    for (const { dest } of DROPDOWN) {
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("keeps the stable dropdown URLs referenced from JSP twins + bundle configs", () => {
+    for (const includes of [
+      "app/includes/common_js.jsp",
+      "pages/app/includes/common_js.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, includes), "utf8");
+      expect(text).toMatch(/jquery-dropdown\/jquery\.dropdown\.js/);
+    }
+    for (const includes of [
+      "app/includes/common_css.jsp",
+      "pages/app/includes/common_css.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, includes), "utf8");
+      expect(text).toMatch(/jquery-dropdown\/jquery\.dropdown\.css/);
+    }
+    for (const configFile of [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+    ]) {
+      const config = JSON.parse(
+        fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, configFile), "utf8"),
+      );
+      const sources = JSON.stringify(config);
+      expect(sources).toContain(
+        "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+      );
+    }
+    const common = JSON.parse(
+      fs.readFileSync(
+        path.join(BUNDLE_CONFIG_DIR, "common-bundles.json"),
+        "utf8",
+      ),
+    );
+    expect(JSON.stringify(common)).toContain(
+      "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+    );
   });
 });
 

@@ -23,7 +23,10 @@
  * `src/main/webapp/cm/jslib/**` that is NOT resolved from the npm graph
  * (no `NPM_LIBRARY_MAPPINGS` entry in `scripts/build-legacy-bundles.cjs`)
  * is pinned below with its version banner, license marker, consumer, npm
- * availability, and follow-on migration issue. The same files are mirrored
+ * availability, and follow-on migration issue. Migrated assets leave this
+ * list: jquery-dropdown (#7176, now `@claviska/jquery-dropdown` 2.0.3 via
+ * the generated-webui overlay) is pinned in `buildLegacyBundles.test.js`
+ * instead. The same files are mirrored
  * under `cm/vendor/js/legacy/` and `WebUI/war/jslib/` (presence pinned;
  * broader content drift between the mirrors is recorded in #7181 and
  * owned by a follow-on).
@@ -35,7 +38,7 @@
  * | jquery-layout/jquery.layout_and_plugins.js | 1.6.3 (2018, Dalman) | MIT/GPL | common_js.jsp + shared-common.js | none (name taken) | #7175 |
  * | jquery-layout/jquery.layout_customresizer.js | unstated (no banner; Percussion glue) | UNSTATED | same as layout | none | #7175 |
  * | jquery-layout/layout-default.css | 1.6.3-era | MIT/GPL | none found (possibly dynamic) | none | #7175 |
- * | jquery-dropdown/jquery.dropdown.js + .css | 2013 claviska, no stamp | MIT | common_js.jsp + shared-common | none (name taken) | #7176 |
+ * | jquery-dropdown/jquery.dropdown.js + .css | MIGRATED #7176: npm @claviska/jquery-dropdown 2.0.3 | MIT (dist banner + pkg) | same stable URLs, npm-backed | @claviska/jquery-dropdown | #7176 DONE |
  * | retiredjs/jquery.blockUI.js | 2.70.0 malsup | MIT/GPL | common_js.jsp + shared-common.js | block-ui@2.70.1 | #7177 |
  * | retiredjs/jquery.cookie.js | UNKNOWN (bannerless rewrite) | UNKNOWN | common_js.jsp + shared-common.js | jquery.cookie/js-cookie | #7177 |
  * | retiredjs/jquery.tooltip.js + .css | 2006-2008 Zaefferer | MIT/GPL | common_js.jsp + shared-common | none equivalent | #7178 |
@@ -108,8 +111,6 @@ const THIRD_PARTY = [
   [`${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js`, /jquery\.layout 1\.6\.3/, /Dual licensed/, 7175],
   // No banner: Percussion resize glue over $.layout (provenance confirmed in #7175).
   [`${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_customresizer.js`, /resizeJQuery/, null, 7175],
-  [`${JSLIB}/jquery/plugins/jquery-dropdown/jquery.dropdown.js`, /jQuery Dropdown/, /MIT license/, 7176],
-  [`${JSLIB}/jquery/plugins/jquery-dropdown/jquery.dropdown.css`, /Cory LaViska/, /MIT license/, 7176],
   [`${JSLIB}/jquery/plugins/jquery-layout/layout-default.css`, /Fabrizio Balliano/, /Dual licensed/, 7175],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js`, /Version 2\.70/, /MIT/, 7177],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js`, null, null, 7177],

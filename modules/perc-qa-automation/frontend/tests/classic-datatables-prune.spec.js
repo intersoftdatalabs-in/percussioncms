@@ -32,7 +32,10 @@
  * present and zero jslib failures, while every pruned styling URL resolves
  * to 404. The DataTables 1.12.1 core itself stays vendored (the npm
  * datatables.net 3.x line removed the legacy fn* instance API, so the core
- * swap needs a call-site rewrite with live grid parity — deferred).</p>
+ * swap needs a call-site rewrite with live grid parity — deferred). The
+ * claviska dropdown pair in KEPT_SERVED below is npm-served since #7176
+ * (@claviska/jquery-dropdown 2.0.3 at the same stable URLs); only layout
+ * remains keep-vendored.</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -119,7 +122,9 @@ test.describe("DataTables prune + keep-vendored (issue #6002)", () => {
       }));
 
       expect(grid.dataTable, "kept DataTables core regressed").toBe(true);
-      expect(grid.jqDropdown, "kept dropdown regressed").toBe(true);
+      expect(grid.jqDropdown, "dropdown regressed (npm-served #7176)").toBe(
+        true,
+      );
       expect(
         failedRequests,
         `failed jslib requests:\n${failedRequests.join("\n")}`,
