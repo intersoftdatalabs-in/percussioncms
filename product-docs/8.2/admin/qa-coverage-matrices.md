@@ -146,6 +146,20 @@ CMS-only cell.
    self-seed a unique probe per run instead, so they go green with no
    pre-provisioned fixtures.
 
+   Retrieval round-trip family (US6, beyond forms) — one block per matrix,
+   same env for all six:
+
+   ```bash
+   DTS_URL=<from-qa-up-banner> \
+     DTS_HTTPS_URL=https://<dts-cell-host>:<https-port> \
+     DTS_DELIVERY_USER=<deliverymanager-user> \
+     DTS_DELIVERY_PASSWORD=<from-seed-step> \
+     npm run test:surface -- --path tests/polls-vote-matrix.spec.js
+   # then feeds-entries-matrix, metadata-index-matrix,
+   # comments-moderation-matrix, membership-registration-matrix,
+   # forms-confirmation-matrix — same env, one --path each
+   ```
+
 6. Tear down what you started: `python docker/scripts/perc-devctl.py qa-down`.
 
 ## Live green runs
@@ -155,9 +169,10 @@ commands exist. Latest first:
 
 | Date (UTC) | Cell | Base | Matrix | Result |
 |------------|------|------|--------|--------|
+| 2026-11-24 | DTS H2 (`qa-up --with-dts`, chain rebuilt from checkout + `system` clean install, preflight FRESH) | `706a05b811` (origin/main) | retrieval family: polls-vote + feeds-entries + metadata-index + comments-moderation + membership-registration + forms-confirmation | 18/18 cases pass (6/6 rows `pass`, 0 fail, 0 skip); CMS `server.log` 0 ERROR/FATAL; DTS service logs 0 except 2 feeds ERROR lines from the asserted unseeded-name 404→redirect probe (`unseededRedirects` case); 4 boot-time Tomcat security-constraint warnings pre-run |
 | 2026-11-24 | CMS-only H2 (`qa-up`, no DTS) | `eede3df951` (origin/main; `qa-rebuild-chain` from checkout, preflight FRESH) | content-create-matrix + inventory + index | 108/108 cases pass (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; `server.log` 0 ERROR/FATAL |
 
-Run commands are the step 2 / step 3 blocks above; the results JSON
+Run commands are the step 2 / step 3 / step 5 blocks above; the results JSON
 (`test-results/content-create-matrix.json`, one schema-valid row per
 pinned type) is the per-type accounting. Re-record this table whenever a
 matrix inventory changes or a run goes red — a stale date with a changed
