@@ -249,5 +249,246 @@ class PathSafetyTest(unittest.TestCase):
         self.assertNotIn("'\\\\' +", src)
 
 
+class EngineHelpersTest(unittest.TestCase):
+    def test_default_docker_cmd_shape(self):
+        cmd = it._default_docker_cmd('Hello', 'de-de')
+        self.assertEqual(cmd[:3], ['docker', 'run', '--rm'])
+        self.assertIn('soimort/translate-shell', cmd)
+        self.assertEqual(cmd[-2:], ['Hello', ':de-de'])
+
+    def test_is_rate_limited(self):
+        class R:
+            def __init__(self, out, err):
+                self.stdout = out
+                self.stderr = err
+        self.assertTrue(it._is_rate_limited(R('', 'HTTP 429 Too Many Requests')))
+        self.assertTrue(it._is_rate_limited(R('Rate Limit exceeded', '')))
+        self.assertTrue(it._is_rate_limited(R('', 'too many requests')))
+        self.assertFalse(it._is_rate_limited(R('', 'some other failure')))
+
+    def test_clean_engine_text(self):
+        self.assertEqual(it._clean_engine_text(None), '')
+        self.assertEqual(it._clean_engine_text('﻿  Hallo \n'), 'Hallo')
+
+    def test_looks_like_translation(self):
+        self.assertTrue(it._looks_like_translation('Hallo'))
+        self.assertFalse(it._looks_like_translation(''))
+        self.assertFalse(it._looks_like_translation('line1\nline2'))
+        self.assertFalse(it._looks_like_translation('Error: something'))
+
+    def test_success_output_prefers_stdout(self):
+        class R:
+            returncode = 0
+            stdout = 'Hallo\n'
+            stderr = ''
+        self.assertEqual(it._success_output(R()), 'Hallo')
+
+    def test_success_output_falls_back_to_stderr(self):
+        class R:
+            returncode = 0
+            stdout = '  \n'
+            stderr = 'Hallo'
+        self.assertEqual(it._success_output(R()), 'Hallo')
+
+    def test_success_output_none_when_unusable(self):
+        class Empty:
+            returncode = 0
+            stdout = '  '
+            stderr = 'multi\nline\ndiagnostics'
+        self.assertIsNone(it._success_output(Empty()))
+
+        class Failed:
+            returncode = 1
+            stdout = 'Hallo'
+            stderr = ''
+        self.assertIsNone(it._success_output(Failed()))
+
+    def test_run_engine_missing_binary_raises_docker_hint(self):
+        orig_run = it.subprocess.run
+        def fake_run(*args, **kwargs):
+            raise FileNotFoundError('docker')
+        it.subprocess.run = fake_run
+        try:
+            with self.assertRaises(RuntimeError) as ctx:
+                it._run_engine(['docker', 'run'])
+        finally:
+            it.subprocess.run = orig_run
+        self.assertIn('Docker is not on PATH', str(ctx.exception))
+
+    def test_backoff_sleep_doubles_delay(self):
+        import time as _time
+        slept: list[float] = []
+        orig_sleep = _time.sleep
+        _time.sleep = slept.append
+        try:
+            nxt = it._backoff_sleep(1, 2.0)
+        finally:
+            _time.sleep = orig_sleep
+        self.assertEqual(len(slept), 1)
+        # +-20% jitter around BACKOFF_START_SEC.
+        self.assertGreaterEqual(slept[0], 2.0 * 0.8)
+        self.assertLessEqual(slept[0], 2.0 * 1.2)
+        self.assertEqual(nxt, 4.0)
+
+
+class TmxScanHelpersTest(unittest.TestCase):
+    def _tuv(self, lang: str | None, seg: str | None) -> ET.Element:
+        tuv = ET.Element('tuv')
+        if lang is not None:
+            tuv.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+        if seg is not None:
+            seg_el = ET.SubElement(tuv, 'seg')
+            seg_el.text = seg
+        return tuv
+
+    def test_tuv_lang_namespaced(self):
+        self.assertEqual(it._tuv_lang(self._tuv('de-de', 'x')), 'de-de')
+
+    def test_tuv_lang_plain_attribute(self):
+        tuv = ET.Element('tuv')
+        tuv.set('xml:lang', 'fr-fr')
+        self.assertEqual(it._tuv_lang(tuv), 'fr-fr')
+
+    def test_tuv_lang_missing(self):
+        self.assertIsNone(it._tuv_lang(ET.Element('tuv')))
+
+    def test_seg_text_missing_seg(self):
+        self.assertEqual(it._seg_text(ET.Element('tuv')), '')
+
+    def test_iter_tus_skips_empty_tuid(self):
+        root = ET.fromstring(
+            '<body><tu><tuv xml:lang="en-us"><seg>x</seg></tuv></tu>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>y</seg></tuv></tu></body>')
+        self.assertEqual([t for t, _ in it._iter_tus(root)], ['k@1'])
+
+    def test_scan_tu_missing_returns_none_when_target_present(self):
+        tu = ET.fromstring(
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '<tuv xml:lang="de-de"><seg>Hallo</seg></tuv></tu>')
+        self.assertIsNone(it._scan_tu_missing(tu, 'de-de'))
+
+    def test_scan_tu_missing_returns_en_seg(self):
+        tu = ET.fromstring(
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv></tu>')
+        self.assertEqual(it._scan_tu_missing(tu, 'de-de'), 'Hello')
+
+    def test_scan_tu_missing_none_without_en_seg(self):
+        tu = ET.fromstring(
+            '<tu tuid="k@1"><tuv xml:lang="fr-fr"><seg>Bonjour</seg></tuv></tu>')
+        self.assertIsNone(it._scan_tu_missing(tu, 'de-de'))
+
+
+class FillTranslationsTest(unittest.TestCase):
+    def setUp(self):
+        self._orig_cache = it.CACHE_FILE
+        self._tmpdir = tempfile.TemporaryDirectory()
+        it.CACHE_FILE = Path(self._tmpdir.name) / 'cache.json'
+
+    def tearDown(self):
+        it.CACHE_FILE = self._orig_cache
+        self._tmpdir.cleanup()
+
+    def test_limit_stops_translation(self):
+        calls: list[str] = []
+        orig_translate = it.translate
+        it.translate = lambda text, target, **kw: calls.append(text) or 'X'
+        try:
+            out = it._fill_translations(
+                [('a', 'one'), ('b', 'two'), ('c', 'three')],
+                target='de-de', cache={}, force=False, limit=2)
+        finally:
+            it.translate = orig_translate
+        self.assertEqual(out, {'a': 'X', 'b': 'X'})
+        self.assertEqual(calls, ['one', 'two'])
+
+    def test_runtime_error_aborts_and_persists_cache(self):
+        orig_translate = it.translate
+        def boom(text, target, **kw):
+            raise RuntimeError('engine down')
+        it.translate = boom
+        try:
+            out = it._fill_translations(
+                [('a', 'one')], target='de-de',
+                cache={'k': 'v'}, force=False, limit=0)
+        finally:
+            it.translate = orig_translate
+        self.assertIsNone(out)
+        saved = json.loads(it.CACHE_FILE.read_text(encoding='utf-8'))
+        self.assertEqual(saved, {'k': 'v'})
+
+    def test_empty_missing_returns_empty(self):
+        self.assertEqual(
+            it._fill_translations([], target='de-de', cache={},
+                                  force=False, limit=0), {})
+
+
+class ResolveFilesTest(unittest.TestCase):
+    def test_absolute_path_rejected(self):
+        # Path.cwd() is absolute on every supported platform (a POSIX-only
+        # literal like '/abs/path.tmx' is relative on Windows).
+        with self.assertRaises(it._CliError) as ctx:
+            it._resolve_files([str(Path.cwd() / 'abs-path.tmx')])
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn('must be relative', ctx.exception.message)
+
+    def test_missing_file_rejected(self):
+        with self.assertRaises(it._CliError) as ctx:
+            it._resolve_files(['Nope.tmx'])
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn('not found', ctx.exception.message)
+
+    def test_resolves_against_i18n_dir(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d) / 'CmsUi.tmx'
+            target.write_text('<tmx/>', encoding='utf-8')
+            orig_dir = it.I18N_DIR
+            it.I18N_DIR = Path(d)
+            try:
+                self.assertEqual(it._resolve_files(['CmsUi.tmx']), [target])
+            finally:
+                it.I18N_DIR = orig_dir
+
+
+class MainDryRunTest(unittest.TestCase):
+    def _write_sample(self, tmp: Path) -> None:
+        (tmp / 'CmsUi.tmx').write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header>'
+            '<prop type="supportedlanguage">en-us</prop>'
+            '<prop type="supportedlanguage">de-de</prop>'
+            '</header><body>'
+            '<tu tuid="k@1">'
+            '<tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+            '</tu></body></tmx>\n',
+            encoding='utf-8',
+        )
+
+    def test_dry_run_reports_missing(self):
+        import io
+        from contextlib import redirect_stdout
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write_sample(tmp)
+            orig_dir, orig_cache = it.I18N_DIR, it.CACHE_FILE
+            it.I18N_DIR = tmp
+            it.CACHE_FILE = tmp / 'cache.json'
+            try:
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    code = it.main(['--target', 'de-de', '--dry-run',
+                                    '--file', 'CmsUi.tmx'])
+            finally:
+                it.I18N_DIR, it.CACHE_FILE = orig_dir, orig_cache
+        self.assertEqual(code, 0)
+        out = buf.getvalue()
+        self.assertIn('CmsUi.tmx: 1 <tu> missing <tuv xml:lang="de-de">', out)
+        self.assertIn('Total missing: 1; inserted: 0', out)
+
+    def test_absolute_file_returns_2(self):
+        self.assertEqual(
+            it.main(['--target', 'de-de', '--dry-run',
+                     '--file', str(Path.cwd() / 'abs-path.tmx')]), 2)
+
+
 if __name__ == '__main__':
     unittest.main()

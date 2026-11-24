@@ -124,6 +124,93 @@ def save_cache(cache: dict[str, str]) -> None:
 # Translation invocation
 # ---------------------------------------------------------------------------
 
+def _default_docker_cmd(text: str, target: str) -> list[str]:
+    """Argv for one soimort/translate-shell Docker invocation."""
+    # ``-no-bidi`` keeps RTL languages (e.g. ar) in logical order without
+    # terminal padding / presentation-form rewriting — required for TMX.
+    # LANG/LC_ALL help Windows Docker Desktop capture UTF-8 Arabic stdout.
+    return [
+        'docker', 'run', '--rm',
+        '-e', 'LANG=C.UTF-8',
+        '-e', 'LC_ALL=C.UTF-8',
+        DOCKER_IMAGE,
+        DOCKER_BRIEF_FLAG, '-no-bidi', text, f':{target}',
+    ]
+
+
+def _docker_unavailable_error(cause: Exception) -> RuntimeError:
+    """Error raised when the Docker engine binary cannot be executed."""
+    return RuntimeError(
+        'Docker is not on PATH. Install Docker Desktop (Windows/macOS) '
+        'or docker-engine (Linux), then pull the soimort/translate-shell '
+        f'image. Underlying error: {cause}',
+    )
+
+
+def _run_engine(cmd: list[str]):
+    """Run one translate-shell invocation (thin wrapper for test seams)."""
+    try:
+        return subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+            encoding='utf-8',
+            errors='replace',
+        )
+    except FileNotFoundError as e:
+        raise _docker_unavailable_error(e) from e
+
+
+def _clean_engine_text(value: str | None) -> str:
+    """Strip BOM/whitespace from engine output (tolerates None)."""
+    return (value or '').replace('\ufeff', '').strip()
+
+
+def _looks_like_translation(err: str) -> bool:
+    """True when stderr text is a fallback translation, not diagnostics."""
+    return bool(err) and '\n' not in err and 'error' not in err.lower()
+
+
+def _success_output(result) -> str | None:
+    """Translated string of a successful run, or None when unusable."""
+    if result.returncode != 0:
+        return None
+    out = _clean_engine_text(result.stdout)
+    if not out and _looks_like_translation(_clean_engine_text(result.stderr)):
+        out = _clean_engine_text(result.stderr)
+    return out or None
+
+
+def _empty_output_error(result) -> RuntimeError:
+    """Error for a zero-exit run that produced no translation text."""
+    return RuntimeError(
+        f'translate-shell returned empty translation '
+        f'(rc={result.returncode}): stdout={result.stdout!r} '
+        f'stderr={result.stderr!r}',
+    )
+
+
+def _is_rate_limited(result) -> bool:
+    """Crude rate-limit detection: 429-like substrings in either stream."""
+    lowered = (result.stderr + result.stdout).lower()
+    return (
+        '429' in lowered
+        or 'rate limit' in lowered
+        or 'too many requests' in lowered
+    )
+
+
+def _backoff_sleep(attempt: int, delay: float) -> float:
+    """Sleep one jittered backoff step; return the doubled next delay."""
+    jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+    sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
+    print(f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
+          file=sys.stderr)
+    time.sleep(sleep_s)
+    return delay * 2
+
+
 def invoke_translate(text: str, target: str, *,
                      docker_cmd: list[str] | None = None) -> str:
     """Run soimort/translate-shell on Docker. Returns the translated string.
@@ -132,62 +219,19 @@ def invoke_translate(text: str, target: str, *,
     could not be obtained after exhausting retries. Rate-limit responses
     trigger exponential backoff per ``backoff_sleep``.
     """
-    # ``-no-bidi`` keeps RTL languages (e.g. ar) in logical order without
-    # terminal padding / presentation-form rewriting — required for TMX.
-    # LANG/LC_ALL help Windows Docker Desktop capture UTF-8 Arabic stdout.
-    cmd = docker_cmd if docker_cmd is not None else [
-        'docker', 'run', '--rm',
-        '-e', 'LANG=C.UTF-8',
-        '-e', 'LC_ALL=C.UTF-8',
-        DOCKER_IMAGE,
-        DOCKER_BRIEF_FLAG, '-no-bidi', text, f':{target}',
-    ]
+    cmd = docker_cmd if docker_cmd is not None else _default_docker_cmd(text, target)
     delay = BACKOFF_START_SEC
     attempt = 0
     while True:
         attempt += 1
-        try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=False,
-                encoding='utf-8',
-                errors='replace',
-            )
-        except FileNotFoundError as e:
-            raise RuntimeError(
-                'Docker is not on PATH. Install Docker Desktop (Windows/macOS) '
-                'or docker-engine (Linux), then pull the soimort/translate-shell '
-                f'image. Underlying error: {e}',
-            ) from e
+        result = _run_engine(cmd)
+        out = _success_output(result)
+        if out is not None:
+            return out
         if result.returncode == 0:
-            out = (result.stdout or '').replace('\ufeff', '').strip()
-            if not out:
-                err = (result.stderr or '').replace('\ufeff', '').strip()
-                if err and '\n' not in err and 'error' not in err.lower():
-                    out = err
-            if out:
-                return out
-            raise RuntimeError(
-                f'translate-shell returned empty translation '
-                f'(rc={result.returncode}): stdout={result.stdout!r} '
-                f'stderr={result.stderr!r}',
-            )
-        # Crude rate-limit detection: 429-like substrings in stderr or stdout.
-        lowered = (result.stderr + result.stdout).lower()
-        is_rate_limit = (
-            '429' in lowered
-            or 'rate limit' in lowered
-            or 'too many requests' in lowered
-        )
-        if is_rate_limit and attempt < 5:
-            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
-            sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
-            print(f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
-                  file=sys.stderr)
-            time.sleep(sleep_s)
-            delay *= 2
+            raise _empty_output_error(result)
+        if _is_rate_limited(result) and attempt < 5:
+            delay = _backoff_sleep(attempt, delay)
             continue
         raise RuntimeError(
             f'translate-shell failed (rc={result.returncode}): '
@@ -239,6 +283,43 @@ def translate(text: str, target: str, *,
 
 
 # ---------------------------------------------------------------------------
+# TMX scanning (shared by TmxFile.list_missing)
+# ---------------------------------------------------------------------------
+
+def _tuv_lang(tuv: ET.Element) -> str | None:
+    """Language tag of a <tuv>, accepting namespaced and plain attributes."""
+    return tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
+
+
+def _seg_text(tuv: ET.Element) -> str:
+    """Text of a <tuv>'s <seg>, or '' when missing or empty."""
+    seg_el = tuv.find('seg')
+    return seg_el.text if seg_el is not None and seg_el.text else ''
+
+
+def _iter_tus(root: ET.Element):
+    """Yield (tuid, tu) pairs, skipping entries without a tuid."""
+    for tu in root.iter('tu'):
+        tuid = tu.get('tuid') or ''
+        if tuid:
+            yield tuid, tu
+
+
+def _scan_tu_missing(tu: ET.Element, target: str) -> str | None:
+    """English seg of a <tu> missing ``target``, or None when complete."""
+    en_seg = ''
+    for tuv in tu.findall('tuv'):
+        lang = _tuv_lang(tuv)
+        if lang == target:
+            return None
+        if lang == SOURCE_LANG:
+            seg = _seg_text(tuv)
+            if seg:
+                en_seg = seg
+    return en_seg or None
+
+
+# ---------------------------------------------------------------------------
 # TMX editing
 # ---------------------------------------------------------------------------
 
@@ -256,23 +337,9 @@ class TmxFile:
         """Return [(tuid, en_seg)] for every <tu> that has no <tuv xml:lang=target>."""
         root = self._parse()
         missing: list[tuple[str, str]] = []
-        for tu in root.iter('tu'):
-            tuid = tu.get('tuid') or ''
-            if not tuid:
-                continue
-            en_seg = ''
-            has_target = False
-            for tuv in tu.findall('tuv'):
-                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') \
-                    or tuv.get('xml:lang')
-                if tlang == target:
-                    has_target = True
-                    break
-                if tlang == SOURCE_LANG:
-                    seg_el = tuv.find('seg')
-                    if seg_el is not None and seg_el.text:
-                        en_seg = seg_el.text
-            if not has_target and en_seg:
+        for tuid, tu in _iter_tus(root):
+            en_seg = _scan_tu_missing(tu, target)
+            if en_seg:
                 missing.append((tuid, en_seg))
         return missing
 
@@ -327,7 +394,16 @@ class TmxFile:
 # CLI
 # ---------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> int:
+class _CliError(Exception):
+    """Fatal CLI usage error carrying its stderr message and exit code."""
+
+    def __init__(self, message: str, code: int = 2):
+        super().__init__(message)
+        self.message = message
+        self.code = code
+
+
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--target', required=True,
@@ -343,62 +419,107 @@ def main(argv: list[str] | None = None) -> int:
                         help='Stop after processing this many missing TUVs (0 = unlimited).')
     parser.add_argument('--no-docker-check', action='store_true',
                         help='Skip the upfront Docker availability check.')
-    args = parser.parse_args(argv)
+    return parser
 
+
+def _resolve_files(names: list[str] | None) -> list[Path]:
+    """Resolve --file names against I18N_DIR; raise _CliError on misuse."""
     files: list[Path] = []
-    for name in (args.files or list(DEFAULT_FILES)):
+    for name in (names or list(DEFAULT_FILES)):
         candidate = Path(name)
         if candidate.is_absolute():
-            print(f'error: --file path must be relative to {I18N_DIR}: {name}',
-                  file=sys.stderr)
-            return 2
+            raise _CliError(
+                f'error: --file path must be relative to {I18N_DIR}: {name}')
         files.append(I18N_DIR / candidate)
     for f in files:
         if not f.exists():
-            print(f'error: {f} not found', file=sys.stderr)
-            return 2
+            raise _CliError(f'error: {f} not found')
+    return files
 
-    if not args.no_docker_check and not args.dry_run:
-        if shutil.which('docker') is None:
-            print('error: docker is not on PATH. Install Docker and run:\n'
-                  '  docker pull soimort/translate-shell',
-                  file=sys.stderr)
-            return 2
 
-    cache = load_cache()
+def _docker_check_error(*, dry_run: bool, skip_check: bool) -> str | None:
+    """Stderr message when Docker is required but missing, else None."""
+    if not skip_check and not dry_run and shutil.which('docker') is None:
+        return ('error: docker is not on PATH. Install Docker and run:\n'
+                '  docker pull soimort/translate-shell')
+    return None
+
+
+def _fill_translations(missing: list[tuple[str, str]], *, target: str,
+                       cache: dict[str, str], force: bool,
+                       limit: int) -> dict[str, str] | None:
+    """Translate each missing seg; None when a RuntimeError aborts the run."""
+    translations: dict[str, str] = {}
+    processed = 0
+    for tuid, en_seg in missing:
+        if limit and processed >= limit:
+            print(f'  --limit={limit} reached, stopping')
+            break
+        try:
+            translations[tuid] = translate(en_seg, target,
+                                           cache=cache, force=force)
+        except RuntimeError as e:
+            print(f'  ERROR on tuid={tuid!r}: {e}', file=sys.stderr)
+            save_cache(cache)  # persist progress
+            return None
+        processed += 1
+        if processed % 25 == 0:
+            print(f'  ... {processed}/{len(missing)} translated')
+            save_cache(cache)
+    return translations
+
+
+def _process_files(files: list[Path], *, target: str,
+                   cache: dict[str, str], dry_run: bool,
+                   force: bool, limit: int) -> tuple[int, int, int]:
+    """Translate missing TUVs across files.
+
+    Returns (total_missing, total_inserted, exit_code).
+    """
     total_missing = 0
     total_inserted = 0
     for f in files:
         tmx = TmxFile(f)
-        missing = tmx.list_missing(args.target)
+        missing = tmx.list_missing(target)
         total_missing += len(missing)
-        print(f'{f.name}: {len(missing)} <tu> missing <tuv xml:lang="{args.target}">')
-        if args.dry_run or not missing:
+        print(f'{f.name}: {len(missing)} <tu> missing <tuv xml:lang="{target}">')
+        if dry_run or not missing:
             continue
-        translations: dict[str, str] = {}
-        processed = 0
-        for tuid, en_seg in missing:
-            if args.limit and processed >= args.limit:
-                print(f'  --limit={args.limit} reached, stopping')
-                break
-            try:
-                translations[tuid] = translate(en_seg, args.target,
-                                               cache=cache, force=args.force)
-            except RuntimeError as e:
-                print(f'  ERROR on tuid={tuid!r}: {e}', file=sys.stderr)
-                save_cache(cache)  # persist progress
-                return 1
-            processed += 1
-            if processed % 25 == 0:
-                print(f'  ... {processed}/{len(missing)} translated')
-                save_cache(cache)
+        translations = _fill_translations(missing, target=target,
+                                          cache=cache, force=force,
+                                          limit=limit)
+        if translations is None:
+            return total_missing, total_inserted, 1
         save_cache(cache)
         if translations:
-            inserted = tmx.inject(args.target, translations)
-            if not args.dry_run:
-                tmx.commit()
+            inserted = tmx.inject(target, translations)
+            tmx.commit()
             total_inserted += inserted
             print(f'  inserted {inserted} TUVs into {f.name}')
+    return total_missing, total_inserted, 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
+
+    try:
+        files = _resolve_files(args.files)
+    except _CliError as e:
+        print(e.message, file=sys.stderr)
+        return e.code
+
+    docker_error = _docker_check_error(dry_run=args.dry_run,
+                                       skip_check=args.no_docker_check)
+    if docker_error is not None:
+        print(docker_error, file=sys.stderr)
+        return 2
+
+    cache = load_cache()
+    total_missing, total_inserted, code = _process_files(
+        files, target=args.target, cache=cache,
+        dry_run=args.dry_run, force=args.force, limit=args.limit)
+    if code:
+        return code
 
     print(f'\nDone. Total missing: {total_missing}; inserted: {total_inserted}')
     return 0
