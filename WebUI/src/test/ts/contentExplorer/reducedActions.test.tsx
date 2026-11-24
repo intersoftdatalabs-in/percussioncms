@@ -25,6 +25,29 @@ import type { ReducedActionHandlers } from "../../../main/ts/contentExplorer/Red
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const REDUCED_ACTIONS_TEST_TIMEOUT = 30_000;
+
 const FOLDER: PSPathItem = {
   id: "f-1",
   path: "/Sites/Foo",
@@ -225,7 +248,7 @@ describe("ReducedActions", () => {
     expect(screen.getByTestId("action-delete")).toBeEnabled();
   });
 
-  it("enables Restore only for writable recycle-bin selections (#4700)", async () => {
+  it("enables Restore only for writable recycle-bin selections (#4700)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const recycled: PSPathItem = {
       id: "1-101-9",
@@ -253,15 +276,15 @@ describe("ReducedActions", () => {
     expect(restore).toBeEnabled();
     fireEvent.click(restore);
     // Single-item restore confirms naming the recycled row (#6470).
-    const dialog = await screen.findByTestId("explorer-restore-confirm");
+    const dialog = await screen.findByTestId("explorer-restore-confirm", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(dialog).toHaveTextContent(/qa4700/);
     fireEvent.click(screen.getByTestId("explorer-restore-ok"));
-    await waitFor(() => expect(calls.onRestore).toHaveLength(1));
+    await waitFor(() => expect(calls.onRestore).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onRestore[0]).toMatchObject({ id: "1-101-9" });
     expect(screen.getByTestId("action-purge")).toBeEnabled();
   });
 
-  it("does not restore when the single-item confirm is cancelled (#6470)", async () => {
+  it("does not restore when the single-item confirm is cancelled (#6470)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -285,12 +308,12 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-restore"));
-    await screen.findByTestId("explorer-restore-confirm");
+    await screen.findByTestId("explorer-restore-confirm", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     fireEvent.click(screen.getByTestId("explorer-restore-cancel"));
     expect(calls.onRestore).toHaveLength(0);
   });
 
-  it("purges one recycled item only after confirm (#4763)", async () => {
+  it("purges one recycled item only after confirm (#4763)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.confirm = () => true;
     const recycled: PSPathItem = {
@@ -316,7 +339,7 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-purge"));
-    await waitFor(() => expect(calls.onPurge).toHaveLength(1));
+    await waitFor(() => expect(calls.onPurge).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onPurge[0]).toMatchObject({ id: "1-101-9" });
   });
 
@@ -341,7 +364,7 @@ describe("ReducedActions", () => {
     expect(calls.onPurge).toHaveLength(0);
   });
 
-  it("renames a selected folder only after confirm (#5038)", async () => {
+  it("renames a selected folder only after confirm (#5038)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -376,7 +399,7 @@ describe("ReducedActions", () => {
       target: { value: "Renamed" },
     });
     fireEvent.click(screen.getByTestId("folder-rename-submit"));
-    await waitFor(() => expect(calls.onRename).toHaveLength(1));
+    await waitFor(() => expect(calls.onRename).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onRename[0]).toMatchObject({
       item: { path: "/Assets/Foo", name: "Foo" },
       newName: "Renamed",
@@ -407,7 +430,7 @@ describe("ReducedActions", () => {
     expect(errors.join(" ")).toMatch(/Rename Site/i);
   });
 
-  it("keeps the folder rename dialog open on HTTP 409 (#5038)", async () => {
+  it("keeps the folder rename dialog open on HTTP 409 (#5038)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const folder = { ...FOLDER, path: "/Assets/Foo" };
     handlers.onRename = async () => {
@@ -429,12 +452,13 @@ describe("ReducedActions", () => {
     fireEvent.click(screen.getByTestId("folder-rename-submit"));
     await waitFor(() =>
       expect(screen.getByTestId("folder-rename-error")).toBeInTheDocument(),
+      { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
     expect(calls.onRename).toHaveLength(1);
   });
 
-  it("does not rename a folder when the new name contains a NUL (#5478)", async () => {
+  it("does not rename a folder when the new name contains a NUL (#5478)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const { container } = render(
       <ReducedActions
@@ -458,7 +482,7 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
-  it("keeps the folder rename dialog open on HTTP 400 and 403 (#5478)", async () => {
+  it("keeps the folder rename dialog open on HTTP 400 and 403 (#5478)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     let status = 400;
     const folder = { ...FOLDER, path: "/Assets/Foo" };
@@ -483,6 +507,7 @@ describe("ReducedActions", () => {
       expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
         /not valid/i,
       ),
+      { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
 
@@ -495,12 +520,13 @@ describe("ReducedActions", () => {
       expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
         /permission/i,
       ),
+      { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
     expect(calls.onRename).toHaveLength(2);
   });
 
-  it("fires onCreateFolder when the user enters a name via the prompt helper", async () => {
+  it("fires onCreateFolder when the user enters a name via the prompt helper", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "My Folder";
     render(
@@ -512,14 +538,14 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-create-folder"));
-    await waitFor(() => expect(calls.onCreateFolder).toHaveLength(1));
+    await waitFor(() => expect(calls.onCreateFolder).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onCreateFolder[0]).toMatchObject({
       parent: FOLDER,
       name: "My Folder",
     });
   });
 
-  it("does not create when the folder name contains a path separator", async () => {
+  it("does not create when the folder name contains a path separator", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "a/b";
     const errors: string[] = [];
@@ -532,11 +558,11 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-create-folder"));
-    await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+    await waitFor(() => expect(errors.length).toBeGreaterThan(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onCreateFolder).toHaveLength(0);
   });
 
-  it("renames a selected item when the prompt returns a new name (#5480)", async () => {
+  it("renames a selected item when the prompt returns a new name (#5480)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "Home2";
     const asset: PSPathItem = {
@@ -557,7 +583,7 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-rename"));
-    await waitFor(() => expect(calls.onRename).toHaveLength(1));
+    await waitFor(() => expect(calls.onRename).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onRename[0]).toMatchObject({
       item: { path: "/Assets/Home", name: "Home" },
       newName: "Home2",
@@ -565,7 +591,7 @@ describe("ReducedActions", () => {
     expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
   });
 
-  it("does not rename an item when the new name contains a NUL (#5480)", async () => {
+  it("does not rename an item when the new name contains a NUL (#5480)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "Home\u00002";
     const errors: string[] = [];
@@ -624,7 +650,7 @@ describe("ReducedActions", () => {
     expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
   });
 
-  it("does not claim success when item-rename HTTP 400, 403, or 409 (#5480)", async () => {
+  it("does not claim success when item-rename HTTP 400, 403, or 409 (#5480)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
     let status = 400;
@@ -653,14 +679,14 @@ describe("ReducedActions", () => {
     for (const code of [400, 403, 409]) {
       status = code;
       fireEvent.click(screen.getByTestId("action-rename"));
-      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
       errors.length = 0;
     }
     expect(calls.onRename).toHaveLength(3);
     expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
   });
 
-  it("does not create when the folder name contains a NUL (#5479)", async () => {
+  it("does not create when the folder name contains a NUL (#5479)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "New\u0000Folder";
     const errors: string[] = [];
@@ -697,7 +723,7 @@ describe("ReducedActions", () => {
     expect(errors).toEqual([]);
   });
 
-  it("does not claim success when create-folder HTTP 400, 403, or 409 (#5479)", async () => {
+  it("does not claim success when create-folder HTTP 400, 403, or 409 (#5479)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
     let status = 400;
@@ -717,13 +743,13 @@ describe("ReducedActions", () => {
     for (const code of [400, 403, 409]) {
       status = code;
       fireEvent.click(screen.getByTestId("action-create-folder"));
-      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
       errors.length = 0;
     }
     expect(calls.onCreateFolder).toHaveLength(3);
   });
 
-  it("does not invoke any server call when the user cancels the confirm dialog", async () => {
+  it("does not invoke any server call when the user cancels the confirm dialog", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.confirm = () => false;
     mockFetch(async () => new Response("", { status: 200 }));
@@ -736,10 +762,10 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-delete"));
-    await waitFor(() => expect(calls.onDelete).toHaveLength(0));
+    await waitFor(() => expect(calls.onDelete).toHaveLength(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
   });
 
-  it("invokes onDelete when the user confirms", async () => {
+  it("invokes onDelete when the user confirms", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     handlers.confirm = () => true;
     mockFetch(async () => new Response("", { status: 200 }));
@@ -752,11 +778,11 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-delete"));
-    await waitFor(() => expect(calls.onDelete).toHaveLength(1));
+    await waitFor(() => expect(calls.onDelete).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onDelete[0]).toBe(FOLDER);
   });
 
-  it("surfaces server errors via onError", async () => {
+  it("surfaces server errors via onError", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers } = makeHandlers();
     handlers.confirm = () => true;
     // Handler must reject for runItemAction to surface onError (mockFetch alone
@@ -774,11 +800,11 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-delete"));
-    await waitFor(() => expect(onError).toHaveBeenCalled());
+    await waitFor(() => expect(onError).toHaveBeenCalled(), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
   });
 
-  it("default onRename POSTs to /folders/rename/item for assets (#4636)", async () => {
+  it("default onRename POSTs to /folders/rename/item for assets (#4636)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const asset: PSPathItem = {
       id: "a-4636",
@@ -810,7 +836,7 @@ describe("ReducedActions", () => {
     });
   });
 
-  it("default onMove POSTs to /folders/move/folder for folders (#4601)", async () => {
+  it("default onMove POSTs to /folders/move/folder for folders (#4601)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     let url = "";
     let posted: unknown;
@@ -836,7 +862,7 @@ describe("ReducedActions", () => {
     expect(posted).not.toHaveProperty("sourcePath");
   });
 
-  it("default onDelete DELETEs /folders/item for assets (#4602)", async () => {
+  it("default onDelete DELETEs /folders/item for assets (#4602)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const asset: PSPathItem = {
       id: "a-4602",
@@ -864,7 +890,7 @@ describe("ReducedActions", () => {
     expect(url).not.toContain("/content-explorer/folders");
   });
 
-  it("default onMove POSTs to /folders/move/item for assets (#4601)", async () => {
+  it("default onMove POSTs to /folders/move/item for assets (#4601)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const asset: PSPathItem = {
       id: "a-4601",
@@ -897,7 +923,7 @@ describe("ReducedActions", () => {
     });
   });
 
-  it("Move opens destination picker then POSTs on confirm (#4601)", async () => {
+  it("Move opens destination picker then POSTs on confirm (#4601)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -912,11 +938,11 @@ describe("ReducedActions", () => {
     const input = screen.getByTestId("explorer-move-dest-input");
     fireEvent.change(input, { target: { value: "/Assets/Dst" } });
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
-    await waitFor(() => expect(calls.onMove).toHaveLength(1));
+    await waitFor(() => expect(calls.onMove).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onMove[0]).toEqual({ item: FOLDER, targetPath: "/Assets/Dst" });
   });
 
-  it("Move picker cancel does not move", async () => {
+  it("Move picker cancel does not move", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -930,11 +956,12 @@ describe("ReducedActions", () => {
     fireEvent.click(screen.getByTestId("explorer-move-dest-cancel"));
     await waitFor(() =>
       expect(screen.queryByTestId("explorer-move-dest-picker")).toBeNull(),
+      { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT },
     );
     expect(calls.onMove).toHaveLength(0);
   });
 
-  it("does not move when the destination contains a NUL (#5552)", async () => {
+  it("does not move when the destination contains a NUL (#5552)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const { container } = render(
       <ReducedActions
@@ -957,7 +984,7 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
-  it("does not move when the destination is blank or whitespace (#5574)", async () => {
+  it("does not move when the destination is blank or whitespace (#5574)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const { container } = render(
       <ReducedActions
@@ -986,7 +1013,7 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
-  it("does not claim success when move HTTP 400, 403, or 409 (#5552)", async () => {
+  it("does not claim success when move HTTP 400, 403, or 409 (#5552)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
     let status = 400;
@@ -1009,13 +1036,13 @@ describe("ReducedActions", () => {
         target: { value: "/Assets/Dst" },
       });
       fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
-      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
       errors.length = 0;
     }
     expect(calls.onMove).toHaveLength(3);
   });
 
-  it("Copy opens destination picker then POSTs on confirm (#4600)", async () => {
+  it("Copy opens destination picker then POSTs on confirm (#4600)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -1030,11 +1057,11 @@ describe("ReducedActions", () => {
     const input = screen.getByTestId("explorer-copy-dest-input");
     fireEvent.change(input, { target: { value: "/Assets/Dst" } });
     fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
-    await waitFor(() => expect(calls.onCopy).toHaveLength(1));
+    await waitFor(() => expect(calls.onCopy).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(calls.onCopy[0]).toEqual({ item: FOLDER, targetPath: "/Assets/Dst" });
   });
 
-  it("Copy picker cancel does not copy", async () => {
+  it("Copy picker cancel does not copy", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -1048,11 +1075,12 @@ describe("ReducedActions", () => {
     fireEvent.click(screen.getByTestId("explorer-copy-dest-cancel"));
     await waitFor(() =>
       expect(screen.queryByTestId("explorer-copy-dest-picker")).toBeNull(),
+      { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT },
     );
     expect(calls.onCopy).toHaveLength(0);
   });
 
-  it("does not copy when the destination contains a NUL (#5551)", async () => {
+  it("does not copy when the destination contains a NUL (#5551)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const { container } = render(
       <ReducedActions
@@ -1075,7 +1103,7 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
-  it("does not copy when the destination is blank or whitespace (#5553)", async () => {
+  it("does not copy when the destination is blank or whitespace (#5553)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const { container } = render(
       <ReducedActions
@@ -1104,7 +1132,7 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
-  it("does not claim success when copy HTTP 400, 403, or 409 (#5551)", async () => {
+  it("does not claim success when copy HTTP 400, 403, or 409 (#5551)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
     let status = 400;
@@ -1127,13 +1155,13 @@ describe("ReducedActions", () => {
         target: { value: "/Assets/Dst" },
       });
       fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
-      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
       errors.length = 0;
     }
     expect(calls.onCopy).toHaveLength(3);
   });
 
-  it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", async () => {
+  it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];
     mockFetch(async (input, init) => {
@@ -1162,7 +1190,7 @@ describe("ReducedActions", () => {
     expect(urls.at(-1)).not.toContain("/folders/copy/folder");
   });
 
-  it("default onRestore PUTs public REST recycle restore (#4700)", async () => {
+  it("default onRestore PUTs public REST recycle restore (#4700)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];
     mockFetch(async (input) => {
@@ -1181,7 +1209,7 @@ describe("ReducedActions", () => {
     expect(urls.at(-1)).toContain("/rest/folders/recycle/restore/1-101-9");
   });
 
-  it("enables Empty recycle bin on a Recycling folder and confirms (#6470)", async () => {
+  it("enables Empty recycle bin on a Recycling folder and confirms (#6470)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -1208,14 +1236,14 @@ describe("ReducedActions", () => {
     expect(btn).toBeEnabled();
     fireEvent.click(btn);
     // The confirm dialog lists the bin contents (#6470).
-    const list = await screen.findByTestId("explorer-empty-recycle-list");
+    const list = await screen.findByTestId("explorer-empty-recycle-list", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(list).toHaveTextContent(/qa6470/);
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
-    await waitFor(() => expect(calls.onEmptyRecycle).toHaveLength(1));
-    await screen.findByTestId("explorer-empty-recycle-report");
+    await waitFor(() => expect(calls.onEmptyRecycle).toHaveLength(1), { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
+    await screen.findByTestId("explorer-empty-recycle-report", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
   });
 
-  it("does not empty the bin when confirm is cancelled (#6470)", async () => {
+  it("does not empty the bin when confirm is cancelled (#6470)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const { handlers, calls } = makeHandlers();
     render(
       <ReducedActions
@@ -1238,12 +1266,12 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-empty-recycle"));
-    await screen.findByTestId("explorer-empty-recycle-list");
+    await screen.findByTestId("explorer-empty-recycle-list", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-cancel"));
     expect(calls.onEmptyRecycle).toHaveLength(0);
   });
 
-  it("default onEmptyRecycle POSTs public REST recycle empty (#4762)", async () => {
+  it("default onEmptyRecycle POSTs public REST recycle empty (#4762)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];
     mockFetch(async (input) => {
@@ -1257,7 +1285,7 @@ describe("ReducedActions", () => {
     expect(urls.at(-1)).toContain("/rest/folders/recycle/empty");
   });
 
-  it("names the empty-bin 409 on the dialog report and does not swallow it (#6470)", async () => {
+  it("names the empty-bin 409 on the dialog report and does not swallow it (#6470)", { timeout: REDUCED_ACTIONS_TEST_TIMEOUT }, async () => {
     const handlers = defaultReducedActionHandlers();
     mockFetch(async () =>
       new Response("conflict", { status: 409, statusText: "Conflict" }),
@@ -1284,9 +1312,9 @@ describe("ReducedActions", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("action-empty-recycle"));
-    await screen.findByTestId("explorer-empty-recycle-list");
+    await screen.findByTestId("explorer-empty-recycle-list", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
-    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    const report = await screen.findByTestId("explorer-empty-recycle-report", undefined, { timeout: REDUCED_ACTIONS_ROUND_TRIP_TIMEOUT });
     expect(report.textContent?.toLowerCase()).toContain("could not empty");
   });
 

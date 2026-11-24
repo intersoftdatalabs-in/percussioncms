@@ -23,6 +23,29 @@ import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { jsonResponse, mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const RESTORE_REVISION_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const RESTORE_REVISION_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -94,7 +117,7 @@ describe("Explorer revisions panel restore one older revision (#5220)", () => {
     vi.restoreAllMocks();
   });
 
-  it("an empty selection does not claim a restore", async () => {
+  it("an empty selection does not claim a restore", { timeout: RESTORE_REVISION_TEST_TIMEOUT }, async () => {
     stubList([PAGE, FOLDER]);
     renderShell(
       <ContentExplorerShell
@@ -105,12 +128,15 @@ describe("Explorer revisions panel restore one older revision (#5220)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+      { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT },
     );
     const revisions = await screen.findByTestId(
       "action-toolbar-item-Workflow_Revisions",
+      undefined,
+      { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(revisions);
-    expect(await screen.findByTestId("explorer-revisions-hint")).toBeTruthy();
+    expect(await screen.findByTestId("explorer-revisions-hint", undefined, { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
     expect(screen.queryByTestId("explorer-flush-cache-status")).toBeNull();
     expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(
@@ -118,7 +144,7 @@ describe("Explorer revisions panel restore one older revision (#5220)", () => {
     );
   });
 
-  it("a folder does not claim a restore", async () => {
+  it("a folder does not claim a restore", { timeout: RESTORE_REVISION_TEST_TIMEOUT }, async () => {
     stubList([PAGE, FOLDER]);
     renderShell(
       <ContentExplorerShell
@@ -129,13 +155,16 @@ describe("Explorer revisions panel restore one older revision (#5220)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-fold-1")).toBeInTheDocument(),
+      { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-row-fold-1"));
     const revisions = await screen.findByTestId(
       "action-toolbar-item-Workflow_Revisions",
+      undefined,
+      { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(revisions);
-    expect(await screen.findByTestId("explorer-revisions-hint")).toBeTruthy();
+    expect(await screen.findByTestId("explorer-revisions-hint", undefined, { timeout: RESTORE_REVISION_ROUND_TRIP_TIMEOUT })).toBeTruthy();
     expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
     expect(screen.queryByTestId("explorer-flush-cache-status")).toBeNull();
     expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(

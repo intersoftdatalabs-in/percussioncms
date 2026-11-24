@@ -23,6 +23,29 @@ import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const RESTORE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const RESTORE_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -49,7 +72,7 @@ const RECYCLED = {
 };
 
 describe("ContentExplorerShell recycle restore (#6470)", () => {
-  it("confirms naming the row, PUTs recycle restore then refreshes the list", async () => {
+  it("confirms naming the row, PUTs recycle restore then refreshes the list", { timeout: RESTORE_TEST_TIMEOUT }, async () => {
     let restored = false;
     const restoreUrls: string[] = [];
     mockFetch(async (input) => {
@@ -91,26 +114,26 @@ describe("ContentExplorerShell recycle restore (#6470)", () => {
       />,
     );
 
-    const row = await screen.findByTestId("detail-row-1-101-9");
+    const row = await screen.findByTestId("detail-row-1-101-9", undefined, { timeout: RESTORE_ROUND_TRIP_TIMEOUT });
     fireEvent.click(row);
 
-    const restoreBtn = await screen.findByTestId("action-restore");
+    const restoreBtn = await screen.findByTestId("action-restore", undefined, { timeout: RESTORE_ROUND_TRIP_TIMEOUT });
     expect(restoreBtn).toBeEnabled();
     fireEvent.click(restoreBtn);
 
     // Single-item restore confirms naming the recycled row (#6470).
-    const dialog = await screen.findByTestId("explorer-restore-confirm");
+    const dialog = await screen.findByTestId("explorer-restore-confirm", undefined, { timeout: RESTORE_ROUND_TRIP_TIMEOUT });
     expect(dialog).toHaveTextContent(/qa4700/);
     fireEvent.click(screen.getByTestId("explorer-restore-ok"));
 
     await waitFor(() => {
       expect(restoreUrls.length).toBeGreaterThan(0);
-    });
+    }, { timeout: RESTORE_ROUND_TRIP_TIMEOUT });
     expect(restoreUrls.every((u) => u.includes("/recycle/restore/1-101-9"))).toBe(
       true,
     );
     await waitFor(() => {
       expect(screen.queryByTestId("detail-row-1-101-9")).not.toBeInTheDocument();
-    });
+    }, { timeout: RESTORE_ROUND_TRIP_TIMEOUT });
   });
 });

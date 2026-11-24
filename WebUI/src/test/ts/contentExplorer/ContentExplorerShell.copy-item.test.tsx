@@ -24,6 +24,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7207).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const COPY_ITEM_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7207, same load-contention rationale as
+ * the #7147 slice). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const COPY_ITEM_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -72,7 +95,7 @@ const DEST_FOLDER = {
 };
 
 describe("ContentExplorerShell copy item (#3656)", () => {
-  it("POSTs copy/item for a selected asset and refreshes the dest list", async () => {
+  it("POSTs copy/item for a selected asset and refreshes the dest list", { timeout: COPY_ITEM_TEST_TIMEOUT }, async () => {
     let copied = false;
     const copyUrls: string[] = [];
     mockFetch(async (input) => {
@@ -116,18 +139,18 @@ describe("ContentExplorerShell copy item (#3656)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-3656-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-3656-src", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    const copyBtn = await screen.findByTestId("action-copy");
+    const copyBtn = await screen.findByTestId("action-copy", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     expect(copyBtn).toBeEnabled();
     fireEvent.click(copyBtn);
-    const destInput = await screen.findByTestId("explorer-copy-dest-input");
+    const destInput = await screen.findByTestId("explorer-copy-dest-input", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.change(destInput, { target: { value: "/Assets/qa3656_dst" } });
     fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
 
-    // Timing-hardening for #6749: the default 1s waitFor loses to full-suite
-    // CPU contention before the post-copy refresh renders (same roulette
-    // class as #6742/#6706).
+    // Timing-hardening for #6749, unified under the #7207 file budget: the
+    // default 1s waitFor loses to full-suite CPU contention before the
+    // post-copy refresh renders (same roulette class as #6742/#6706).
     await waitFor(() => {
       expect(copied).toBe(true);
       expect(copyUrls.some((u) => u.includes("/folders/copy/item"))).toBe(true);
@@ -135,11 +158,11 @@ describe("ContentExplorerShell copy item (#3656)", () => {
         false,
       );
       expect(screen.getByTestId("detail-row-a-3656-copy")).toBeInTheDocument();
-    }, { timeout: 10000 });
+    }, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     await renderA11yGate(container);
   });
 
-  it("does not POST copy/item when the destination contains a NUL (#5551)", async () => {
+  it("does not POST copy/item when the destination contains a NUL (#5551)", { timeout: COPY_ITEM_TEST_TIMEOUT }, async () => {
     const copyUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -180,10 +203,10 @@ describe("ContentExplorerShell copy item (#3656)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-3656-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-3656-src", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    fireEvent.click(await screen.findByTestId("action-copy"));
-    fireEvent.change(await screen.findByTestId("explorer-copy-dest-input"), {
+    fireEvent.click(await screen.findByTestId("action-copy", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT }));
+    fireEvent.change(await screen.findByTestId("explorer-copy-dest-input", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT }), {
       target: { value: "/Assets/qa3656_dst\u0000" },
     });
     fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
@@ -197,7 +220,7 @@ describe("ContentExplorerShell copy item (#3656)", () => {
     await renderA11yGate(container);
   });
 
-  it("does not POST copy/item when the destination is blank (#5553)", async () => {
+  it("does not POST copy/item when the destination is blank (#5553)", { timeout: COPY_ITEM_TEST_TIMEOUT }, async () => {
     const copyUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -238,10 +261,10 @@ describe("ContentExplorerShell copy item (#3656)", () => {
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-a-3656-src");
+    const sourceRow = await screen.findByTestId("detail-row-a-3656-src", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT });
     fireEvent.click(sourceRow);
-    fireEvent.click(await screen.findByTestId("action-copy"));
-    fireEvent.change(await screen.findByTestId("explorer-copy-dest-input"), {
+    fireEvent.click(await screen.findByTestId("action-copy", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT }));
+    fireEvent.change(await screen.findByTestId("explorer-copy-dest-input", undefined, { timeout: COPY_ITEM_ROUND_TRIP_TIMEOUT }), {
       target: { value: "   " },
     });
     fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
