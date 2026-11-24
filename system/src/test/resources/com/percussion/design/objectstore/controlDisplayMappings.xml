@@ -24,13 +24,17 @@
 			</ErrorLabel>
 		</PSXUISet>
 	</PSXDisplayMapping>
+<!-- callout mappings target sys_HtmlEditor since #6637 retired the frozen
+     sys_tinymce definition (TinyMCE bundle removed in #5734). sys_HtmlEditor
+     carries the identical sys_xdTextCleanup setupOptional/multiple dependency
+     shape, so the dependency-map expectations are unchanged. -->
 	<PSXDisplayMapping>
 		<FieldRef>calloutField1</FieldRef>
 		<PSXUISet>
 			<Label>
 				<PSXDisplayText>calloutField1:</PSXDisplayText>
 			</Label>
-			<PSXControlRef id="3" name="sys_tinymce" />
+			<PSXControlRef id="3" name="sys_HtmlEditor" />
 			<ErrorLabel>
 				<PSXDisplayText>calloutField1:</PSXDisplayText>
 			</ErrorLabel>
@@ -42,7 +46,7 @@
 			<Label>
 				<PSXDisplayText>calloutField2:</PSXDisplayText>
 			</Label>
-			<PSXControlRef id="4" name="sys_tinymce" />
+			<PSXControlRef id="4" name="sys_HtmlEditor" />
 			<ErrorLabel>
 				<PSXDisplayText>calloutField2:</PSXDisplayText>
 			</ErrorLabel>
