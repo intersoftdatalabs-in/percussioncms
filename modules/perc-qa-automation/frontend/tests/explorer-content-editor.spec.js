@@ -35,6 +35,10 @@ const {
   encodeCmsRelPath,
   isListedPageRow,
   isPreviewableRow,
+  candidateRestFoldersForSites,
+  isListedPageKid,
+  isRestFolderKid,
+  nestedRestFolderRel,
   unwrapPathItems,
   resolveExplorerListPath,
   listedPageSiteNames,
@@ -99,52 +103,55 @@ async function fetchFolderChildren(request, cmsPath) {
 }
 
 /**
+ * Fetch one folder's children and return the listed page when present.
+ * @param {import("@playwright/test").APIRequestContext} request
+ * @param {string} folder
+ * @returns {Promise<object|null>}
+ */
+async function fetchListedPageInFolder(request, folder) {
+  const kids = await fetchFolderChildren(request, folder);
+  return kids.find(isListedPageKid) || null;
+}
+
+/**
+ * Scan the folder-like children of one folder for a nested listed page.
+ * Bounded to the first 12 kids; visited rels go through {@code seen} so
+ * the outer walk never re-fetches (#7212 — extracted from
+ * {@code findListedPageViaRest}).
+ * @param {import("@playwright/test").APIRequestContext} request
+ * @param {object[]} kids
+ * @param {string} folder
+ * @param {Set<string>} seen
+ * @returns {Promise<object|null>}
+ */
+async function findNestedListedPage(request, kids, folder, seen) {
+  for (const kid of kids.slice(0, 12)) {
+    if (!isRestFolderKid(kid)) continue;
+    const nestedRel = nestedRestFolderRel(kid, folder);
+    if (!nestedRel || seen.has(nestedRel)) continue;
+    seen.add(nestedRel);
+    const nestedPage = await fetchListedPageInFolder(request, nestedRel);
+    if (nestedPage) return nestedPage;
+  }
+  return null;
+}
+
+/**
  * Walk Sites → site → Pages for a listed page/asset (peer #3627).
  * @param {import("@playwright/test").APIRequestContext} request
  * @returns {Promise<object|null>}
  */
 async function findListedPageViaRest(request) {
   const sites = await fetchFolderChildren(request, "Sites");
-  const candidateFolders = [];
-  for (const site of sites) {
-    const listPath = resolveExplorerListPath(site);
-    if (listPath) {
-      candidateFolders.push(listPath.replace(/^\/+/, ""));
-      candidateFolders.push(`${listPath.replace(/^\/+/, "")}/Pages`);
-    }
-    const name = site && site.name ? String(site.name) : "";
-    if (name) {
-      candidateFolders.push(`Sites/${name}`);
-      candidateFolders.push(`Sites/${name}/Pages`);
-    }
-  }
-
   const seen = new Set();
-  for (const folder of candidateFolders) {
+  for (const folder of candidateRestFoldersForSites(sites)) {
     if (!folder || seen.has(folder)) continue;
     seen.add(folder);
     const kids = await fetchFolderChildren(request, folder);
-    const page = kids.find((k) => isListedPageRow(k) || isPreviewableRow(k));
+    const page = kids.find(isListedPageKid) || null;
     if (page) return page;
-    for (const kid of kids.slice(0, 12)) {
-      const kidType = `${kid.type || ""} ${kid.category || ""}`.toLowerCase();
-      const looksFolder =
-        kidType.includes("folder") ||
-        kidType.includes("site") ||
-        String(kid.path || "").endsWith("/");
-      if (!looksFolder) continue;
-      const nestedPath = resolveExplorerListPath(kid);
-      const nestedRel = nestedPath
-        ? nestedPath.replace(/^\/+/, "")
-        : `${folder}/${kid.name || ""}`;
-      if (!nestedRel || seen.has(nestedRel)) continue;
-      seen.add(nestedRel);
-      const nested = await fetchFolderChildren(request, nestedRel);
-      const nestedPage = nested.find(
-        (k) => isListedPageRow(k) || isPreviewableRow(k),
-      );
-      if (nestedPage) return nestedPage;
-    }
+    const nestedPage = await findNestedListedPage(request, kids, folder, seen);
+    if (nestedPage) return nestedPage;
   }
   return null;
 }
@@ -374,12 +381,13 @@ async function openPagesFolderIfPresent(page, list) {
 }
 
 /**
- * Open Sites → owning site → Pages when present (peer #3627).
+ * Expand the Sites tree node and return the site-child node locator
+ * (#7212 — extracted from {@code openSitesThenPages}).
  * @param {import("@playwright/test").Page} page
- * @param {object} [listed]
+ * @param {import("@playwright/test").Locator} tree
+ * @returns {Promise<import("@playwright/test").Locator>}
  */
-async function openSitesThenPages(page, listed) {
-  const tree = page.locator(`[data-testid="${PREVIEW_IDS.tree}"]`);
+async function expandSitesTreeNodes(page, tree) {
   const sitesNode = tree
     .locator(
       '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
@@ -397,23 +405,20 @@ async function openSitesThenPages(page, listed) {
     '[data-testid^="tree-node-/Sites/"]:not([data-testid="tree-node-/Sites/"])',
   );
   await expect(siteTreeNodes.first()).toBeVisible({ timeout: 15_000 });
+  return siteTreeNodes;
+}
 
-  const wanted = new Set(listedPageSiteNames(listed).map((n) => foldSiteName(n)));
-  const listedName = listed && listed.name ? String(listed.name) : "";
+/**
+ * Click the site tree node matching the REST-listed site names, or the
+ * first site when nothing matches (#7212 — extracted from
+ * {@code openSitesThenPages}).
+ * @param {import("@playwright/test").Locator} tree
+ * @param {import("@playwright/test").Locator} siteTreeNodes
+ * @param {Set<string>} wanted
+ * @returns {Promise<void>}
+ */
+async function clickPickedSiteNode(tree, siteTreeNodes, wanted) {
   const siteCount = await siteTreeNodes.count();
-  const beforeSitePath = await tree
-    .page()
-    .locator(`[data-testid="${PREVIEW_IDS.list}"]`)
-    .getAttribute("data-folder-path")
-    .catch(() => null);
-  const beforeSiteSig = await listRowsSignature(
-    tree.page(),
-    `[data-testid="${PREVIEW_IDS.list}"]`,
-  );
-  // Exact site-root pick (#7193): a substring match on the full testid
-  // false-matches nested folders whose paths contain the site name
-  // (AboutCorporateInvestments for CorporateInvestments) and navigates
-  // away from the site's Pages listing.
   const treeTestids = [];
   for (let i = 0; i < siteCount; i += 1) {
     treeTestids.push(
@@ -429,56 +434,63 @@ async function openSitesThenPages(page, listed) {
   } else if (siteCount > 0) {
     await siteTreeNodes.first().click({ force: true });
   }
-  await listWaitReady(page);
-  // Destination sync: don't judge the rows until the list navigated away
-  // from the pre-click folder and turned its rows over (#7193 P2).
-  await awaitListPathChange(page, beforeSitePath);
-  await awaitListRowsChanged(
-    page,
-    `[data-testid="${PREVIEW_IDS.list}"]`,
-    beforeSiteSig,
+}
+
+/**
+ * Open the site-root folder row when the tree click did not already list
+ * site content (#3696 / #7193 — extracted from {@code openSitesThenPages}).
+ * The list already shows site content — e.g. the Pages chrome right after
+ * the tree click — when it has item rows or a Pages folder row; only then
+ * is the site-row open skipped. The old substring hint otherwise
+ * false-matches child folders whose names contain the site name
+ * (AboutCorporateInvestments for CorporateInvestments) and navigates away
+ * from Pages (#7193).
+ * @param {import("@playwright/test").Locator} list
+ * @param {Set<string>} wanted
+ * @returns {Promise<void>}
+ */
+async function openSiteRowIfNeeded(list, wanted) {
+  if (await listShowsSiteContent(list)) return;
+  const siteRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
   );
-
-  const list = page.locator(`[data-testid="${PREVIEW_IDS.list}"]`);
-  await listSettled(page, list);
-
-  // The tree click on a site root already lists that site's Pages chrome
-  // (#3696). Skip the site-row open when the list already shows site
-  // content: the old substring hint otherwise false-matches child folders
-  // whose names contain the site name (AboutCorporateInvestments for
-  // CorporateInvestments) and navigates away from Pages (#7193).
-  if (!(await listShowsSiteContent(list))) {
-    const siteRows = list.locator(
-      'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
-    );
-    const rowCount = await siteRows.count().catch(() => 0);
-    let siteRow = null;
-    for (let i = 0; i < rowCount; i += 1) {
-      const row = siteRows.nth(i);
-      const itemName = await row.getAttribute("data-item-name").catch(() => null);
-      if (
-        itemName &&
-        wanted.size > 0 &&
-        detailRowHasExactFoldedName(itemName, wanted)
-      ) {
-        siteRow = row;
-        break;
-      }
-    }
-    if (!siteRow && wanted.size === 0 && rowCount > 0) {
-      siteRow = siteRows.first();
-    }
-    if (siteRow) {
-      try {
-        await openDetailFolderRow(siteRow);
-      } catch {
-        // Tree click may already have opened the site listing.
-      }
+  const rowCount = await siteRows.count().catch(() => 0);
+  let siteRow = null;
+  for (let i = 0; i < rowCount; i += 1) {
+    const row = siteRows.nth(i);
+    const itemName = await row.getAttribute("data-item-name").catch(() => null);
+    if (
+      itemName &&
+      wanted.size > 0 &&
+      detailRowHasExactFoldedName(itemName, wanted)
+    ) {
+      siteRow = row;
+      break;
     }
   }
+  if (!siteRow && wanted.size === 0 && rowCount > 0) {
+    siteRow = siteRows.first();
+  }
+  if (siteRow) {
+    try {
+      await openDetailFolderRow(siteRow);
+    } catch {
+      // Tree click may already have opened the site listing.
+    }
+  }
+}
 
-  await openPagesFolderIfPresent(page, list);
-
+/**
+ * Wait for an item row matching the REST-listed page; throw (do not skip)
+ * when the REST hunt found a page the list never shows (#7212 — extracted
+ * from {@code openSitesThenPages}).
+ * @param {import("@playwright/test").Locator} list
+ * @param {object} [listed]
+ * @param {Set<string>} wanted
+ * @returns {Promise<void>}
+ */
+async function awaitListedCandidateRow(list, listed, wanted) {
+  const listedName = listed && listed.name ? String(listed.name) : "";
   const candidates = [
     list.locator('tbody tr[data-testid^="detail-row-"][data-row-kind="item"]').first(),
     list
@@ -515,6 +527,41 @@ async function openSitesThenPages(page, listed) {
         `item row after opening site among ${[...wanted].join(", ")} — do not skip`,
     );
   }
+}
+
+/**
+ * Open Sites → owning site → Pages when present (peer #3627).
+ * @param {import("@playwright/test").Page} page
+ * @param {object} [listed]
+ */
+async function openSitesThenPages(page, listed) {
+  const tree = page.locator(`[data-testid="${PREVIEW_IDS.tree}"]`);
+  const listSel = `[data-testid="${PREVIEW_IDS.list}"]`;
+  const siteTreeNodes = await expandSitesTreeNodes(page, tree);
+
+  // Exact site-root pick (#7193): a substring match on the full testid
+  // false-matches nested folders whose paths contain the site name
+  // (AboutCorporateInvestments for CorporateInvestments) and navigates
+  // away from the site's Pages listing.
+  const wanted = new Set(listedPageSiteNames(listed).map((n) => foldSiteName(n)));
+  const beforeSitePath = await page
+    .locator(listSel)
+    .getAttribute("data-folder-path")
+    .catch(() => null);
+  const beforeSiteSig = await listRowsSignature(page, listSel);
+  await clickPickedSiteNode(tree, siteTreeNodes, wanted);
+  await listWaitReady(page);
+  // Destination sync: don't judge the rows until the list navigated away
+  // from the pre-click folder and turned its rows over (#7193 P2).
+  await awaitListPathChange(page, beforeSitePath);
+  await awaitListRowsChanged(page, listSel, beforeSiteSig);
+
+  const list = page.locator(listSel);
+  await listSettled(page, list);
+  await openSiteRowIfNeeded(list, wanted);
+
+  await openPagesFolderIfPresent(page, list);
+  await awaitListedCandidateRow(list, listed, wanted);
 }
 
 test.describe("modern React Content Editor — first slice", () => {

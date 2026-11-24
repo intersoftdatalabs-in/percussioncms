@@ -604,6 +604,72 @@ function treeNodeMatchesFoldedSite(
 }
 
 /**
+ * Candidate REST folder rels to scan for a listed page, derived from the
+ * Sites children: each site's Explorer list path plus its Pages child, and
+ * the {@code Sites/<name>} + {@code Sites/<name>/Pages} finder fallbacks.
+ * De-dup stays with the walker ({@code seen}); this only enumerates (#7212
+ * — extracted from {@code findListedPageViaRest}).
+ * @param {Array<object>} sites pathmanagement children of Sites
+ * @returns {string[]}
+ */
+function candidateRestFoldersForSites(sites) {
+  const folders = [];
+  for (const site of sites || []) {
+    const listPath = resolveExplorerListPath(site);
+    if (listPath) {
+      const rel = listPath.replace(/^\/+/, "");
+      folders.push(rel);
+      folders.push(`${rel}/Pages`);
+    }
+    const name = site && site.name ? String(site.name) : "";
+    if (name) {
+      folders.push(`Sites/${name}`);
+      folders.push(`Sites/${name}/Pages`);
+    }
+  }
+  return folders;
+}
+
+/**
+ * True when a pathmanagement row is the listed page (or another
+ * previewable item) the Explorer navigation hunts for (#7212 — extracted
+ * from {@code findListedPageViaRest}).
+ * @param {object} kid
+ * @returns {boolean}
+ */
+function isListedPageKid(kid) {
+  return isListedPageRow(kid) || isPreviewableRow(kid);
+}
+
+/**
+ * True when a pathmanagement child looks like a folder/site worth
+ * descending into while hunting a listed page (#7212 — extracted from
+ * {@code findListedPageViaRest}).
+ * @param {{ type?: string, category?: string, path?: string }} kid
+ * @returns {boolean}
+ */
+function isRestFolderKid(kid) {
+  if (!kid) return false;
+  const token = `${kid.type || ""} ${kid.category || ""}`.toLowerCase();
+  if (token.includes("folder") || token.includes("site")) return true;
+  return String(kid.path || "").endsWith("/");
+}
+
+/**
+ * Nested folder rel for a folder-like REST child: prefer its Explorer list
+ * path, else the parent folder plus the child name (#7212 — extracted from
+ * {@code findListedPageViaRest}).
+ * @param {{ name?: string }} kid
+ * @param {string} folder parent folder rel already being scanned
+ * @returns {string}
+ */
+function nestedRestFolderRel(kid, folder) {
+  const nestedPath = resolveExplorerListPath(kid);
+  if (nestedPath) return nestedPath.replace(/^\/+/, "");
+  return `${folder}/${(kid && kid.name) || ""}`;
+}
+
+/**
  * Classify a detail-list snapshot for the settled poll (#7193). Pure
  * state machine over {@code snapshotDetailList}-shaped input so it stays
  * unit-testable: load failures surface loudly as "error" because "empty"
@@ -671,6 +737,10 @@ module.exports = {
   encodeCmsRelPath,
   isPreviewableRow,
   isListedPageRow,
+  candidateRestFoldersForSites,
+  isListedPageKid,
+  isRestFolderKid,
+  nestedRestFolderRel,
   unwrapPathItems,
   resolveExplorerListPath,
   parentFolderCmsPath,
