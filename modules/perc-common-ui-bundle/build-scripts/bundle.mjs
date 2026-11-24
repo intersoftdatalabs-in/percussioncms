@@ -89,7 +89,6 @@ async function minify(source, outFile) {
 // ---------------------------------------------------------------------------
 const FULL_BUNDLE = [
   // Vendor libraries (not on npm — kept as committed source)
-  "src/main/js/vendor/jquery.jsonp.js",
   "src/main/js/vendor/simpledateformat.js",
   "src/main/js/vendor/jquery.timeago.js",
 
@@ -143,8 +142,10 @@ const FULL_BUNDLE = [
 //
 // Only the subset of vendor utilities + the common service utilities.
 // ---------------------------------------------------------------------------
+// Only the common service utilities (the retired jsonp script had zero
+// callers — delivery calls use CORS $.ajax via PercServiceUtils — so the
+// slim bundle is just the service layer).
 const SLIM_BUNDLE = [
-  "src/main/js/vendor/jquery.jsonp.js",
   "src/main/js/services/PercServiceUtils.js",
 ];
 
