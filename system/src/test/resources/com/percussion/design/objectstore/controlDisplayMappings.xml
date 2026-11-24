@@ -25,7 +25,8 @@
 		</PSXUISet>
 	</PSXDisplayMapping>
 <!-- callout mappings target sys_HtmlEditor since #6637 retired the frozen
-     sys_tinymce definition (TinyMCE bundle removed in #5734). sys_HtmlEditor
+     rich-text definition (TinyMCE bundle removed in #5734; the emitted name
+     was renamed to sys_default_richtext_editor in #6834). sys_HtmlEditor
      carries the identical sys_xdTextCleanup setupOptional/multiple dependency
      shape, so the dependency-map expectations are unchanged. -->
 	<PSXDisplayMapping>

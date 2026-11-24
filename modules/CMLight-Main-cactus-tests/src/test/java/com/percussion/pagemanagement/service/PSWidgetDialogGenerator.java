@@ -1042,6 +1042,10 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
     ms_supportedCtrls.add("sys_EditBox");
     ms_supportedCtrls.add("sys_File");
     ms_supportedCtrls.add(CHECKBOX_FIELD_CTRL);
+    // #6834: widget-builder RICH_TEXT fields emit sys_default_richtext_editor;
+    // sys_tinymce stays supported as the legacy alias for stored content types
+    // not yet migrated by the installer upgrade task (slice #7236).
+    ms_supportedCtrls.add("sys_default_richtext_editor");
     ms_supportedCtrls.add("sys_tinymce");
     ms_supportedCtrls.add("sys_TextArea");
   }

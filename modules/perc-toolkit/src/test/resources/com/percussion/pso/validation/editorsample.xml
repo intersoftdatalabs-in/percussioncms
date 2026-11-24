@@ -7,7 +7,7 @@
 		<ControlName>sys_EditBox</ControlName>
 		<ControlName>sys_CalendarSimple</ControlName>
 		<ControlName>sys_DropDownSingle</ControlName>
-		<ControlName>sys_tinymce</ControlName>
+		<ControlName>sys_default_richtext_editor</ControlName>
 		<ControlName>sys_HiddenInput</ControlName>
 	</ControlNameSet>
 	<ItemContent newDocument="no">
@@ -148,7 +148,7 @@
 			<DisplayLabel sourceType="sys_shared">Callout:</DisplayLabel>
 			<Control accessKey="o" dataType="sys_shared"
 				dimension="single" isReadOnly="no" isRequired="no"
-				name="sys_tinymce" paramName="callout">
+				name="sys_default_richtext_editor" paramName="callout">
 				<Value>&lt;div class="rxbodyfield"
 					xmlns:o="urn:www.microsoft.com/office"
 					xmlns:st1="urn:www.microsoft.com/smarttags"
@@ -164,7 +164,7 @@
 			<DisplayLabel sourceType="sys_shared">Body:</DisplayLabel>
 			<Control accessKey="B" dataType="sys_shared"
 				dimension="single" isReadOnly="no" isRequired="no"
-				name="sys_tinymce" paramName="body">
+				name="sys_default_richtext_editor" paramName="body">
 				<Value>&lt;div class="rxbodyfield"
 					xmlns:o="urn:www.microsoft.com/office"
 					xmlns:st1="urn:www.microsoft.com/smarttags"
@@ -480,7 +480,7 @@
 		<ControlName>sys_EditBox</ControlName>
 		<ControlName>sys_CalendarSimple</ControlName>
 		<ControlName>sys_DropDownSingle</ControlName>
-		<ControlName>sys_tinymce</ControlName>
+		<ControlName>sys_default_richtext_editor</ControlName>
 		<ControlName>sys_HiddenInput</ControlName>
 	</ControlNameSet>
 	<ItemContent>
@@ -621,7 +621,7 @@
 			<DisplayLabel sourceType="sys_shared">Callout:</DisplayLabel>
 			<Control accessKey="o" dataType="sys_shared"
 				dimension="single" isReadOnly="no" isRequired="no"
-				name="sys_tinymce" paramName="callout">
+				name="sys_default_richtext_editor" paramName="callout">
 				<Value>&lt;div class="rxbodyfield"
 					xmlns:o="urn:www.microsoft.com/office"
 					xmlns:st1="urn:www.microsoft.com/smarttags"
@@ -637,7 +637,7 @@
 			<DisplayLabel sourceType="sys_shared">Body:</DisplayLabel>
 			<Control accessKey="B" dataType="sys_shared"
 				dimension="single" isReadOnly="no" isRequired="no"
-				name="sys_tinymce" paramName="body">
+				name="sys_default_richtext_editor" paramName="body">
 				<Value>&lt;div class="rxbodyfield"
 					xmlns:o="urn:www.microsoft.com/office"
 					xmlns:st1="urn:www.microsoft.com/smarttags"

@@ -33,7 +33,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Minimal persist/meta coverage for the {@code InlineLinkTitleField} sys_tinymce control parameter
+ * Minimal persist/meta coverage for the {@code InlineLinkTitleField} rich-text control parameter
  * (issue #2241 / parent #946). Empty/absent remains backward compatible with product defaults
  * ({@code displaytitle} for assets; page link title for pages — resolved in #2242).
  */
@@ -44,14 +44,14 @@ public class PSInlineLinkTitleFieldControlParamTest {
   public static final String PARAM_NAME = "InlineLinkTitleField";
 
   /** Control that hosts the setting. */
-  public static final String CONTROL_NAME = "sys_tinymce";
+  public static final String CONTROL_NAME = "sys_default_richtext_editor";
 
   @Test
   public void controlMeta_parsesEmptyDefaultForInlineLinkTitleField() throws Exception {
     String xml =
         """
         <controls xmlns:psxctl="urn:percussion.com/control">
-          <psxctl:ControlMeta name="sys_tinymce" dimension="single" choiceset="none">
+          <psxctl:ControlMeta name="sys_default_richtext_editor" dimension="single" choiceset="none">
             <psxctl:Description>TinyMCE</psxctl:Description>
             <psxctl:ParamList>
               <psxctl:Param name="InlineLinkTitleField" datatype="String" paramtype="generic">

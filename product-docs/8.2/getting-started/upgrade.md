@@ -97,6 +97,24 @@ Cookbook: [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
 Do not confuse this with retired **dual-ship** page `*.templateDef` files — see
 [Product page packages](id:developer-page-packages).
 
+## Rich-text control rename (`sys_tinymce` → `sys_default_richtext_editor`)
+
+The widget-builder rich-text control was renamed to
+`sys_default_richtext_editor` (#6834, owner decision 2026-11-24). The
+installer migrates existing installs automatically: during upgrade it scans
+the installed `ObjectStore/**/*.xml` tree and
+`rxconfig/Server/ContentEditors/shared/**/*.xml`, replacing
+`sys_tinymce` ControlRefs with `sys_default_richtext_editor` (legacy
+`sys_TinyMCE` / `sys_EditLive` names chain through the same pass). No manual
+content-type edit is needed.
+
+Stored types that still declare `sys_tinymce` keep rendering through the
+TipTap mapping either way, so an install that missed the replacement pass
+still edits and publishes. If you customized or copied a shipped content
+type outside `ObjectStore` (or kept one under source control), apply the
+same rename there. Details: [Classic `sys_tinymce` control retired and
+renamed](id:developer-widget-editor).
+
 ## Retired product widgets
 
 - **Legacy Calendar widget (`percCalendar`) removed.** The FullCalendar

@@ -664,7 +664,7 @@
 									<Label>
 										<PSXDisplayText>Callout:</PSXDisplayText>
 									</Label>
-									<PSXControlRef id="10050" name="sys_tinymce" />
+									<PSXControlRef id="10050" name="sys_default_richtext_editor" />
 									<ErrorLabel>
 										<PSXDisplayText>Callout:</PSXDisplayText>
 									</ErrorLabel>

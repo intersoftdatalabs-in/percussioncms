@@ -1288,25 +1288,30 @@
 			</replacefilter>
 		</replace>
 		<echo> updating sys_TinyMCE and sys_EditLive with sys_tinymce in
-			objectstore
+			objectstore (legacy aliases), then migrating sys_tinymce to
+			sys_default_richtext_editor (#6834 owner rename decision, slice #7236).
+			The migration filter uses the bare control name so every reference
+			form migrates (PSXControlRef name, ControlName elements, Control
+			dependencyId/displayName); no longer sys_tinymce* identifier exists
+			in the tree, so the bare token cannot clobber a longer name.
 		</echo>
 		<replace dir="${install.dir}/ObjectStore">
 			<include name="**/*.xml" />
+			<!-- NOTE: replacetoken/replacevalue MUST stay on a single line.
+			     Ant keeps newlines/indentation inside nested token elements as
+			     part of the match string, so the historical multiline layout
+			     never matched; single-line CDATA matches exactly. -->
 			<replacefilter>
-				<replacetoken>
-                    <![CDATA[name="sys_TinyMCE"]]>
-				</replacetoken>
-				<replacevalue>
-                    <![CDATA[name="sys_tinymce"]]>
-				</replacevalue>
+				<replacetoken><![CDATA[name="sys_TinyMCE"]]></replacetoken>
+				<replacevalue><![CDATA[name="sys_tinymce"]]></replacevalue>
 			</replacefilter>
 			<replacefilter>
-				<replacetoken>
-                    <![CDATA[name="sys_EditLive"]]>
-				</replacetoken>
-				<replacevalue>
-                    <![CDATA[name="sys_tinymce"]]>
-				</replacevalue>
+				<replacetoken><![CDATA[name="sys_EditLive"]]></replacetoken>
+				<replacevalue><![CDATA[name="sys_tinymce"]]></replacevalue>
+			</replacefilter>
+			<replacefilter>
+				<replacetoken><![CDATA[sys_tinymce]]></replacetoken>
+				<replacevalue><![CDATA[sys_default_richtext_editor]]></replacevalue>
 			</replacefilter>
 		</replace>
 		<echo>Adding ITEM_FILE_ATTACHMENT_HASH Mapping </echo>
@@ -1347,26 +1352,25 @@
 				type="dir" />
 			<then>
 				<echo> updating sys_TinyMCE and sys_EditLive with sys_tinymce in
-					rxs_ct_shared and new columns
+					rxs_ct_shared and new columns (legacy aliases), then migrating
+					sys_tinymce to sys_default_richtext_editor (#6834 owner rename
+					decision, slice #7236; bare token covers every reference form)
 				</echo>
 				<replace
 					dir="${install.dir}/rxconfig/Server/ContentEditors/shared">
 					<include name="**/*.xml" />
+					<!-- NOTE: single-line tokens — see ObjectStore block above. -->
 					<replacefilter>
-						<replacetoken>
-                            <![CDATA[name="sys_TinyMCE"]]>
-						</replacetoken>
-						<replacevalue>
-                            <![CDATA[name="sys_tinymce"]]>
-						</replacevalue>
+						<replacetoken><![CDATA[name="sys_TinyMCE"]]></replacetoken>
+						<replacevalue><![CDATA[name="sys_tinymce"]]></replacevalue>
 					</replacefilter>
 					<replacefilter>
-						<replacetoken>
-                            <![CDATA[name="sys_EditLive"]]>
-						</replacetoken>
-						<replacevalue>
-                            <![CDATA[name="sys_tinymce"]]>
-						</replacevalue>
+						<replacetoken><![CDATA[name="sys_EditLive"]]></replacetoken>
+						<replacevalue><![CDATA[name="sys_tinymce"]]></replacevalue>
+					</replacefilter>
+					<replacefilter>
+						<replacetoken><![CDATA[sys_tinymce]]></replacetoken>
+						<replacevalue><![CDATA[sys_default_richtext_editor]]></replacevalue>
 					</replacefilter>
 				</replace>
 				<echo>Adding IMG HASH Mappings for IMG1 and IMG2 in rxs_ct_shared</echo>

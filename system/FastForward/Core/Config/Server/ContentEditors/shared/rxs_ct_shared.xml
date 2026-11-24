@@ -1389,7 +1389,7 @@
 						<Label>
 							<PSXDisplayText>Callout:</PSXDisplayText>
 						</Label>
-						<PSXControlRef id="19" name="sys_tinymce" />
+						<PSXControlRef id="19" name="sys_default_richtext_editor" />
 						<ErrorLabel>
 							<PSXDisplayText>Callout:</PSXDisplayText>
 						</ErrorLabel>
@@ -1401,7 +1401,7 @@
 						<Label>
 							<PSXDisplayText>Body:</PSXDisplayText>
 						</Label>
-						<PSXControlRef id="24" name="sys_tinymce" />
+						<PSXControlRef id="24" name="sys_default_richtext_editor" />
 						<ErrorLabel>
 							<PSXDisplayText>Body:</PSXDisplayText>
 						</ErrorLabel>
