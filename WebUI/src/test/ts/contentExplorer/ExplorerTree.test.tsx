@@ -27,6 +27,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const EXPLORER_TREE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const EXPLORER_TREE_TEST_TIMEOUT = 30_000;
+
 /** Child of /Sites — path is the data-testid suffix (`tree-node-${path}`). */
 const ROOT_FOLDER: PSPathItem = {
   id: "root-1",
@@ -53,7 +76,7 @@ function pathItemListResponse(items: PSPathItem[]): Response {
 }
 
 describe("ExplorerTree", () => {
-  it("renders an initial empty state when the root fetch returns no children", async () => {
+  it("renders an initial empty state when the root fetch returns no children", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     mockFetch(async () => pathItemListResponse([]));
     render(
       <ExplorerTree
@@ -66,10 +89,11 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("explorer-tree").textContent,
       ).toMatch(/No folders available/),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("loads children on mount and renders treeitems for each", async () => {
+  it("loads children on mount and renders treeitems for each", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.endsWith("/pathmanagement/path/folder/Sites")) {
@@ -86,10 +110,11 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("renders classic Folders root from path/folder/ children (#3044)", async () => {
+  it("renders classic Folders root from path/folder/ children (#3044)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const FOLDERS_ROOT: PSPathItem = {
       id: "folders-root",
       path: "/Folders/",
@@ -126,12 +151,13 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Folders/")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("tree-node-/Sites/")).toBeInTheDocument();
     expect(screen.getByText("Folders")).toBeInTheDocument();
   });
 
-  it("renders site-type children with id paths under /Sites (#3001)", async () => {
+  it("renders site-type children with id paths under /Sites (#3001)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     // Wire shape from PSSitePathItemService: type=site, path=/Sites/{id}/
     const SITE_CHILD: PSPathItem = {
       id: "16777215-101-703",
@@ -159,6 +185,7 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
     expect(
@@ -166,7 +193,7 @@ describe("ExplorerTree", () => {
     ).toHaveAttribute("data-node-name", "Corporate_Investments");
   });
 
-  it("exposes folderPath leaf when site name is a GUID (#3684)", async () => {
+  it("exposes folderPath leaf when site name is a GUID (#3684)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const SITE_CHILD: PSPathItem = {
       id: "16777215-101-703",
       path: "/Sites/16777215-101-703/",
@@ -194,6 +221,7 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const node = screen.getByTestId("tree-node-/Sites/16777215-101-703/");
     expect(node).toHaveAttribute("data-node-name", "CorporateInvestments");
@@ -207,7 +235,7 @@ describe("ExplorerTree", () => {
     ).toBeInTheDocument();
   });
 
-  it("loads children on first expand (lazy)", async () => {
+  it("loads children on first expand (lazy)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     let rootCalls = 0;
     let childCalls = 0;
     mockFetch(async (input) => {
@@ -231,6 +259,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(rootCalls).toBe(1);
     expect(childCalls).toBe(0);
@@ -240,12 +269,13 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(childCalls).toBe(1);
     await renderA11yGate(container);
   });
 
-  it("lists site children using folderPath not sitename (#3326)", async () => {
+  it("lists site children using folderPath not sitename (#3326)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const SITE_CHILD: PSPathItem = {
       id: "Corporate_Investments",
       path: "/Sites/Corporate_Investments/",
@@ -285,6 +315,7 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const node = screen.getByTestId("tree-node-/Sites/Corporate_Investments/");
     const toggle = node.querySelector('[aria-hidden="true"]');
@@ -293,6 +324,7 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(
       requested.some((u) =>
@@ -314,6 +346,7 @@ describe("ExplorerTree", () => {
     ["keyboard Space", (el: Element) => fireEvent.keyDown(el, { key: " " })],
   ])(
     "selecting a site node expands Pages without onActivate (%s, #3696)",
+    { timeout: EXPLORER_TREE_TEST_TIMEOUT },
     async (_label, activate) => {
       const SITE_CHILD: PSPathItem = {
         id: "Corporate_Investments",
@@ -356,6 +389,7 @@ describe("ExplorerTree", () => {
         expect(
           screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
         ).toBeInTheDocument(),
+        { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
       );
       const treeitem = screen
         .getByTestId("tree-node-/Sites/Corporate_Investments/")
@@ -365,13 +399,14 @@ describe("ExplorerTree", () => {
         expect(
           screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
         ).toBeInTheDocument(),
+        { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
       );
       expect(onActivate).not.toHaveBeenCalled();
       await renderA11yGate(container);
     },
   );
 
-  it("fires onSelectFolder when a row is activated", async () => {
+  it("fires onSelectFolder when a row is activated", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     let selected: string | null = null;
     render(
@@ -385,12 +420,13 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByRole("treeitem"));
     expect(selected).toBe("/Sites/Foo");
   });
 
-  it("surfaces fetch errors as an alert", async () => {
+  it("surfaces fetch errors as an alert", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     mockFetch(async () => new Response("server down", { status: 500 }));
     render(
       <ExplorerTree
@@ -402,10 +438,11 @@ describe("ExplorerTree", () => {
     // formatApiError (api/client) surfaces Error.message / body text when present.
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(/server down/),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("passes the zero serious/critical axe-core gate (loaded state with treeitem children)", async () => {
+  it("passes the zero serious/critical axe-core gate (loaded state with treeitem children)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     const { container } = render(
       <ExplorerTree
@@ -416,6 +453,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeTruthy(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -492,7 +530,7 @@ describe("ExplorerTree", () => {
     expect(paths).not.toContain("/Sites/qa3653");
   });
 
-  it("reloads selected folder children when childrenEpoch changes (#3640 #3645)", async () => {
+  it("reloads selected folder children when childrenEpoch changes (#3640 #3645)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const NEW_FOLDER: PSPathItem = {
       id: "new-1",
       path: "/Sites/New",
@@ -533,6 +571,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("tree-node-/Sites/New")).toBeNull();
     expect(screen.queryByTestId("tree-node-/Sites/Renamed")).toBeNull();
@@ -546,6 +585,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("tree-node-/Sites/Renamed")).toBeInTheDocument();
     expect(sitesCalls).toBeGreaterThan(1);
@@ -560,12 +600,13 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(sitesCalls).toBe(callsAfterEpoch);
     await renderA11yGate(container);
   });
 
-  it("does not force-reload expanded sibling folders on childrenEpoch (#3645)", async () => {
+  it("does not force-reload expanded sibling folders on childrenEpoch (#3645)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const OTHER: PSPathItem = {
       id: "other-1",
       path: "/Sites/Other",
@@ -597,6 +638,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const node = screen.getByTestId("tree-node-/Sites/Foo");
     const toggle = node.querySelector('[aria-hidden="true"]');
@@ -606,6 +648,7 @@ describe("ExplorerTree", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(fooCalls).toBe(1);
     const sitesAfterExpand = sitesCalls;
@@ -617,12 +660,12 @@ describe("ExplorerTree", () => {
         childrenEpoch={1}
       />,
     );
-    await waitFor(() => expect(sitesCalls).toBeGreaterThan(sitesAfterExpand));
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(sitesAfterExpand), { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT });
     expect(fooCalls).toBe(1);
     await renderA11yGate(container);
   });
 
-  it("force-reloads Assets children when selectedPath is repository folderPath (#3653)", async () => {
+  it("force-reloads Assets children when selectedPath is repository folderPath (#3653)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const ASSETS: PSPathItem = {
       id: "assets-root",
       path: "/Assets",
@@ -667,6 +710,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const assetsNode = screen.getByTestId("tree-node-/Assets");
     const toggle = assetsNode.querySelector('[aria-hidden="true"]');
@@ -674,6 +718,7 @@ describe("ExplorerTree", () => {
     fireEvent.click(toggle!);
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets/qa3653")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByText("qa3653")).toBeInTheDocument();
     rerender(
@@ -684,15 +729,16 @@ describe("ExplorerTree", () => {
         childrenEpoch={1}
       />,
     );
-    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1));
+    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1), { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Assets/qa3653")).toBeNull(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByText("qa3653")).toBeNull();
     await renderA11yGate(container);
   });
 
-  it("shows renamed child after childrenEpoch when selectedPath is repository folderPath (#3652)", async () => {
+  it("shows renamed child after childrenEpoch when selectedPath is repository folderPath (#3652)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const ASSETS: PSPathItem = {
       id: "assets-root",
       path: "/Assets",
@@ -747,6 +793,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const assetsNode = screen.getByTestId("tree-node-/Assets");
     const toggle = assetsNode.querySelector('[aria-hidden="true"]');
@@ -754,6 +801,7 @@ describe("ExplorerTree", () => {
     fireEvent.click(toggle!);
     await waitFor(() =>
       expect(screen.getByText("OldFolder")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -763,15 +811,16 @@ describe("ExplorerTree", () => {
         childrenEpoch={1}
       />,
     );
-    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1));
+    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1), { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.getByText("qa3652r")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByText("OldFolder")).toBeNull();
     await renderA11yGate(container);
   });
 
-  it("force-reloads parent children when selectedPath is the deleted folder (#3653)", async () => {
+  it("force-reloads parent children when selectedPath is the deleted folder (#3653)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const DISPOSABLE: PSPathItem = {
       id: "qa-3653b",
       path: "/Sites/qa3653b",
@@ -798,6 +847,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/qa3653b")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -807,15 +857,16 @@ describe("ExplorerTree", () => {
         childrenEpoch={1}
       />,
     );
-    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1));
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1), { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/qa3653b")).toBeNull(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByText("qa3653b")).toBeNull();
     await renderA11yGate(container);
   });
 
-  it("force-reloads parent children after epoch when product root is / (#3653)", async () => {
+  it("force-reloads parent children after epoch when product root is / (#3653)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const SITES: PSPathItem = {
       id: "sites-root",
       path: "/Sites",
@@ -856,6 +907,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const sitesNode = screen.getByTestId("tree-node-/Sites");
     const toggle = sitesNode.querySelector('[aria-hidden="true"]');
@@ -863,6 +915,7 @@ describe("ExplorerTree", () => {
     fireEvent.click(toggle!);
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/qa3653c")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -872,15 +925,16 @@ describe("ExplorerTree", () => {
         childrenEpoch={1}
       />,
     );
-    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1));
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1), { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/qa3653c")).toBeNull(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByText("qa3653c")).toBeNull();
     await renderA11yGate(container);
   });
 
-  it("epoch bump reloads parent children when selectedPath is the list path not the tree key (#3652)", async () => {
+  it("epoch bump reloads parent children when selectedPath is the list path not the tree key (#3652)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const ASSETS: PSPathItem = {
       id: "assets-1",
       path: "/Assets",
@@ -934,6 +988,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     const toggle = screen
       .getByTestId("tree-node-/Assets")
@@ -942,6 +997,7 @@ describe("ExplorerTree", () => {
     fireEvent.click(toggle!);
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets/Old")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -953,6 +1009,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Assets/Renamed")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByText("Renamed")).toBeInTheDocument();
     expect(screen.queryByTestId("tree-node-/Assets/Old")).toBeNull();
@@ -960,7 +1017,7 @@ describe("ExplorerTree", () => {
     await renderA11yGate(container);
   });
 
-  it("epoch bump reloads parent children when selectedPath is the renamed child's old path (#3652)", async () => {
+  it("epoch bump reloads parent children when selectedPath is the renamed child's old path (#3652)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const OLD_FOLDER: PSPathItem = {
       id: "ren-2",
       path: "/Sites/OldChild",
@@ -997,6 +1054,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/OldChild")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -1008,13 +1066,14 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/NewChild")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByText("NewChild")).toBeInTheDocument();
     expect(screen.queryByTestId("tree-node-/Sites/OldChild")).toBeNull();
     await renderA11yGate(container);
   });
 
-  it("epoch bump drops a deleted child from parent children (#3653)", async () => {
+  it("epoch bump drops a deleted child from parent children (#3653)", { timeout: EXPLORER_TREE_TEST_TIMEOUT }, async () => {
     const DOOMED: PSPathItem = {
       id: "del-1",
       path: "/Sites/Doomed",
@@ -1044,6 +1103,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Doomed")).toBeInTheDocument(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <ExplorerTree
@@ -1055,6 +1115,7 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/Doomed")).toBeNull(),
+      { timeout: EXPLORER_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument();
     await renderA11yGate(container);

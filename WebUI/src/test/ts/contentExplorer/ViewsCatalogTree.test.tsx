@@ -21,6 +21,29 @@ import type { ViewDef } from "../../../main/ts/api/developer/types";
 import { ViewsCatalogTree } from "../../../main/ts/contentExplorer/ViewsCatalogTree";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const VIEWS_CATALOG_TREE_TEST_TIMEOUT = 30_000;
+
 const CATALOG: ViewDef[] = [
   { name: "MyPages", label: "My Pages", parentCategory: 1, standardView: true },
   { name: "Inbox", label: "Inbox", parentCategory: 1, customView: true },
@@ -29,14 +52,16 @@ const CATALOG: ViewDef[] = [
 ];
 
 describe("ViewsCatalogTree (#3116)", () => {
-  it("renders Views root and four category groups from the catalog", async () => {
+  it("renders Views root and four category groups from the catalog", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const listViews = vi.fn().mockResolvedValue(CATALOG);
     const { container } = render(<ViewsCatalogTree listViews={listViews} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("explorer-views-tree")).toBeInTheDocument();
       expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument();
-    });
+    },
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("explorer-views-root")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-views-group-2")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-views-group-3")).toBeInTheDocument();
@@ -57,7 +82,7 @@ describe("ViewsCatalogTree (#3116)", () => {
     await renderA11yGate(container);
   });
 
-  it("selecting a leaf reports the view to the host", async () => {
+  it("selecting a leaf reports the view to the host", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const onSelectView = vi.fn();
     render(
       <ViewsCatalogTree
@@ -67,13 +92,14 @@ describe("ViewsCatalogTree (#3116)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-leaf-MyPages")).toBeInTheDocument(),
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("explorer-views-leaf-MyPages"));
     expect(onSelectView).toHaveBeenCalledTimes(1);
     expect(onSelectView.mock.calls[0]?.[0]?.name).toBe("MyPages");
   });
 
-  it("shows load error and retries", async () => {
+  it("shows load error and retries", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const listViews = vi
       .fn()
       .mockRejectedValueOnce(new Error("views down"))
@@ -81,15 +107,17 @@ describe("ViewsCatalogTree (#3116)", () => {
     render(<ViewsCatalogTree listViews={listViews} />);
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-error")).toBeInTheDocument(),
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("explorer-views-retry"));
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument(),
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
     );
     expect(listViews).toHaveBeenCalledTimes(2);
   });
 
-  it("renders one All leaf for seven catalog copies of View_All (#3325)", async () => {
+  it("renders one All leaf for seven catalog copies of View_All (#3325)", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const copies: ViewDef[] = Array.from({ length: 7 }, (_, i) => ({
       name: "View_All",
       label: "All",
@@ -100,6 +128,7 @@ describe("ViewsCatalogTree (#3116)", () => {
     render(<ViewsCatalogTree listViews={async () => copies} />);
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-group-3")).toBeInTheDocument(),
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("explorer-views-group-3-row"));
     const leaves = screen.getAllByTestId("explorer-views-leaf-View_All");
@@ -108,13 +137,15 @@ describe("ViewsCatalogTree (#3116)", () => {
     expect(leaves[0].textContent).not.toMatch(/All.*All/);
   });
 
-  it("always shows an Inbox leaf under My Content when catalog is empty (#3240)", async () => {
+  it("always shows an Inbox leaf under My Content when catalog is empty (#3240)", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <ViewsCatalogTree listViews={async () => []} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument();
-    });
+    },
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("explorer-views-group-1")).toContainElement(
       screen.getByTestId("explorer-views-leaf-Inbox"),
     );
@@ -122,13 +153,15 @@ describe("ViewsCatalogTree (#3116)", () => {
     await renderA11yGate(container);
   });
 
-  it("renders a group empty row when an expanded group has no leaves (#6418)", async () => {
+  it("renders a group empty row when an expanded group has no leaves (#6418)", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <ViewsCatalogTree listViews={async () => []} />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-views-group-2")).toBeInTheDocument();
-    });
+    },
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
+    );
     // Group 1 keeps the Inbox leaf (#3240): no empty row there.
     expect(
       screen.queryByTestId("explorer-views-group-1-empty"),
@@ -148,7 +181,7 @@ describe("ViewsCatalogTree (#3116)", () => {
     await renderA11yGate(container);
   });
 
-  it("shows the loading indicator while the catalog promise is pending (#6418)", async () => {
+  it("shows the loading indicator while the catalog promise is pending (#6418)", { timeout: VIEWS_CATALOG_TREE_TEST_TIMEOUT }, async () => {
     let resolveCatalog!: (views: ViewDef[]) => void;
     const pending = new Promise<ViewDef[]>((resolve) => {
       resolveCatalog = resolve;
@@ -160,7 +193,9 @@ describe("ViewsCatalogTree (#3116)", () => {
     resolveCatalog([]);
     await waitFor(() => {
       expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument();
-    });
+    },
+      { timeout: VIEWS_CATALOG_TREE_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("explorer-views-loading")).toBeNull();
   });
 });

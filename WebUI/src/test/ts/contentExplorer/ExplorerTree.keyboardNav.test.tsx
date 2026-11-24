@@ -28,6 +28,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const KEYBOARD_NAV_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const KEYBOARD_NAV_TEST_TIMEOUT = 30_000;
+
 /** Sibling folders under /Sites: Alpha, Beta, Frost. */
 function sibling(path: string, name: string): PSPathItem {
   return {
@@ -69,6 +92,7 @@ async function renderSiblingTree(
   );
   await waitFor(() =>
     expect(screen.getByTestId("tree-node-/Sites/Frost")).toBeInTheDocument(),
+    { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
   );
   return rendered;
 }
@@ -139,7 +163,7 @@ describe("ExplorerTree keyboard-move helpers (#7035)", () => {
 });
 
 describe("ExplorerTree arrow-key navigation (#7035)", () => {
-  it("ArrowDown moves focus and selection to the next visible row", async () => {
+  it("ArrowDown moves focus and selection to the next visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     const { container } = await renderSiblingTree(onSelectFolder);
     focusTreeItem("/Sites/Alpha");
@@ -152,7 +176,7 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     await renderA11yGate(container);
   });
 
-  it("ArrowUp/ArrowDown clamp at the ends", async () => {
+  it("ArrowUp/ArrowDown clamp at the ends", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder);
     // ArrowDown on the last row stays on the last row (no wrap, #7045).
@@ -165,7 +189,7 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     expect(document.activeElement).toBe(treeItem("/Sites/Alpha"));
   });
 
-  it("Home/End jump to the first/last visible row", async () => {
+  it("Home/End jump to the first/last visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder);
     focusTreeItem("/Sites/Beta");
@@ -182,7 +206,7 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     expect(document.activeElement).toBe(treeItem("/Sites/Frost"));
   });
 
-  it("keeps exactly one tab stop on the focused row (roving tabindex)", async () => {
+  it("keeps exactly one tab stop on the focused row (roving tabindex)", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder, "/Sites/Beta");
     // Pre-interaction the shell selection is the single tab stop.
@@ -199,7 +223,7 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     expect(tabStops()[0]).toBe(treeItem("/Sites/Frost"));
   });
 
-  it("moves the tab stop to the selected row after an external selection change", async () => {
+  it("moves the tab stop to the selected row after an external selection change", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectFolder = vi.fn();
     mockSiblings();
     const rendered = render(
@@ -211,6 +235,7 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Frost")).toBeInTheDocument(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     // Arrow down onto Beta: the tab stop follows focus.
     focusTreeItem("/Sites/Alpha");
@@ -232,12 +257,12 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
         onSelectFolder={onSelectFolder}
       />,
     );
-    await waitFor(() => expect(tabStops()).toHaveLength(1));
+    await waitFor(() => expect(tabStops()).toHaveLength(1), { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT });
     expect(tabStops()[0]).toBe(treeItem("/Sites/Frost"));
     await renderA11yGate(rendered.container);
   });
 
-  it("labels rows with tree levels and carries the focus-ring class", async () => {
+  it("labels rows with tree levels and carries the focus-ring class", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     await renderSiblingTree();
     for (const path of ["/Sites/Alpha", "/Sites/Beta", "/Sites/Frost"]) {
       const row = treeItem(path);
@@ -305,7 +330,7 @@ describe("ExplorerTree visible-row tab stop (#7045)", () => {
     ).toEqual(["/Sites/Foo", "/Sites/Leaf"]);
   });
 
-  it("collapsing an ancestor keeps exactly one tab stop on a visible row", async () => {
+  it("collapsing an ancestor keeps exactly one tab stop on a visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.endsWith("/pathmanagement/path/folder/Sites")) {
@@ -326,6 +351,7 @@ describe("ExplorerTree visible-row tab stop (#7045)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     // Expand Foo so Bar renders, then arrow down into the child row: the
     // tab stop follows focus onto Bar.
@@ -334,6 +360,7 @@ describe("ExplorerTree visible-row tab stop (#7045)", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     focusTreeItem("/Sites/Foo");
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
@@ -348,6 +375,7 @@ describe("ExplorerTree visible-row tab stop (#7045)", () => {
     fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/Foo/Bar")).toBeNull(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     expect(tabStops()).toHaveLength(1);
     expect(tabStops()[0]).toBe(treeItem("/Sites/Foo"));

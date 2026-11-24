@@ -26,6 +26,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const EXPAND_COLLAPSE_TEST_TIMEOUT = 30_000;
+
 /** Three-level hierarchy: /Sites → /Sites/Foo → /Sites/Foo/Bar. */
 const FOO_FOLDER: PSPathItem = {
   id: "foo-1",
@@ -130,7 +153,7 @@ describe("expand-all / collapse-all state reducers (#5760)", () => {
 });
 
 describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
-  it("renders keyboard-accessible expand-all and collapse-all buttons", async () => {
+  it("renders keyboard-accessible expand-all and collapse-all buttons", { timeout: EXPAND_COLLAPSE_TEST_TIMEOUT }, async () => {
     mockThreeLevelTree();
     const { container } = render(
       <ExplorerTree
@@ -141,6 +164,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     const expandAll = screen.getByTestId("tree-expand-all");
     const collapseAll = screen.getByTestId("tree-collapse-all");
@@ -154,7 +178,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     await renderA11yGate(container);
   });
 
-  it("expand-all reveals loaded descendants without refetching them", async () => {
+  it("expand-all reveals loaded descendants without refetching them", { timeout: EXPAND_COLLAPSE_TEST_TIMEOUT }, async () => {
     let fooCalls = 0;
     mockThreeLevelTree(() => {
       fooCalls += 1;
@@ -168,6 +192,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     // Load Bar via the single-folder toggle first.
     fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
@@ -175,12 +200,14 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     expect(fooCalls).toBe(1);
     // Collapse hides the loaded descendant but keeps the roots.
     fireEvent.click(screen.getByTestId("tree-collapse-all"));
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/Foo/Bar")).toBeNull(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument();
     expect(screen.getByTestId("tree-node-/Sites/Leaf")).toBeInTheDocument();
@@ -190,12 +217,13 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     expect(fooCalls).toBe(1);
     await renderA11yGate(container);
   });
 
-  it("collapse-all collapses to roots", async () => {
+  it("collapse-all collapses to roots", { timeout: EXPAND_COLLAPSE_TEST_TIMEOUT }, async () => {
     mockThreeLevelTree();
     render(
       <ExplorerTree
@@ -206,23 +234,26 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
     await waitFor(() =>
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("tree-collapse-all"));
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/Foo/Bar")).toBeNull(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     // Roots stay visible: top-level folders are not hidden.
     expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument();
     expect(screen.getByTestId("tree-node-/Sites/Leaf")).toBeInTheDocument();
   });
 
-  it("expand-all and collapse-all preserve selection and never select", async () => {
+  it("expand-all and collapse-all preserve selection and never select", { timeout: EXPAND_COLLAPSE_TEST_TIMEOUT }, async () => {
     mockThreeLevelTree();
     const onSelectFolder = vi.fn();
     render(
@@ -234,6 +265,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     const selectedRow = screen
       .getByTestId("tree-node-/Sites/Foo")
@@ -245,6 +277,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     expect(onSelectFolder).not.toHaveBeenCalled();
     expect(selectedRow).toHaveAttribute("aria-selected", "true");
@@ -252,6 +285,7 @@ describe("ExplorerTree expand-all / collapse-all (#5760)", () => {
     fireEvent.click(screen.getByTestId("tree-collapse-all"));
     await waitFor(() =>
       expect(screen.queryByTestId("tree-node-/Sites/Foo/Bar")).toBeNull(),
+      { timeout: EXPAND_COLLAPSE_ROUND_TRIP_TIMEOUT },
     );
     expect(onSelectFolder).not.toHaveBeenCalled();
     expect(

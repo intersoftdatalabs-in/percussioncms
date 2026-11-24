@@ -23,6 +23,29 @@ import type {
 import { FolderSecurityPanel } from "../../../main/ts/contentExplorer/FolderSecurityPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const FOLDER_SECURITY_PANEL_TEST_TIMEOUT = 30_000;
+
 function permission(
   admin: string[] = [],
   write: string[] = [],
@@ -118,7 +141,7 @@ describe("FolderSecurityPanel", () => {
     // self-lockout tests below.
   });
 
-  it("self-lockout warning is shown when the current user is removed from a level; save is aborted when confirm returns false", async () => {
+  it("self-lockout warning is shown when the current user is removed from a level; save is aborted when confirm returns false", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     confirmSpy.mockReturnValue(false);
     const saveMock = vi.fn().mockResolvedValue(undefined);
@@ -138,12 +161,14 @@ describe("FolderSecurityPanel", () => {
     fireEvent.click(screen.getByTestId("folder-security-save"));
     await waitFor(() => {
       expect(confirmSpy).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     // Cancel path: save not called.
     expect(saveMock).not.toHaveBeenCalled();
   });
 
-  it("self-lockout warning allow path: confirm=true proceeds with the save", async () => {
+  it("self-lockout warning allow path: confirm=true proceeds with the save", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     confirmSpy.mockReturnValue(true);
     const saveMock = vi.fn().mockResolvedValue(undefined);
@@ -162,10 +187,12 @@ describe("FolderSecurityPanel", () => {
     await waitFor(() => {
       expect(confirmSpy).toHaveBeenCalledTimes(1);
       expect(saveMock).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("self-lockout warning fires WITHOUT initial props (load fetches its own snapshot) — bug fix for kilo-code-bot PR #1397 thread 3614415903", async () => {
+  it("self-lockout warning fires WITHOUT initial props (load fetches its own snapshot) — bug fix for kilo-code-bot PR #1397 thread 3614415903", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const loadedProps = makeProps({ permission: permission(["Admin"], [], [], []) });
     const load = vi.fn().mockResolvedValue(loadedProps);
     const confirmLockout = vi.fn().mockResolvedValue(true);
@@ -183,7 +210,9 @@ describe("FolderSecurityPanel", () => {
     // Wait for the panel's own load to settle.
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-save")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     // Remove Admin from adminPrincipals and Save.
     fireEvent.click(
       screen.getByTestId("folder-security-list-adminPrincipals-remove-Admin"),
@@ -192,14 +221,16 @@ describe("FolderSecurityPanel", () => {
     await waitFor(() => {
       expect(confirmLockout).toHaveBeenCalledTimes(1);
       expect(saveMock).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     // The failed-save surface MUST NOT be rendered when the save
     // succeeds after confirm.
     expect(screen.queryByTestId("folder-security-error")).toBeNull();
     warnSpy.mockRestore();
   });
 
-  it("self-lockout: a host confirmLockout that throws is treated as cancel (no save) — bug fix for PR #1397 thread 3614415910", async () => {
+  it("self-lockout: a host confirmLockout that throws is treated as cancel (no save) — bug fix for PR #1397 thread 3614415910", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     const confirmLockout = vi.fn().mockRejectedValue(new Error("host boom"));
     const saveMock = vi.fn().mockResolvedValue(undefined);
@@ -219,14 +250,16 @@ describe("FolderSecurityPanel", () => {
     fireEvent.click(screen.getByTestId("folder-security-save"));
     await waitFor(() => {
       expect(confirmLockout).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     // Cancel-from-error path: save not called.
     expect(saveMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();
   });
 
-  it("save 403/404 surfaces error chrome, not success (#4672)", async () => {
+  it("save 403/404 surfaces error chrome, not success (#4672)", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     const save403 = vi.fn().mockRejectedValue({
       status: 403,
@@ -248,7 +281,9 @@ describe("FolderSecurityPanel", () => {
     fireEvent.click(screen.getByTestId("folder-security-save"));
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-error")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("folder-security-error").textContent).toMatch(
       /Not authorized to save folder ACL|HTTP 403/,
     );
@@ -342,7 +377,7 @@ describe("FolderSecurityPanel", () => {
     expect(screen.getByTestId("folder-security-loading")).toBeTruthy();
   });
 
-  it("renders the error state with retry button when load rejects", async () => {
+  it("renders the error state with retry button when load rejects", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const fail = vi.fn().mockRejectedValue(new Error("boom"));
     render(
       <FolderSecurityPanel
@@ -353,11 +388,13 @@ describe("FolderSecurityPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-error")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("folder-security-retry")).toBeTruthy();
   });
 
-  it("passes the zero serious/critical axe-core gate (loaded admin state)", async () => {
+  it("passes the zero serious/critical axe-core gate (loaded admin state)", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <FolderSecurityPanel
         folderId="f-1"
@@ -371,11 +408,13 @@ describe("FolderSecurityPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
   });
 
-  it("passes the zero serious/critical axe-core gate (read-only state)", async () => {
+  it("passes the zero serious/critical axe-core gate (read-only state)", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <FolderSecurityPanel
         folderId="f-1"
@@ -389,7 +428,9 @@ describe("FolderSecurityPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
   });
 
@@ -427,7 +468,7 @@ describe("FolderSecurityPanel", () => {
     ).toBe("6");
   });
 
-  it("editing folder properties flips dirty and is included in save payload (#2410)", async () => {
+  it("editing folder properties flips dirty and is included in save payload (#2410)", { timeout: FOLDER_SECURITY_PANEL_TEST_TIMEOUT }, async () => {
     const props = makeProps({
       permission: permission(["Admin"], [], [], []),
       locale: "en-us",
@@ -450,7 +491,9 @@ describe("FolderSecurityPanel", () => {
     fireEvent.click(screen.getByTestId("folder-security-save"));
     await waitFor(() => {
       expect(saveMock).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: FOLDER_SECURITY_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     const saved = saveMock.mock.calls[0]![0] as PSFolderProperties;
     expect(saved.locale).toBe("fr-fr");
     expect(saved.permission?.adminPrincipals?.[0]?.name).toBe("Admin");

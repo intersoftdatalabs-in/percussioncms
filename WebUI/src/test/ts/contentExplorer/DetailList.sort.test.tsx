@@ -34,6 +34,29 @@ import {
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const SORT_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SORT_TEST_TIMEOUT = 30_000;
+
 function item(id: string, name: string, type = "percPage"): PSPathItem {
   return {
     id,
@@ -116,7 +139,7 @@ describe("detail-list sort helpers", () => {
 });
 
 describe("DetailList column sort rendering", () => {
-  it("toggles name ascending then descending with aria-sort, issuing no extra fetch", async () => {
+  it("toggles name ascending then descending with aria-sort, issuing no extra fetch", { timeout: SORT_TEST_TIMEOUT }, async () => {
     let fetchCalls = 0;
     mockFetch(async () => {
       fetchCalls += 1;
@@ -130,7 +153,7 @@ describe("DetailList column sort rendering", () => {
         onSelectItem={(next) => selected.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: SORT_ROUND_TRIP_TIMEOUT });
     // Server order first.
     expect(rowOrder()).toEqual(["Cherry", "apple", "Banana", "Page10", "Page2"]);
     expect(screen.getByTestId("detail-col-header-name")).toHaveAttribute("aria-sort", "none");
@@ -141,6 +164,7 @@ describe("DetailList column sort rendering", () => {
         "aria-sort",
         "ascending",
       ),
+      { timeout: SORT_ROUND_TRIP_TIMEOUT },
     );
     expect(rowOrder()).toEqual(["apple", "Banana", "Cherry", "Page2", "Page10"]);
 
@@ -150,6 +174,7 @@ describe("DetailList column sort rendering", () => {
         "aria-sort",
         "descending",
       ),
+      { timeout: SORT_ROUND_TRIP_TIMEOUT },
     );
     expect(rowOrder()).toEqual(["Page10", "Page2", "Cherry", "Banana", "apple"]);
 
@@ -158,7 +183,7 @@ describe("DetailList column sort rendering", () => {
     expect(selected).toEqual([]);
   });
 
-  it("keeps the selected row selected across a re-sort", async () => {
+  it("keeps the selected row selected across a re-sort", { timeout: SORT_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(UNSORTED));
     const { rerender } = render(
       <DetailList
@@ -167,7 +192,7 @@ describe("DetailList column sort rendering", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-a-1")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-a-1")).toBeInTheDocument(), { timeout: SORT_ROUND_TRIP_TIMEOUT });
     fireEvent.click(screen.getByTestId("detail-row-a-1"));
     rerender(
       <DetailList
@@ -182,13 +207,14 @@ describe("DetailList column sort rendering", () => {
         "aria-sort",
         "ascending",
       ),
+      { timeout: SORT_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-a-1");
     expect(row).toHaveAttribute("data-selected", "true");
     expect(rowOrder()[0]).toBe("apple");
   });
 
-  it("switching folders restores server order", async () => {
+  it("switching folders restores server order", { timeout: SORT_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(UNSORTED));
     const { rerender } = render(
       <DetailList
@@ -197,13 +223,14 @@ describe("DetailList column sort rendering", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: SORT_ROUND_TRIP_TIMEOUT });
     fireEvent.click(screen.getByTestId("detail-col-sort-name"));
     await waitFor(() =>
       expect(screen.getByTestId("detail-col-header-name")).toHaveAttribute(
         "aria-sort",
         "ascending",
       ),
+      { timeout: SORT_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <DetailList
@@ -217,11 +244,12 @@ describe("DetailList column sort rendering", () => {
         "aria-sort",
         "none",
       ),
+      { timeout: SORT_ROUND_TRIP_TIMEOUT },
     );
     expect(rowOrder()).toEqual(["Cherry", "apple", "Banana", "Page10", "Page2"]);
   });
 
-  it("sort buttons expose an accessible sort label", async () => {
+  it("sort buttons expose an accessible sort label", { timeout: SORT_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(UNSORTED));
     render(
       <DetailList
@@ -230,7 +258,7 @@ describe("DetailList column sort rendering", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-col-sort-name")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-col-sort-name")).toBeInTheDocument(), { timeout: SORT_ROUND_TRIP_TIMEOUT });
     const nameButton = screen.getByTestId("detail-col-sort-name");
     expect(nameButton.getAttribute("aria-label")).toMatch(/Name/i);
     expect(nameButton.getAttribute("aria-label")).toMatch(/Sort/i);

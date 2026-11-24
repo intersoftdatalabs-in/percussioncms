@@ -15,6 +15,29 @@ import type { CreateSiteRequest } from "../../../main/ts/api/contentExplorer/sit
 import { SiteCreateWizard } from "../../../main/ts/contentExplorer/wizards/SiteCreateWizard";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SITE_CREATE_WIZARD_TEST_TIMEOUT = 30_000;
+
 const baseTemplates = [
   { name: "perc.base.plain", id: "1", label: "Plain" },
   { name: "perc.base.other", id: "2", label: "Other" },
@@ -59,7 +82,7 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     expect(screen.queryByTestId("site-create-step-details")).toBeNull();
   });
 
-  it("Virtual: enables Next, hides managed nav and page template", async () => {
+  it("Virtual: enables Next, hides managed nav and page template", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Docs" });
     const applyVirtual = vi.fn().mockResolvedValue({ virtual: true });
     renderWizard({ submit, applyVirtual });
@@ -88,7 +111,9 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
     expect(req.name).toBe("Docs");
     expect(req.managedNavigation).toBe(false);
@@ -103,7 +128,7 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     );
   });
 
-  it("Virtual: skips PUT when root path is blank (Developer handoff)", async () => {
+  it("Virtual: skips PUT when root path is blank (Developer handoff)", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Handoff" });
     const applyVirtual = vi.fn();
     renderWizard({ submit, applyVirtual });
@@ -117,14 +142,16 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
     expect(req.managedNavigation).toBe(false);
     expect(req.virtualRootPath).toBeUndefined();
     expect(applyVirtual).not.toHaveBeenCalled();
   });
 
-  it("Traditional: Next on name only; no template step; nav optional", async () => {
+  it("Traditional: Next on name only; no template step; nav optional", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Bare" });
     renderWizard({ submit });
     advanceFromType();
@@ -154,7 +181,9 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
     expect(req.name).toBe("Bare");
     expect(req.managedNavigation).toBe(false);
@@ -163,7 +192,7 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     expect(req.baseTemplateName).toBe("perc.base.plain");
   });
 
-  it("Page: enables Next, locks managed nav, requires template", async () => {
+  it("Page: enables Next, locks managed nav, requires template", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     renderWizard();
     choosePageType();
     expect(screen.getByTestId("site-create-page-note")).toBeTruthy();
@@ -188,14 +217,16 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     expect(screen.getByTestId("site-create-step-template")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     expect(
       (screen.getByTestId("site-create-template-name") as HTMLInputElement)
         .value,
     ).toBe("AcmeTemplate");
   });
 
-  it("Page submit sends pageBased and forced managed nav", async () => {
+  it("Page submit sends pageBased and forced managed nav", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Acme", id: "9" });
     const onCreated = vi.fn();
     renderWizard({ submit, onCreated });
@@ -207,7 +238,9 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-next"));
     await waitFor(() => {
       expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("site-create-template-name"), {
       target: { value: "AcmePageTmpl" },
     });
@@ -228,7 +261,9 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
     expect(req.name).toBe("Acme");
     expect(req.pageBased).toBe(true);
@@ -254,7 +289,7 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     ).toBe("BadName");
   });
 
-  it("Traditional Run surfaces 403 permission chrome (#4674)", async () => {
+  it("Traditional Run surfaces 403 permission chrome (#4674)", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi
       .fn()
       .mockRejectedValue(
@@ -271,14 +306,16 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("site-create-progress").textContent).toMatch(
       /permission/i,
     );
     expect(onCreated).not.toHaveBeenCalled();
   });
 
-  it("Page Run surfaces submit errors", async () => {
+  it("Page Run surfaces submit errors", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const submit = vi.fn().mockRejectedValue(new Error("duplicate site"));
     renderWizard({ submit });
     choosePageType();
@@ -289,19 +326,23 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     fireEvent.click(screen.getByTestId("site-create-next"));
     await waitFor(() => {
       expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.click(screen.getByTestId("site-create-run"));
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: SITE_CREATE_WIZARD_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("site-create-progress").textContent).toContain(
       "duplicate site",
     );
   });
 
-  it("passes the zero serious/critical axe-core gate (type step)", async () => {
+  it("passes the zero serious/critical axe-core gate (type step)", { timeout: SITE_CREATE_WIZARD_TEST_TIMEOUT }, async () => {
     const { container } = renderWizard();
     await renderA11yGate(container);
   });

@@ -30,6 +30,29 @@ import {
 } from "../../../main/ts/contentExplorer/viewCatalog";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const KEYBOARD_NAV_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const KEYBOARD_NAV_TEST_TIMEOUT = 30_000;
+
 const CATALOG: ViewDef[] = [
   { name: "MyPages", label: "My Pages", parentCategory: 1, standardView: true },
   { name: "Inbox", label: "Inbox", parentCategory: 1, customView: true },
@@ -64,6 +87,7 @@ async function renderCatalog(
   );
   await waitFor(() =>
     expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument(),
+    { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
   );
   return rendered;
 }
@@ -122,14 +146,14 @@ describe("ViewsCatalogTree visible-row keys (#7043)", () => {
 });
 
 describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
-  it("starts with a single tab stop on the first visible row", async () => {
+  it("starts with a single tab stop on the first visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const { container } = await renderCatalog();
     expect(tabStops()).toHaveLength(1);
     expect(tabStops()[0]).toBe(catalogRow("explorer-views-root-row"));
     await renderA11yGate(container);
   });
 
-  it("ArrowDown moves focus without selecting on group rows, selects on leaves", async () => {
+  it("ArrowDown moves focus without selecting on group rows, selects on leaves", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectView = vi.fn();
     await renderCatalog({ onSelectView });
     // Root -> group 1: focus moves, nothing is selected (groups expand
@@ -150,7 +174,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     expect(tabStops()[0]).toBe(focused);
   });
 
-  it("ArrowUp/ArrowDown clamp at the ends instead of wrapping", async () => {
+  it("ArrowUp/ArrowDown clamp at the ends instead of wrapping", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectView = vi.fn();
     await renderCatalog({ onSelectView });
     // ArrowUp on the first row stays on the first row.
@@ -165,7 +189,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     expect(onSelectView).not.toHaveBeenCalled();
   });
 
-  it("Home/End jump to the first/last visible row", async () => {
+  it("Home/End jump to the first/last visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectView = vi.fn();
     await renderCatalog({ onSelectView });
     focusCatalogRow("explorer-views-group-2-row");
@@ -177,7 +201,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     expect(onSelectView).not.toHaveBeenCalled();
   });
 
-  it("arrow moves skip collapsed subtrees", async () => {
+  it("arrow moves skip collapsed subtrees", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     await renderCatalog();
     // Group 2 is closed: ArrowDown from the group 2 row lands on the
     // group 3 row, not on the CommunityNews leaf.
@@ -188,6 +212,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     fireEvent.click(catalogRow("explorer-views-group-3-row"));
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-leaf-View_All")).toBeInTheDocument(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     focusCatalogRow("explorer-views-group-2-row");
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
@@ -196,7 +221,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     expect(document.activeElement).toBe(catalogRow("explorer-views-leaf-View_All"));
   });
 
-  it("moves the tab stop to the selected leaf after an external selection change", async () => {
+  it("moves the tab stop to the selected leaf after an external selection change", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const onSelectView = vi.fn();
     const rendered = render(
       <ViewsCatalogTree
@@ -207,6 +232,7 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     expect(tabStops()[0]).toBe(catalogRow("explorer-views-root-row"));
     // Host selection arrives without catalog interaction: the tab stop
@@ -218,12 +244,12 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
         selectedViewKey="MyPages"
       />,
     );
-    await waitFor(() => expect(tabStops()).toHaveLength(1));
+    await waitFor(() => expect(tabStops()).toHaveLength(1), { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT });
     expect(tabStops()[0]).toBe(catalogRow("explorer-views-leaf-MyPages"));
     await renderA11yGate(rendered.container);
   });
 
-  it("collapsing an ancestor of the focused leaf keeps one tab stop on a visible row", async () => {
+  it("collapsing an ancestor of the focused leaf keeps one tab stop on a visible row", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const { container } = await renderCatalog();
     focusCatalogRow("explorer-views-root-row");
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
@@ -239,13 +265,14 @@ describe("ViewsCatalogTree arrow-key navigation (#7043)", () => {
     fireEvent.click(catalogRow("explorer-views-group-1-row"));
     await waitFor(() =>
       expect(screen.queryByTestId("explorer-views-leaf-MyPages")).toBeNull(),
+      { timeout: KEYBOARD_NAV_ROUND_TRIP_TIMEOUT },
     );
     expect(tabStops()).toHaveLength(1);
     expect(tabStops()[0]).toBe(catalogRow("explorer-views-group-1-row"));
     await renderA11yGate(container);
   });
 
-  it("labels rows with tree levels and carries the focus-ring class", async () => {
+  it("labels rows with tree levels and carries the focus-ring class", { timeout: KEYBOARD_NAV_TEST_TIMEOUT }, async () => {
     const { container } = await renderCatalog();
     expect(catalogRow("explorer-views-root-row").getAttribute("aria-level")).toBe("1");
     expect(catalogRow("explorer-views-group-1-row").getAttribute("aria-level")).toBe("2");

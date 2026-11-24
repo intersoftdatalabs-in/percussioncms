@@ -40,6 +40,29 @@ import { message } from "../../../main/ts/i18n/message";
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const KEYBOARD_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const KEYBOARD_TEST_TIMEOUT = 30_000;
+
 function item(id: string, name: string, type = "percPage"): PSPathItem {
   return {
     id,
@@ -125,7 +148,7 @@ describe("detail-row keyboard helpers", () => {
 });
 
 describe("DetailList arrow-key navigation", () => {
-  it("uses roving tabindex with row positions on first paint", async () => {
+  it("uses roving tabindex with row positions on first paint", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { container } = render(
       <DetailList
@@ -134,7 +157,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
     await renderA11yGate(container);
     expect(rowTestIds()).toEqual(["detail-row-c-3", "detail-row-a-1", "detail-row-b-2"]);
     // Only the first row is in the tab order; positions stay 1-based.
@@ -149,7 +172,7 @@ describe("DetailList arrow-key navigation", () => {
     );
   });
 
-  it("ArrowDown moves focus and selection row-to-row and wraps", async () => {
+  it("ArrowDown moves focus and selection row-to-row and wraps", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const selected: string[] = [];
     render(
@@ -159,7 +182,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={(next) => selected.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     const first = screen.getByTestId("detail-row-c-3");
     first.focus();
@@ -177,7 +200,7 @@ describe("DetailList arrow-key navigation", () => {
     expect(selected).toEqual(["a-1", "b-2", "c-3"]);
   });
 
-  it("ArrowUp moves up and wraps from the first row to the last", async () => {
+  it("ArrowUp moves up and wraps from the first row to the last", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const selected: string[] = [];
     render(
@@ -187,7 +210,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={(next) => selected.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     const first = screen.getByTestId("detail-row-c-3");
     first.focus();
@@ -196,7 +219,7 @@ describe("DetailList arrow-key navigation", () => {
     expect(selected).toEqual(["b-2"]);
   });
 
-  it("Home/End jump to the first/last row", async () => {
+  it("Home/End jump to the first/last row", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const selected: string[] = [];
     render(
@@ -206,7 +229,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={(next) => selected.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     const middle = screen.getByTestId("detail-row-a-1");
     middle.focus();
@@ -217,7 +240,7 @@ describe("DetailList arrow-key navigation", () => {
     expect(selected).toEqual(["b-2", "c-3"]);
   });
 
-  it("keeps Enter activation and ignores unhandled keys", async () => {
+  it("keeps Enter activation and ignores unhandled keys", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const selected: string[] = [];
     const activated: string[] = [];
@@ -229,7 +252,7 @@ describe("DetailList arrow-key navigation", () => {
         onActivateItem={(next) => activated.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     const first = screen.getByTestId("detail-row-c-3");
     first.focus();
@@ -241,7 +264,7 @@ describe("DetailList arrow-key navigation", () => {
     expect(selected).toEqual([]);
   });
 
-  it("PageUp/PageDown move focus and selection by a client page and clamp", async () => {
+  it("PageUp/PageDown move focus and selection by a client page and clamp", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const selected: string[] = [];
     const { container } = render(
@@ -251,7 +274,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={(next) => selected.push(String(next.id))}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     // Visible page is 3 rows: PageDown from the first row lands on the last.
     const first = screen.getByTestId("detail-row-c-3");
@@ -274,7 +297,7 @@ describe("DetailList arrow-key navigation", () => {
     await renderA11yGate(container);
   });
 
-  it("aria-rowcount announces the full folder size, not just the loaded page", async () => {
+  it("aria-rowcount announces the full folder size, not just the loaded page", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS, 55));
     const { container } = render(
       <DetailList
@@ -283,7 +306,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
     expect(screen.getByTestId("detail-list").querySelector("table")).toHaveAttribute(
       "aria-rowcount",
       "55",
@@ -293,7 +316,7 @@ describe("DetailList arrow-key navigation", () => {
     await renderA11yGate(container);
   });
 
-  it("pager change resets the tab stop to the first row", async () => {
+  it("pager change resets the tab stop to the first row", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     let fetchCalls = 0;
     mockFetch(async () => {
       fetchCalls += 1;
@@ -306,7 +329,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     // Move the tab stop off the first row.
     const first = screen.getByTestId("detail-row-c-3");
@@ -320,14 +343,15 @@ describe("DetailList arrow-key navigation", () => {
         name: message(EXPLORER_MSG.DETAIL_PAGER_NEXT),
       }),
     );
-    await waitFor(() => expect(fetchCalls).toBe(2));
+    await waitFor(() => expect(fetchCalls).toBe(2), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toHaveAttribute("tabindex", "0"),
+      { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-a-1")).toHaveAttribute("tabindex", "-1");
   });
 
-  it("folder change resets the tab stop to the first row", async () => {
+  it("folder change resets the tab stop to the first row", { timeout: KEYBOARD_TEST_TIMEOUT }, async () => {
     mockFetch(async () => listingResponse(ROWS));
     const { rerender } = render(
       <DetailList
@@ -336,7 +360,7 @@ describe("DetailList arrow-key navigation", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(), { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT });
 
     const first = screen.getByTestId("detail-row-c-3");
     first.focus();
@@ -352,6 +376,7 @@ describe("DetailList arrow-key navigation", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toHaveAttribute("tabindex", "0"),
+      { timeout: KEYBOARD_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-a-1")).toHaveAttribute("tabindex", "-1");
   });

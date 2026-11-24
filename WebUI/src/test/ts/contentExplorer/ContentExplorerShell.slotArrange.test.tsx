@@ -24,6 +24,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const SLOT_ARRANGE_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const SLOT_ARRANGE_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -92,7 +115,7 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     vi.restoreAllMocks();
   });
 
-  it("folder browse without a slot disables arrange children with a slot tooltip (#6915)", async () => {
+  it("folder browse without a slot disables arrange children with a slot tooltip (#6915)", { timeout: SLOT_ARRANGE_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const removeSlotRel = vi.fn();
     const moveSlotRel = vi.fn();
@@ -110,7 +133,9 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Arrange_Remove")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     // DCE parity (#6915): aria-disabled + tooltip name the missing slot
     // context instead of dispatching a needs-slot status hint.
     const remove = screen.getByTestId("action-toolbar-item-Arrange_Remove");
@@ -126,7 +151,7 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     ).not.toMatch(/select a slot/i);
   });
 
-  it("slot without a snippet disables arrange children naming the missing item (#6915)", async () => {
+  it("slot without a snippet disables arrange children naming the missing item (#6915)", { timeout: SLOT_ARRANGE_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const removeSlotRel = vi.fn();
     renderShell(
@@ -141,7 +166,9 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Arrange_Remove")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     const remove = screen.getByTestId("action-toolbar-item-Arrange_Remove");
     expect(remove.getAttribute("aria-disabled")).toBe("true");
     expect(remove.getAttribute("title")).toMatch(/item in the slot/i);
@@ -153,7 +180,7 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     ).not.toMatch(/item in the slot/i);
   });
 
-  it("move and remove call relationship REST when a snippet is selected", async () => {
+  it("move and remove call relationship REST when a snippet is selected", { timeout: SLOT_ARRANGE_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const removeSlotRel = vi.fn().mockResolvedValue(undefined);
     const moveSlotRel = vi.fn().mockResolvedValue(undefined);
@@ -171,18 +198,24 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Arrange_MoveUpLeft")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange_MoveUpLeft"));
     await waitFor(() => {
       expect(moveSlotRel).toHaveBeenCalledWith(88, "UP");
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange_Remove"));
     await waitFor(() => {
       expect(removeSlotRel).toHaveBeenCalledWith(88);
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("change template picker apply POSTs template-slot REST", async () => {
+  it("change template picker apply POSTs template-slot REST", { timeout: SLOT_ARRANGE_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const changeSlotTemplate = vi.fn().mockResolvedValue({
       relationshipId: 88,
@@ -225,13 +258,17 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
       expect(
         screen.getByTestId("action-toolbar-item-Arrange_ChangeTemplateSlot"),
       ).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(
       screen.getByTestId("action-toolbar-item-Arrange_ChangeTemplateSlot"),
     );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-slot-change-dialog")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     await renderA11yGate(container);
     fireEvent.change(screen.getByTestId("explorer-slot-change-slot"), {
       target: { value: "5" },
@@ -241,15 +278,19 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
         (screen.getByTestId("explorer-slot-change-template") as HTMLSelectElement)
           .value,
       ).toBe("6");
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("explorer-slot-change-apply"));
     await waitFor(() => {
       expect(changeSlotTemplate).toHaveBeenCalledWith(88, 5, 6);
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("explorer-slot-change-dialog")).toBeNull();
   });
 
-  it("change template picker cancel does not POST", async () => {
+  it("change template picker cancel does not POST", { timeout: SLOT_ARRANGE_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const changeSlotTemplate = vi.fn();
     renderShell(
@@ -269,17 +310,23 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
       expect(
         screen.getByTestId("action-toolbar-item-Arrange_ChangeTemplateSlot"),
       ).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(
       screen.getByTestId("action-toolbar-item-Arrange_ChangeTemplateSlot"),
     );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-slot-change-dialog")).toBeTruthy();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("explorer-slot-change-cancel"));
     await waitFor(() => {
       expect(screen.queryByTestId("explorer-slot-change-dialog")).toBeNull();
-    });
+    },
+      { timeout: SLOT_ARRANGE_ROUND_TRIP_TIMEOUT },
+    );
     expect(changeSlotTemplate).not.toHaveBeenCalled();
   });
 });

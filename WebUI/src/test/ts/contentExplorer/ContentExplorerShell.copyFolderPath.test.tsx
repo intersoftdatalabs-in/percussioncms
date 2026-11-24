@@ -24,6 +24,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const COPY_FOLDER_PATH_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -60,7 +83,7 @@ describe("Content → Copy folder path (#4911)", () => {
     vi.restoreAllMocks();
   });
 
-  it("confirms, writes the folder path, and does not change the selection", async () => {
+  it("confirms, writes the folder path, and does not change the selection", { timeout: COPY_FOLDER_PATH_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
@@ -77,6 +100,7 @@ describe("Content → Copy folder path (#4911)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-folder-path",
@@ -88,7 +112,9 @@ describe("Content → Copy folder path (#4911)", () => {
         "data-kind",
         "success",
       );
-    });
+    },
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeText).toHaveBeenCalledWith("/Sites/Demo");
     expect(screen.getByTestId("explorer-copy-folder-path-status")).toHaveAttribute(
       "data-copied-path",
@@ -101,7 +127,7 @@ describe("Content → Copy folder path (#4911)", () => {
     await renderA11yGate(container);
   });
 
-  it("shows an error for an empty path and does not write the clipboard", async () => {
+  it("shows an error for an empty path and does not write the clipboard", { timeout: COPY_FOLDER_PATH_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const writeText = vi.fn();
     Object.defineProperty(navigator, "clipboard", {
@@ -118,6 +144,7 @@ describe("Content → Copy folder path (#4911)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
@@ -125,7 +152,9 @@ describe("Content → Copy folder path (#4911)", () => {
         "data-kind",
         "error",
       );
-    });
+    },
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
+    );
     expect(confirm).not.toHaveBeenCalled();
     expect(writeText).not.toHaveBeenCalled();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
@@ -134,7 +163,7 @@ describe("Content → Copy folder path (#4911)", () => {
     );
   });
 
-  it("cancel leaves the selection and writes nothing", async () => {
+  it("cancel leaves the selection and writes nothing", { timeout: COPY_FOLDER_PATH_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     const writeText = vi.fn();
     Object.defineProperty(navigator, "clipboard", {
@@ -151,11 +180,14 @@ describe("Content → Copy folder path (#4911)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
       expect(window.confirm).toHaveBeenCalled();
-    });
+    },
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeText).not.toHaveBeenCalled();
     expect(screen.queryByTestId("explorer-copy-folder-path-status")).toBeNull();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
@@ -164,7 +196,7 @@ describe("Content → Copy folder path (#4911)", () => {
     );
   });
 
-  it("clipboard failure is shown and the selection stays", async () => {
+  it("clipboard failure is shown and the selection stays", { timeout: COPY_FOLDER_PATH_TEST_TIMEOUT }, async () => {
     stubPathFetch();
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -182,13 +214,16 @@ describe("Content → Copy folder path (#4911)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
     );
     openCopy();
     await waitFor(() => {
       const status = screen.getByTestId("explorer-copy-folder-path-status");
       expect(status).toHaveAttribute("data-kind", "error");
       expect(status).toHaveAttribute("data-copied-path", "/Assets");
-    });
+    },
+      { timeout: COPY_FOLDER_PATH_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-folder-path",
       "/Assets",

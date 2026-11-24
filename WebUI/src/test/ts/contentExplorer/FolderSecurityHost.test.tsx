@@ -24,6 +24,29 @@ import {
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const FOLDER_SECURITY_HOST_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const FOLDER_SECURITY_HOST_TEST_TIMEOUT = 30_000;
+
 describe("FolderSecurityHost (#3268 / #2749)", () => {
   it("shows the no-folder placeholder when folderId is missing", () => {
     render(<FolderSecurityHost folderId="" currentUserIdentities={["Admin"]} />);
@@ -56,7 +79,7 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
     expect(document.querySelector(".perc-mcol")).toBeNull();
   });
 
-  it("surfaces a structured error when load rejects (no chrome crash)", async () => {
+  it("surfaces a structured error when load rejects (no chrome crash)", { timeout: FOLDER_SECURITY_HOST_TEST_TIMEOUT }, async () => {
     render(
       <FolderSecurityHost
         folderId="0"
@@ -68,7 +91,9 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-error")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_HOST_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("folder-security-loading")).toBeNull();
   });
 
@@ -90,7 +115,7 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
     }
   });
 
-  it("mounts FolderSecurityPanel when load resolves", async () => {
+  it("mounts FolderSecurityPanel when load resolves", { timeout: FOLDER_SECURITY_HOST_TEST_TIMEOUT }, async () => {
     render(
       <FolderSecurityHost
         folderId="16777215-101-703"
@@ -110,7 +135,9 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
-    });
+    },
+      { timeout: FOLDER_SECURITY_HOST_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.queryByTestId("folder-security-loading")).toBeNull();
     expect(screen.queryByTestId("folder-security-error")).toBeNull();
     expect(screen.getByText(/Sites/)).toBeTruthy();

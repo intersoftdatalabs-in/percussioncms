@@ -31,6 +31,29 @@ import {
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const EXPLORER_BREADCRUMB_TEST_TIMEOUT = 30_000;
+
 const PAGE_URL = "https://cms.example/Rhythmyx/cm/app/spa.jsp?entry=explorer";
 
 describe("splitBreadcrumbSegments", () => {
@@ -102,7 +125,7 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders ancestor segments and navigates to the clicked ancestor", async () => {
+  it("renders ancestor segments and navigates to the clicked ancestor", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     const onNavigate = vi.fn();
     const { container } = render(
       <ExplorerBreadcrumb
@@ -129,7 +152,7 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
     await renderA11yGate(container);
   });
 
-  it("collapses long trails behind an expandable overflow", async () => {
+  it("collapses long trails behind an expandable overflow", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     const onNavigate = vi.fn();
     const { container } = render(
       <ExplorerBreadcrumb
@@ -153,7 +176,7 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
     await renderA11yGate(container);
   });
 
-  it("collapses the overflow again when the folder changes", async () => {
+  it("collapses the overflow again when the folder changes", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     const { rerender } = render(
       <ExplorerBreadcrumb
         folderPath="/Sites/a/b/c/d/About"
@@ -178,10 +201,12 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
       expect(
         screen.queryByTestId("explorer-breadcrumb-overflow-list"),
       ).not.toBeInTheDocument();
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("copies the deep link and reports success", async () => {    const writeClipboard = vi.fn().mockResolvedValue(undefined);
+  it("copies the deep link and reports success", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {    const writeClipboard = vi.fn().mockResolvedValue(undefined);
     render(
       <ExplorerBreadcrumb
         folderPath="/Sites/Demo"
@@ -195,16 +220,20 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
       expect(writeClipboard).toHaveBeenCalledWith(
         `${PAGE_URL}&path=${encodeURIComponent("/Sites/Demo")}`,
       );
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-breadcrumb-copy-status")).toHaveAttribute(
         "data-kind",
         "success",
       );
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("reports failure when the clipboard refuses the link", async () => {
+  it("reports failure when the clipboard refuses the link", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     render(
       <ExplorerBreadcrumb
         folderPath="/Sites/Demo"
@@ -220,10 +249,12 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
       const status = screen.getByTestId("explorer-breadcrumb-copy-status");
       expect(status).toHaveAttribute("data-kind", "error");
       expect(status).toHaveAttribute("data-reason", "failed");
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
   });
 
-  it("reports empty when the open folder has no linkable path", async () => {
+  it("reports empty when the open folder has no linkable path", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     const writeClipboard = vi.fn().mockResolvedValue(undefined);
     render(
       <ExplorerBreadcrumb
@@ -238,7 +269,9 @@ describe("ExplorerBreadcrumb wayfinding (#6468)", () => {
       const status = screen.getByTestId("explorer-breadcrumb-copy-status");
       expect(status).toHaveAttribute("data-kind", "error");
       expect(status).toHaveAttribute("data-reason", "empty");
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
     expect(writeClipboard).not.toHaveBeenCalled();
   });
 });
@@ -262,7 +295,7 @@ describe("ExplorerBreadcrumb in ContentExplorerShell (#6468)", () => {
     return render(<BootstrapProvider value={adminBootstrap}>{ui}</BootstrapProvider>);
   }
 
-  it("mounts the wayfinding bar and steps back to an ancestor", async () => {
+  it("mounts the wayfinding bar and steps back to an ancestor", { timeout: EXPLORER_BREADCRUMB_TEST_TIMEOUT }, async () => {
     mockFetch(
       async () =>
         new Response(
@@ -282,6 +315,7 @@ describe("ExplorerBreadcrumb in ContentExplorerShell (#6468)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("explorer-breadcrumb")).toBeInTheDocument(),
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("explorer-breadcrumb")).toHaveAttribute(
       "data-full-path",
@@ -293,7 +327,9 @@ describe("ExplorerBreadcrumb in ContentExplorerShell (#6468)", () => {
         "data-selected-folder-path",
         "/Sites",
       );
-    });
+    },
+      { timeout: EXPLORER_BREADCRUMB_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("explorer-breadcrumb")).toHaveAttribute(
       "data-full-path",
       "/Sites",

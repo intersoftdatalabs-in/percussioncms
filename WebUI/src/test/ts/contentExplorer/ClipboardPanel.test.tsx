@@ -25,6 +25,29 @@ import { ClipboardPanel } from "../../../main/ts/contentExplorer/clipboard/Clipb
 import { EMPTY_CLIPBOARD, setClipboard } from "../../../main/ts/contentExplorer/clipboard/model";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const CLIPBOARD_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const CLIPBOARD_PANEL_TEST_TIMEOUT = 30_000;
+
 function item(id: string): ClipboardItem {
   return { id, path: `/Sites/Foo/${id}`, kind: "page", sourceAccessLevel: "ADMIN" };
 }
@@ -189,7 +212,7 @@ describe("ClipboardPanel", () => {
     expect(paste.disabled).toBe(true);
   });
 
-  it("Paste triggers the transport and aggregates per-item results", async () => {
+  it("Paste triggers the transport and aggregates per-item results", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     const paste = vi.fn().mockRejectedValueOnce(new Error("disk full"));
     const onClipboardChange = vi.fn();
     const onPasteSettled = vi.fn();
@@ -208,7 +231,9 @@ describe("ClipboardPanel", () => {
     fireEvent.click(screen.getByTestId("clipboard-paste"));
     await waitFor(() => {
       expect(onPasteSettled).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: CLIPBOARD_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     const summary: ClipboardPasteSummary = onPasteSettled.mock.calls[0]?.[0];
     expect(summary.results).toHaveLength(2);
     expect(summary.results[0]?.ok).toBe(false);
@@ -219,7 +244,7 @@ describe("ClipboardPanel", () => {
     expect(screen.getByTestId("clipboard-summary-failures")).toBeTruthy();
   });
 
-  it("Paste clears the clipboard on full success (per-item ok)", async () => {
+  it("Paste clears the clipboard on full success (per-item ok)", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     const paste = vi.fn().mockResolvedValue(undefined);
     const onClipboardChange = vi.fn();
     render(
@@ -236,11 +261,13 @@ describe("ClipboardPanel", () => {
     fireEvent.click(screen.getByTestId("clipboard-paste"));
     await waitFor(() => {
       expect(onClipboardChange).toHaveBeenCalledWith(EMPTY_CLIPBOARD);
-    });
+    },
+      { timeout: CLIPBOARD_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     expect(screen.getByTestId("clipboard-summary")).toBeTruthy();
   });
 
-  it("renders localized kind badges incl. generic items (#6581)", async () => {
+  it("renders localized kind badges incl. generic items (#6581)", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     const rows: ClipboardItem[] = [
       { id: "p-1", path: "/Sites/Demo/Home", kind: "page", name: "Home" },
       { id: "a-1", path: "/Assets/hero.png", kind: "asset", name: "hero.png" },
@@ -268,7 +295,7 @@ describe("ClipboardPanel", () => {
     await renderA11yGate(container);
   });
 
-  it("passes the zero serious/critical axe-core gate (empty state)", async () => {
+  it("passes the zero serious/critical axe-core gate (empty state)", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <ClipboardPanel
         clipboard={EMPTY_CLIPBOARD}
@@ -283,7 +310,7 @@ describe("ClipboardPanel", () => {
     await renderA11yGate(container);
   });
 
-  it("passes the zero serious/critical axe-core gate (populated state)", async () => {
+  it("passes the zero serious/critical axe-core gate (populated state)", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <ClipboardPanel
         clipboard={makeCb([item("a"), item("b")])}
@@ -298,7 +325,7 @@ describe("ClipboardPanel", () => {
     await renderA11yGate(container);
   });
 
-  it("T092c / Edge Cases #3: marks the failure row with data-conflict when status=409", async () => {
+  it("T092c / Edge Cases #3: marks the failure row with data-conflict when status=409", { timeout: CLIPBOARD_PANEL_TEST_TIMEOUT }, async () => {
     // Simulate the second of two concurrent moves losing the race; the
     // default paste transport would convert this ApiError into a
     // ClipboardPasteResultItem with status=409. The summary view must
@@ -325,7 +352,9 @@ describe("ClipboardPanel", () => {
     fireEvent.click(screen.getByTestId("clipboard-paste"));
     await waitFor(() => {
       expect(onPasteSettled).toHaveBeenCalledTimes(1);
-    });
+    },
+      { timeout: CLIPBOARD_PANEL_ROUND_TRIP_TIMEOUT },
+    );
     const failureRow = screen.getByTestId("clipboard-summary-failure-0");
     expect(failureRow.getAttribute("data-conflict")).toBe("true");
     expect(failureRow.textContent).toContain("409");

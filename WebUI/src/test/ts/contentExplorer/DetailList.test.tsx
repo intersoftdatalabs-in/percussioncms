@@ -28,6 +28,29 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const DETAIL_LIST_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const DETAIL_LIST_TEST_TIMEOUT = 30_000;
+
 const CHILDREN: PSPathItem[] = [
   {
     id: "p-1",
@@ -57,7 +80,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-list")).toHaveTextContent(/No items/);
   });
 
-  it("loads the first page and renders rows", async () => {
+  it("loads the first page and renders rows", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       expect(url).toContain("/paginatedFolder/Sites/Foo");
@@ -83,6 +106,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-p-1")).toHaveAttribute(
       "data-item-id",
@@ -109,7 +133,7 @@ describe("DetailList", () => {
     );
   });
 
-  it("shows a community on a row only when that item was saved (#5133)", async () => {
+  it("shows a community on a row only when that item was saved (#5133)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -135,6 +159,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-item-community-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-item-community-p-1")).toHaveAttribute(
       "data-community-id",
@@ -151,7 +176,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-community-id")).toBeNull();
   });
 
-  it("shows a page template on a row only when that page was saved (#5200)", async () => {
+  it("shows a page template on a row only when that page was saved (#5200)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -175,6 +200,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-page-template-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-page-template-p-1")).toHaveAttribute(
       "data-page-template-id",
@@ -189,7 +215,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-page-template-id")).toBeNull();
   });
 
-  it("shows a workflow on a row only when that item was saved (#5155)", async () => {
+  it("shows a workflow on a row only when that item was saved (#5155)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -215,6 +241,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-item-workflow-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-item-workflow-p-1")).toHaveAttribute(
       "data-workflow-id",
@@ -231,7 +258,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-workflow-id")).toBeNull();
   });
 
-  it("shows a folder workflow only when that folder was saved (#5179)", async () => {
+  it("shows a folder workflow only when that folder was saved (#5179)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -272,6 +299,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-workflow-f-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-folder-workflow-f-1")).toHaveAttribute(
       "data-workflow-id",
@@ -284,7 +312,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-f-2").getAttribute("data-workflow-id")).toBeNull();
   });
 
-  it("shows a folder display format only when that folder was refreshed (#5180)", async () => {
+  it("shows a folder display format only when that folder was refreshed (#5180)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -325,6 +353,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-display-format-f-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-folder-display-format-f-1")).toHaveAttribute(
       "data-format-id",
@@ -336,7 +365,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-f-2").getAttribute("data-format-id")).toBeNull();
   });
 
-  it("shows allowed publish sites only on folders that refreshed (#5181)", async () => {
+  it("shows allowed publish sites only on folders that refreshed (#5181)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => {
       return new Response(
         JSON.stringify({
@@ -380,6 +409,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-allowed-sites-f-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-folder-allowed-sites-f-1")).toHaveAttribute(
       "data-allowed-sites",
@@ -397,7 +427,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-f-2")).toHaveAttribute("data-allowed-sites-cleared", "true");
   });
 
-  it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
+  it("renders sample-site Pages childrenInPage rows (#3457)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       expect(url).toContain(
@@ -431,13 +461,14 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-ci-home")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-list")).not.toHaveTextContent(
       /No items in this folder/i,
     );
   });
 
-  it("paginates forward and resets to page 0 on folder change", async () => {
+  it("paginates forward and resets to page 0 on folder change", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     let currentStart = 0;
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -463,11 +494,12 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(currentStart).toBe(0);
 
     fireEvent.click(screen.getByText(/Next/));
-    await waitFor(() => expect(currentStart).toBe(50));
+    await waitFor(() => expect(currentStart).toBe(50), { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT });
 
     rerender(
       <DetailList
@@ -479,10 +511,10 @@ describe("DetailList", () => {
     // New folder fetches page 0 (not page 50 of the previous folder).
     // Guards against a regression where the captured `page` value was used
     // before the queued setPage(0) state update took effect.
-    await waitFor(() => expect(currentStart).toBe(0));
+    await waitFor(() => expect(currentStart).toBe(0), { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT });
   });
 
-  it("fires onSelectItem when a row is clicked", async () => {
+  it("fires onSelectItem when a row is clicked", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -507,12 +539,13 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-row-p-1"));
     expect(selectedId).toBe("p-1");
   });
 
-  it("selects a percPage row even when accessLevel is omitted (#3467)", async () => {
+  it("selects a percPage row even when accessLevel is omitted (#3467)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -546,6 +579,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-42")).toHaveAttribute(
       "data-row-kind",
@@ -555,7 +589,7 @@ describe("DetailList", () => {
     expect(selectedId).toBe("42");
   });
 
-  it("does not select a row with accessLevel NONE (aria-disabled)", async () => {
+  it("does not select a row with accessLevel NONE (aria-disabled)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -588,6 +622,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-9")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-9")).toHaveAttribute(
       "aria-disabled",
@@ -597,7 +632,7 @@ describe("DetailList", () => {
     expect(selectedId).toBe(null);
   });
 
-  it("marks the primary selected row with data-selected, not checkbox state", async () => {
+  it("marks the primary selected row with data-selected, not checkbox state", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -627,6 +662,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-row-42").getAttribute("data-selected")).toBe(
       "true",
@@ -636,7 +672,7 @@ describe("DetailList", () => {
     );
   });
 
-  it("surfaces fetch errors as an alert", async () => {
+  it("surfaces fetch errors as an alert", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () => new Response("boom", { status: 500 }));
     render(
       <DetailList
@@ -647,10 +683,11 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(/Failed to load/),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("passes the zero serious/critical axe-core gate (populated state)", async () => {
+  it("passes the zero serious/critical axe-core gate (populated state)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -673,13 +710,13 @@ describe("DetailList", () => {
         onSelectItem={() => undefined}
       />,
     );
-    await waitFor(() => expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0));
+    await waitFor(() => expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0), { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT });
     await renderA11yGate(container);
   });
 
   // Multi-select / #2400 #2408 ----------------------------------------------------
 
-  it("does not render the checkbox column when onToggleSelectItem is absent", async () => {
+  it("does not render the checkbox column when onToggleSelectItem is absent", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -701,12 +738,13 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("detail-col-header-select")).toBeNull();
     expect(screen.queryByTestId("detail-select-p-1")).toBeNull();
   });
 
-  it("renders the checkbox column when onToggleSelectItem is supplied", async () => {
+  it("renders the checkbox column when onToggleSelectItem is supplied", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -730,6 +768,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("detail-col-header-select"),
@@ -739,7 +778,7 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-select-all")).toBeInTheDocument();
   });
 
-  it("fires onToggleSelectItem with the next checked state", async () => {
+  it("fires onToggleSelectItem with the next checked state", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -766,12 +805,13 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-select-p-1"));
     expect(calls).toEqual([{ id: "p-1", next: true }]);
   });
 
-  it("does not trigger row onSelectItem when a checkbox is clicked", async () => {
+  it("does not trigger row onSelectItem when a checkbox is clicked", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -801,13 +841,14 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-select-p-1"));
     expect(rowClicks).toBe(0);
     expect(toggleCalls).toEqual(["p-1"]);
   });
 
-  it("reflects the parent-controlled selectedItemIds on the row checkbox", async () => {
+  it("reflects the parent-controlled selectedItemIds on the row checkbox", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -831,6 +872,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     const cb1 = screen.getByTestId("detail-select-p-1") as HTMLInputElement;
     const cb2 = screen.getByTestId("detail-select-p-2") as HTMLInputElement;
@@ -844,7 +886,7 @@ describe("DetailList", () => {
     );
   });
 
-  it("toggles all visible rows via the header select-all checkbox", async () => {
+  it("toggles all visible rows via the header select-all checkbox", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -871,6 +913,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-select-all"));
     expect(calls).toEqual([
@@ -879,7 +922,7 @@ describe("DetailList", () => {
     ]);
   });
 
-  it("passes the zero serious/critical axe-core gate (multi-select populated)", async () => {
+  it("passes the zero serious/critical axe-core gate (multi-select populated)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -903,6 +946,7 @@ describe("DetailList", () => {
     );
     await waitFor(() =>
       expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -949,7 +993,7 @@ function mockFolderPage(children: PSPathItem[] = FOLDER_CHILDREN): void {
 }
 
 describe("DetailList folder row chrome (#3328)", () => {
-  it("shows folder icons for $System$ and user folders, not checkboxes in the icon column", async () => {
+  it("shows folder icons for $System$ and user folders, not checkboxes in the icon column", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage();
     render(
       <DetailList
@@ -963,6 +1007,7 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-sys-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-col-header-icon")).toBeInTheDocument();
     expect(screen.getByTestId("detail-col-header-select")).toBeInTheDocument();
@@ -1005,7 +1050,7 @@ describe("DetailList folder row chrome (#3328)", () => {
     expect(screen.getByTestId("detail-select-uf-1")).toBeInTheDocument();
   });
 
-  it("uses the open folder icon when a folder row is selected", async () => {
+  it("uses the open folder icon when a folder row is selected", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage();
     render(
       <DetailList
@@ -1017,6 +1062,7 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("detail-folder-icon-sys-1")).toHaveAttribute(
       "data-folder-state",
@@ -1028,7 +1074,7 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
   });
 
-  it("activates browse when the folder icon is clicked without toggling the checkbox", async () => {
+  it("activates browse when the folder icon is clicked without toggling the checkbox", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage();
     const activated: string[] = [];
     const toggled: string[] = [];
@@ -1048,13 +1094,14 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-icon-uf-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("detail-folder-icon-uf-1"));
     expect(activated).toEqual(["uf-1"]);
     expect(toggled).toEqual([]);
   });
 
-  it("still renders folder icons when multi-select checkboxes are off", async () => {
+  it("still renders folder icons when multi-select checkboxes are off", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage();
     render(
       <DetailList
@@ -1066,12 +1113,13 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("detail-col-header-select")).toBeNull();
     expect(screen.getByTestId("detail-col-header-icon")).toBeInTheDocument();
   });
 
-  it("passes the zero serious/critical axe-core gate (folder rows + checkboxes)", async () => {
+  it("passes the zero serious/critical axe-core gate (folder rows + checkboxes)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage();
     const { container } = render(
       <DetailList
@@ -1085,6 +1133,7 @@ describe("DetailList folder row chrome (#3328)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -1143,7 +1192,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     expect(renderDisplayFormatCell("modified", minimal)).toBe("");
   });
 
-  it("site folder rows expose finder name, not GUID path (#3684)", async () => {
+  it("site folder rows expose finder name, not GUID path (#3684)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     const site: PSPathItem = {
       id: "16777215-101-703",
       path: "/Sites/16777215-101-703/",
@@ -1168,6 +1217,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
       expect(
         screen.getByTestId("detail-row-16777215-101-703"),
       ).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-16777215-101-703");
     expect(row).toHaveAttribute("data-item-id", "16777215-101-703");
@@ -1177,7 +1227,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     await renderA11yGate(container);
   });
 
-  it("content rows expose a GUID-shaped data-testid and data-item-id (#3871)", async () => {
+  it("content rows expose a GUID-shaped data-testid and data-item-id (#3871)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFolderPage([
       {
         id: "551",
@@ -1201,6 +1251,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
       expect(
         screen.getByTestId("detail-row-16777215-101-551"),
       ).toBeInTheDocument(),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     const row = screen.getByTestId("detail-row-16777215-101-551");
     expect(row).toHaveAttribute("data-item-id", "16777215-101-551");
@@ -1228,7 +1279,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     );
   });
 
-  it("renders the supplied display format columns in the supplied order", async () => {
+  it("renders the supplied display format columns in the supplied order", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -1253,6 +1304,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     );
     await waitFor(() =>
       expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("detail-col-header-name").textContent,
@@ -1278,7 +1330,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     await renderA11yGate(container);
   });
 
-  it("falls back to default Name + Type + Path when displayFormat is absent", async () => {
+  it("falls back to default Name + Type + Path when displayFormat is absent", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
@@ -1300,6 +1352,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     );
     await waitFor(() =>
       expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("detail-col-header-name").textContent,
@@ -1312,7 +1365,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     ).toMatch(/Path/);
   });
 
-  it("sends numeric displayFormatId and stamps data-display-format-id (#3618)", async () => {
+  it("sends numeric displayFormatId and stamps data-display-format-id (#3618)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     const seen: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -1339,6 +1392,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     );
     await waitFor(() =>
       expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(seen.some((u) => u.includes("displayFormatId=7"))).toBe(true);
     expect(screen.getByTestId("detail-list").getAttribute("data-display-format-id")).toBe(
@@ -1348,7 +1402,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     expect(screen.queryByTestId("detail-col-header-path")).toBeNull();
   });
 
-  it("does not send a named displayFormatId (#3618)", async () => {
+  it("does not send a named displayFormatId (#3618)", { timeout: DETAIL_LIST_TEST_TIMEOUT }, async () => {
     const seen: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -1374,6 +1428,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     );
     await waitFor(() =>
       expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+      { timeout: DETAIL_LIST_ROUND_TRIP_TIMEOUT },
     );
     expect(seen.some((u) => u.includes("displayFormatId="))).toBe(false);
   });

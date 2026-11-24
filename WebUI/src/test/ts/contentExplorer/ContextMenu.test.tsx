@@ -20,6 +20,29 @@ import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ContextMenu } from "../../../main/ts/contentExplorer/ContextMenu";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const CONTEXT_MENU_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const CONTEXT_MENU_TEST_TIMEOUT = 30_000;
+
 const ACTIONS: MenuAction[] = [
   { name: "open", label: "Open", sortRank: 10, menuType: "MENUITEM" },
   { name: "delete", label: "Delete", sortRank: 20, menuType: "MENUITEM" },
@@ -218,7 +241,7 @@ describe("ContextMenu", () => {
     expect(onInvoke.mock.calls[0]?.[0]).toBe("open");
   });
 
-  it("passes the zero serious/critical axe-core gate (default-rendered with menuitems)", async () => {
+  it("passes the zero serious/critical axe-core gate (default-rendered with menuitems)", { timeout: CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const { baseElement } = render(<ContextMenu actions={ACTIONS} />);
     await renderA11yGate(baseElement);
   });
@@ -339,7 +362,7 @@ describe("ContextMenu", () => {
     ).toBeNull();
   });
 
-  it("passes the axe-core gate with icons and an open submenu (#6603)", async () => {
+  it("passes the axe-core gate with icons and an open submenu (#6603)", { timeout: CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const { baseElement } = render(
       <ContextMenu
         actions={[
@@ -421,7 +444,7 @@ describe("ContextMenu", () => {
     expect(screen.queryByTestId("context-menu-empty")).toBeNull();
   });
 
-  it("passes the axe-core gate on the error state with Retry (#6874)", async () => {
+  it("passes the axe-core gate on the error state with Retry (#6874)", { timeout: CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const { baseElement } = render(
       <ContextMenu
         actions={[]}
@@ -432,7 +455,7 @@ describe("ContextMenu", () => {
     await renderA11yGate(baseElement);
   });
 
-  it("keeps the error and returns focus to Retry when the retry fails (#6874)", async () => {
+  it("keeps the error and returns focus to Retry when the retry fails (#6874)", { timeout: CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const onRetry = vi.fn();
     const { rerender } = render(
       <ContextMenu
@@ -467,7 +490,9 @@ describe("ContextMenu", () => {
     expect(screen.getByTestId("context-menu-error")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("context-menu-retry")).toHaveFocus();
-    });
+    },
+      { timeout: CONTEXT_MENU_ROUND_TRIP_TIMEOUT },
+    );
   });
 
   describe("slot-less Arrange disabled parity (#6950)", () => {
@@ -615,7 +640,7 @@ describe("ContextMenu", () => {
       );
     });
 
-    it("passes the zero serious/critical axe-core gate with slot-less disabled children", async () => {
+    it("passes the zero serious/critical axe-core gate with slot-less disabled children", { timeout: CONTEXT_MENU_TEST_TIMEOUT }, async () => {
       const { baseElement } = render(
         <ContextMenu actions={ARRANGE_MENU} slot={null} />,
       );

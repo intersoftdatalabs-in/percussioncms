@@ -29,6 +29,29 @@ import {
 } from "../../../main/ts/contentExplorer/TranslationsPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const TRANSLATIONS_PANEL_TEST_TIMEOUT = 30_000;
+
 const SAMPLE_VARIANTS = {
   itemId: 335,
   locale: "en-us",
@@ -55,7 +78,7 @@ const CATALOG = [
 ];
 
 describe("TranslationsPanel", () => {
-  it("renders current locale and variant rows from injected loader", async () => {
+  it("renders current locale and variant rows from injected loader", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <TranslationsPanel
         itemId="335"
@@ -69,6 +92,7 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-current-locale-value")).toHaveTextContent(
       "en-us",
@@ -78,7 +102,7 @@ describe("TranslationsPanel", () => {
     expect(screen.getByTestId("translations-inflight-note")).toBeTruthy();
   });
 
-  it("shows the real locale code in the editor chrome, never a bare unknown (#6386)", async () => {
+  it("shows the real locale code in the editor chrome, never a bare unknown (#6386)", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <TranslationsPanel
         itemId="42"
@@ -92,6 +116,7 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     const value = screen.getByTestId("translations-current-locale-value");
     // Real locale code shape (for example en-us), not the Unknown fallback.
@@ -99,7 +124,7 @@ describe("TranslationsPanel", () => {
     expect(value.textContent).not.toMatch(/unknown/i);
   });
 
-  it("shows only locales not already present as create targets", async () => {
+  it("shows only locales not already present as create targets", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <TranslationsPanel
         itemId="335"
@@ -111,6 +136,7 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("translations-locale-option-en-us"),
@@ -120,7 +146,7 @@ describe("TranslationsPanel", () => {
     ).toBeNull();
   });
 
-  it("GETs hyphenated GUID without stripping last segment (#3703)", async () => {
+  it("GETs hyphenated GUID without stripping last segment (#3703)", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     render(
       <TranslationsPanel
@@ -135,6 +161,7 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadVariants).toHaveBeenCalledWith("16777215-101-551");
     expect(loadVariants).not.toHaveBeenCalledWith("551");
@@ -145,7 +172,7 @@ describe("TranslationsPanel", () => {
     expect(screen.getByTestId("translations-variant-row-900")).toBeTruthy();
   });
 
-  it("GETs bare numeric content ids unchanged", async () => {
+  it("GETs bare numeric content ids unchanged", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     render(
       <TranslationsPanel
@@ -159,11 +186,12 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadVariants).toHaveBeenCalledWith("335");
   });
 
-  it("create-variant POSTs selected locales via injection seam", async () => {
+  it("create-variant POSTs selected locales via injection seam", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => ({
       created: [
         {
@@ -188,21 +216,23 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
-    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1), { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(createVariants).toHaveBeenCalledWith({
       itemIds: [335],
       locales: ["de-de"],
     });
     await waitFor(() =>
       expect(screen.getByTestId("translations-create-success")).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(onCreated).toHaveBeenCalled();
   });
 
-  it("create-variant POSTs GUID last-segment content id (#3545)", async () => {
+  it("create-variant POSTs GUID last-segment content id (#3545)", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     const createVariants = vi.fn(async () => ({
       created: [
@@ -226,24 +256,26 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadVariants).toHaveBeenCalledWith("1-101-708");
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
-    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1), { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(createVariants).toHaveBeenCalledWith({
       itemIds: [708],
       locales: ["de-de"],
     });
     await waitFor(() =>
       expect(screen.getByTestId("translations-create-success")).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("translations-create-error"),
     ).toBeNull();
   });
 
-  it("GET variants with the raw itemId when parse yields null", async () => {
+  it("GET variants with the raw itemId when parse yields null", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     render(
       <TranslationsPanel
@@ -257,11 +289,12 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadVariants).toHaveBeenCalledWith("//Sites/Demo");
   });
 
-  it("keeps the no-id create message for folder-like ids without a content id", async () => {
+  it("keeps the no-id create message for folder-like ids without a content id", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => ({ created: [] }));
     render(
       <TranslationsPanel
@@ -275,11 +308,13 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
     await waitFor(() =>
       expect(screen.getByTestId("translations-create-error")).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-create-error")).toHaveTextContent(
       /does not have a numeric content id/i,
@@ -287,7 +322,7 @@ describe("TranslationsPanel", () => {
     expect(createVariants).not.toHaveBeenCalled();
   });
 
-  it("opens a locale copy via Open button", async () => {
+  it("opens a locale copy via Open button", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const onOpenVariant = vi.fn();
     render(
       <TranslationsPanel
@@ -301,12 +336,13 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-open-variant-900"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("translations-open-variant-900"));
     expect(onOpenVariant).toHaveBeenCalledWith(900, "fr-fr");
   });
 
-  it("maps GET 404 to not-found chrome", async () => {
+  it("maps GET 404 to not-found chrome", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <TranslationsPanel
         itemId="335"
@@ -321,11 +357,12 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "error",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByRole("alert")).toHaveTextContent(/not found/i);
   });
 
-  it("maps create 409 to conflict chrome", async () => {
+  it("maps create 409 to conflict chrome", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => {
       throw new TranslationConflictError("exists");
     });
@@ -341,6 +378,7 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
@@ -348,10 +386,11 @@ describe("TranslationsPanel", () => {
       expect(screen.getByTestId("translations-create-error")).toHaveTextContent(
         /already exists/i,
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("maps create 403 to permission chrome", async () => {
+  it("maps create 403 to permission chrome", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => {
       throw new TranslationAuthError("no");
     });
@@ -367,6 +406,7 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
@@ -374,10 +414,11 @@ describe("TranslationsPanel", () => {
       expect(
         screen.getByTestId("translations-create-forbidden"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("renders auth state when loader is forbidden", async () => {
+  it("renders auth state when loader is forbidden", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <TranslationsPanel
         itemId="335"
@@ -392,10 +433,11 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "auth",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("pins an explicit light-surface text color on every state (#5657)", async () => {
+  it("pins an explicit light-surface text color on every state (#5657)", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     // The editor host mounts this panel under its dark root (inherited
     // #e2e8f0), which fails WCAG 2.2 AA contrast on the panel's own white
     // background. Every state must therefore declare its own dark text.
@@ -412,11 +454,12 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-panel").style.color).toBeTruthy();
   });
 
-  it("passes the zero serious/critical axe-core gate", async () => {
+  it("passes the zero serious/critical axe-core gate", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <TranslationsPanel
         itemId="335"
@@ -430,6 +473,7 @@ describe("TranslationsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
@@ -514,10 +558,11 @@ describe("TranslationsPanel variant search (#6414)", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   }
 
-  it("filters rows by typed locale and restores on clear", async () => {
+  it("filters rows by typed locale and restores on clear", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     await renderReady();
     const search = screen.getByTestId("translations-variants-search");
     expect(screen.getByTestId("translations-variant-row-42")).toBeTruthy();
@@ -535,7 +580,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
     expect(screen.getByTestId("translations-variant-row-901")).toBeTruthy();
   });
 
-  it("shows a distinct no-match state instead of the table", async () => {
+  it("shows a distinct no-match state instead of the table", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     await renderReady();
     fireEvent.change(screen.getByTestId("translations-variants-search"), {
       target: { value: "xx-no-such-locale" },
@@ -549,7 +594,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
     ).toBeNull();
   });
 
-  it("keeps the create success notice across its own list reload, clears on item change", async () => {
+  it("keeps the create success notice across its own list reload, clears on item change", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     const createVariants = vi.fn(async () => ({
       created: [
@@ -573,6 +618,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     const reloadsBefore = loadVariants.mock.calls.length;
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
@@ -581,10 +627,12 @@ describe("TranslationsPanel variant search (#6414)", () => {
       expect(
         screen.getByTestId("translations-create-success"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     // The success-triggered reload ran, and the notice survived it.
     await waitFor(() =>
       expect(loadVariants.mock.calls.length).toBeGreaterThan(reloadsBefore),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-create-success")).toBeInTheDocument();
     expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
@@ -599,10 +647,11 @@ describe("TranslationsPanel variant search (#6414)", () => {
     );
     await waitFor(() =>
       expect(screen.queryByTestId("translations-create-success")).toBeNull(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("resets the variant filter on item change and after a successful create", async () => {
+  it("resets the variant filter on item change and after a successful create", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     const createVariants = vi.fn(async () => ({
       created: [
@@ -626,6 +675,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     // A filter that hides a row does not survive an item change.
     fireEvent.change(screen.getByTestId("translations-variants-search"), {
@@ -642,6 +692,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-variants-search")).toHaveValue("");
     // A successful create clears the filter so the new copy is visible.
@@ -655,12 +706,13 @@ describe("TranslationsPanel variant search (#6414)", () => {
       expect(
         screen.getByTestId("translations-create-success"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("translations-variants-search")).toHaveValue("");
     expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
   });
 
-  it("passes the zero serious/critical axe-core gate with search", async () => {    const { container } = render(
+  it("passes the zero serious/critical axe-core gate with search", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {    const { container } = render(
       <TranslationsPanel
         itemId="42"
         itemLabel="Home"
@@ -680,6 +732,7 @@ describe("TranslationsPanel variant search (#6414)", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("translations-variants-search"), {
       target: { value: "fr" },
@@ -749,10 +802,11 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   }
 
-  it("filters target checkboxes and restores the full list on clear", async () => {
+  it("filters target checkboxes and restores the full list on clear", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     await renderCreatable();
     const search = screen.getByTestId("translations-target-locales-search");
     expect(screen.getByTestId("translations-locale-option-fr-fr")).toBeTruthy();
@@ -769,7 +823,7 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
     expect(screen.getByTestId("translations-locale-option-es-es")).toBeTruthy();
   });
 
-  it("names the filter in the zero-match state and keeps submit disabled", async () => {
+  it("names the filter in the zero-match state and keeps submit disabled", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     await renderCreatable();
     fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
       target: { value: "xx-no-such-locale" },
@@ -783,7 +837,7 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
     expect(screen.getByTestId("translations-create-submit")).toBeDisabled();
   });
 
-  it("keeps the selection across filter changes and posts it", async () => {
+  it("keeps the selection across filter changes and posts it", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => ({ created: [] }));
     await renderCreatable(createVariants);
     // Select while filtered, then clear — the check stays checked.
@@ -799,14 +853,14 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
     ).toBeChecked();
     expect(screen.getByTestId("translations-create-submit")).not.toBeDisabled();
     fireEvent.click(screen.getByTestId("translations-create-submit"));
-    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1), { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(createVariants).toHaveBeenCalledWith({
       itemIds: [42],
       locales: ["de-de"],
     });
   });
 
-  it("resets the target search after a successful create", async () => {
+  it("resets the target search after a successful create", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const createVariants = vi.fn(async () => ({
       created: [
         { contentId: 901, locale: "de-de", role: "translation" },
@@ -822,13 +876,14 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
       expect(
         screen.getByTestId("translations-create-success"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.getByTestId("translations-target-locales-search"),
     ).toHaveValue("");
   });
 
-  it("passes the zero serious/critical axe-core gate with target search", async () => {
+  it("passes the zero serious/critical axe-core gate with target search", { timeout: TRANSLATIONS_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <TranslationsPanel
         itemId="42"
@@ -841,6 +896,7 @@ describe("TranslationsPanel target-locale search (#6415)", () => {
       expect(
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
+      { timeout: TRANSLATIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
       target: { value: "ger" },

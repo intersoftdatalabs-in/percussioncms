@@ -19,6 +19,29 @@ import { describe, expect, it, vi } from "vitest";
 import { RevisionsPanel } from "../../../main/ts/contentExplorer/RevisionsPanel";
 import { renderA11yGate } from "./a11y";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const REVISIONS_PANEL_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const REVISIONS_PANEL_TEST_TIMEOUT = 30_000;
+
 const SAMPLE = {
   restorable: true,
   revisions: [
@@ -46,7 +69,7 @@ const SAMPLE = {
 };
 
 describe("RevisionsPanel", () => {
-  it("renders revision rows and restore for a prior revision", async () => {
+  it("renders revision rows and restore for a prior revision", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const restore = vi.fn().mockResolvedValue(undefined);
     render(
       <RevisionsPanel
@@ -62,16 +85,17 @@ describe("RevisionsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-row-1")).toBeTruthy();
     expect(screen.getByTestId("revisions-row-2")).toBeTruthy();
     expect(screen.getByTestId("revisions-restore-1")).toBeTruthy();
     expect(screen.queryByTestId("revisions-restore-2")).toBeNull();
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
-    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1));
+    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
   });
 
-  it("opens on the audit tab when requested", async () => {
+  it("opens on the audit tab when requested", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <RevisionsPanel
         itemId="42"
@@ -84,11 +108,12 @@ describe("RevisionsPanel", () => {
         "data-testid-tab",
         "audit",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("audit-row-0")).toHaveTextContent("Looks good");
   });
 
-  it("does not restore when confirm is cancelled", async () => {
+  it("does not restore when confirm is cancelled", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const restore = vi.fn();
     render(
       <RevisionsPanel
@@ -100,12 +125,13 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     expect(restore).not.toHaveBeenCalled();
   });
 
-  it("shows the older revision as current only after restore succeeds (#5220)", async () => {
+  it("shows the older revision as current only after restore succeeds (#5220)", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let resolveRestore: (value: void) => void = () => {};
     const restore = vi.fn(
       () =>
@@ -136,6 +162,7 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         "2",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     expect(restore).not.toHaveBeenCalled();
@@ -149,13 +176,13 @@ describe("RevisionsPanel", () => {
 
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     fireEvent.click(screen.getByTestId("revisions-restore-ok"));
-    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1));
+    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(screen.getByTestId("revisions-current")).toHaveAttribute(
       "data-current-rev",
       "2",
     );
     resolveRestore();
-    await waitFor(() => expect(loads).toBe(2));
+    await waitFor(() => expect(loads).toBe(2), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(screen.getByTestId("revisions-current")).toHaveAttribute(
       "data-current-rev",
       "2",
@@ -169,12 +196,13 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         "1",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
     expect(screen.getByTestId("revisions-restore-2")).toBeTruthy();
   });
 
-  it("HTTP 403 and 409 leave the current revision in place (#5220)", async () => {
+  it("HTTP 403 and 409 leave the current revision in place (#5220)", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const restore403 = vi.fn().mockRejectedValue({
       status: 403,
       statusText: "Forbidden",
@@ -190,6 +218,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     fireEvent.click(screen.getByTestId("revisions-restore-ok"));
@@ -197,6 +226,7 @@ describe("RevisionsPanel", () => {
       expect(screen.getByTestId("revisions-restore-error").textContent).toMatch(
         /403/,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadSummary).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("revisions-current")).toHaveAttribute(
@@ -223,6 +253,7 @@ describe("RevisionsPanel", () => {
       expect(screen.getByTestId("revisions-restore-error").textContent).toMatch(
         /409/,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(loadSummary).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("revisions-current")).toHaveAttribute(
@@ -231,7 +262,7 @@ describe("RevisionsPanel", () => {
     );
   });
 
-  it("shows an error when the loader fails", async () => {
+  it("shows an error when the loader fails", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <RevisionsPanel
         itemId="42"
@@ -245,10 +276,11 @@ describe("RevisionsPanel", () => {
         "data-testid-state",
         "error",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
-  it("compares two selected revisions and shows field diffs", async () => {
+  it("compares two selected revisions and shows field diffs", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const compare = vi.fn().mockResolvedValue({
       itemId: "42",
       rev1: 1,
@@ -271,10 +303,12 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
     await waitFor(() =>
       expect(compare).toHaveBeenCalledWith("42", 1, 2),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-compare-row-displaytitle")).toHaveAttribute(
       "data-testid-changed",
@@ -282,7 +316,7 @@ describe("RevisionsPanel", () => {
     );
   });
 
-  it("shows 404 and 403 compare errors without treating them as empty", async () => {
+  it("shows 404 and 403 compare errors without treating them as empty", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const compare404 = vi.fn().mockRejectedValue({
       status: 404,
       statusText: "Not Found",
@@ -297,10 +331,12 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-error")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-compare-error").textContent).toMatch(
       /404/,
@@ -321,12 +357,14 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-error").textContent).toMatch(
         /403/,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   });
 
@@ -358,10 +396,11 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         expectedCurrent,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
   }
 
-  it("resets compare, pending, and errors when the item changes after restore", async () => {
+  it("resets compare, pending, and errors when the item changes after restore", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let loads42 = 0;
     const loadSummary = vi.fn(async (id: string) => {
       if (id === "99") {
@@ -392,12 +431,14 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-left")).toHaveValue("1"),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("2");
     await restoreThenReload("1");
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-error")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-2"));
     expect(screen.getByTestId("revisions-restore-confirm")).toBeTruthy();
@@ -415,6 +456,7 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         "12",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("revisions-restore-confirm")).toBeNull();
     expect(screen.queryByTestId("revisions-compare-error")).toBeNull();
@@ -422,13 +464,13 @@ describe("RevisionsPanel", () => {
     expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10");
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("12");
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
-    await waitFor(() => expect(compare).toHaveBeenCalledWith("99", 10, 12));
+    await waitFor(() => expect(compare).toHaveBeenCalledWith("99", 10, 12), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(screen.queryByTestId("revisions-compare-error")).toBeNull();
     expect(screen.getByTestId("revisions-compare-empty")).toBeTruthy();
     await renderA11yGate(container);
   });
 
-  it("loads the restored item fresh when it is selected again", async () => {
+  it("loads the restored item fresh when it is selected again", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let loads42 = 0;
     const loadSummary = vi.fn(async (id: string) => {
       if (id === "99") {
@@ -459,6 +501,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-left")).toHaveValue("1"),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     await restoreThenReload("1");
     rerender(
@@ -471,6 +514,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10"),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("12");
     rerender(
@@ -486,6 +530,7 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         "1",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
       "data-testid-state",
@@ -494,12 +539,12 @@ describe("RevisionsPanel", () => {
     expect(screen.getByTestId("revisions-compare-left")).toHaveValue("1");
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("2");
     fireEvent.click(screen.getByTestId("revisions-compare-run"));
-    await waitFor(() => expect(compare).toHaveBeenCalledWith("42", 1, 2));
+    await waitFor(() => expect(compare).toHaveBeenCalledWith("42", 1, 2), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     expect(compare).not.toHaveBeenCalledWith("42", 10, 12);
     await renderA11yGate(container);
   });
 
-  it("shows a load error instead of Loading when the restored item fails on return", async () => {
+  it("shows a load error instead of Loading when the restored item fails on return", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let loads42 = 0;
     const loadSummary = vi.fn(async (id: string) => {
       if (id === "99") {
@@ -521,6 +566,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     await restoreThenReload("1");
     rerender(
@@ -532,6 +578,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10"),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     rerender(
       <RevisionsPanel
@@ -545,12 +592,13 @@ describe("RevisionsPanel", () => {
         "data-testid-state",
         "error",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByRole("alert").textContent).toMatch(/return failed/);
     expect(screen.queryByTestId("revisions-compare-left")).toBeNull();
   });
 
-  it("shows a load error instead of staying on Loading when the next item fails after restore", async () => {
+  it("shows a load error instead of staying on Loading when the next item fails after restore", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let loads42 = 0;
     const loadSummary = vi.fn(async (id: string) => {
       if (id === "99") {
@@ -569,6 +617,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     await restoreThenReload("1");
     rerender(
@@ -583,12 +632,13 @@ describe("RevisionsPanel", () => {
         "data-testid-state",
         "error",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByRole("alert").textContent).toMatch(/nope/);
     expect(screen.queryByTestId("revisions-compare-left")).toBeNull();
   });
 
-  it("keeps the previous revisions when a same-item reload fails after restore", async () => {
+  it("keeps the previous revisions when a same-item reload fails after restore", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let loads = 0;
     const loadSummary = vi.fn(async () => {
       loads += 1;
@@ -607,6 +657,7 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     fireEvent.click(screen.getByTestId("revisions-restore-ok"));
@@ -614,6 +665,7 @@ describe("RevisionsPanel", () => {
       expect(screen.getByTestId("revisions-restore-error").textContent).toMatch(
         /reload failed/,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
       "data-testid-state",
@@ -627,7 +679,7 @@ describe("RevisionsPanel", () => {
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("2");
   });
 
-  it("does not reload the new item when the previous restore finishes late", async () => {
+  it("does not reload the new item when the previous restore finishes late", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let resolveRestore: (value: void) => void = () => {};
     const restore = vi.fn(
       () =>
@@ -652,10 +704,11 @@ describe("RevisionsPanel", () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     fireEvent.click(screen.getByTestId("revisions-restore-1"));
     fireEvent.click(screen.getByTestId("revisions-restore-ok"));
-    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1));
+    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     rerender(
       <RevisionsPanel
         itemId="99"
@@ -669,13 +722,15 @@ describe("RevisionsPanel", () => {
         "data-current-rev",
         "12",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     const loads99 = loadSummary.mock.calls.filter((call) => call[0] === "99")
       .length;
     resolveRestore();
-    await waitFor(() => expect(onRestored).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledWith(1), { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT });
     await waitFor(() =>
       expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10"),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(
       loadSummary.mock.calls.filter((call) => call[0] === "99").length,
@@ -687,7 +742,7 @@ describe("RevisionsPanel", () => {
     expect(screen.getByTestId("revisions-compare-right")).toHaveValue("12");
   });
 
-  it("passes the a11y gate on the loaded revisions table", async () => {
+  it("passes the a11y gate on the loaded revisions table", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     const { container } = render(
       <RevisionsPanel itemId="42" loadSummary={async () => SAMPLE} />,
     );
@@ -696,11 +751,12 @@ describe("RevisionsPanel", () => {
         "data-testid-state",
         "ok",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     await renderA11yGate(container);
   });
 
-  it("shows date, user, type, and comment only after history loads (#5245)", async () => {
+  it("shows date, user, type, and comment only after history loads (#5245)", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     let release: (value: typeof SAMPLE) => void = () => {};
     const loadSummary = vi.fn(
       () =>
@@ -731,6 +787,7 @@ describe("RevisionsPanel", () => {
         "data-testid-tab",
         "audit",
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("audit-date-0")).toHaveTextContent("2026-01-02");
     expect(screen.getByTestId("audit-user-0")).toHaveTextContent("Admin");
@@ -741,7 +798,7 @@ describe("RevisionsPanel", () => {
     await renderA11yGate(container);
   });
 
-  it("an empty history shows the empty message, not a fake row (#5245)", async () => {
+  it("an empty history shows the empty message, not a fake row (#5245)", { timeout: REVISIONS_PANEL_TEST_TIMEOUT }, async () => {
     render(
       <RevisionsPanel
         itemId="42"
@@ -763,6 +820,7 @@ describe("RevisionsPanel", () => {
       expect(screen.getByTestId("revisions-audit-empty").textContent).toMatch(
         /No workflow comments/,
       ),
+      { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.queryByTestId("audit-row-0")).toBeNull();
     expect(screen.queryByTestId("revisions-audit-table")).toBeNull();
@@ -770,6 +828,7 @@ describe("RevisionsPanel", () => {
 
   it.each([403, 404])(
     "HTTP %s stays in the audit panel and is not an empty trail (#5245)",
+    { timeout: REVISIONS_PANEL_TEST_TIMEOUT },
     async (status) => {
       render(
         <RevisionsPanel
@@ -790,6 +849,7 @@ describe("RevisionsPanel", () => {
         expect(screen.getByTestId("revisions-load-error").textContent).toMatch(
           new RegExp(String(status)),
         ),
+        { timeout: REVISIONS_PANEL_ROUND_TRIP_TIMEOUT },
       );
       expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
         "data-testid-state",

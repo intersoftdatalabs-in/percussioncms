@@ -23,6 +23,29 @@ import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentEx
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
+/**
+ * Single wall-clock budget for every polling gate in this file (#7226).
+ * Each round trip here is purely microtask-driven (mocked promises
+ * resolve, then setState, then render) with no real timers involved,
+ * so the gates are deterministic in outcome; the budget is strictly a
+ * backstop for loaded-worker scheduling lag. Every {@code findBy} and
+ * {@code waitFor} uses it explicitly: the 1s/5s testing-library
+ * defaults are the most-tripped cliffs when hundreds of suite files
+ * share the worker host (same rationale as {@code RETRY_ROUND_TRIP_TIMEOUT}
+ * in #7122 and the #7147 bin-lifecycle slice).
+ */
+const TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT = 15_000;
+
+/**
+ * Per-test wall-clock ceiling (#7226, same load-contention rationale as
+ * the #7207/#7147 slices). The backstop gates above plus the axe gate can
+ * jointly exceed the 20s global default when the worker host is
+ * saturated. The primary gates stay progress-based (a single bounded
+ * backstop per distinct state); this ceiling is strictly a
+ * last-resort backstop.
+ */
+const TREE_CONTEXT_MENU_TEST_TIMEOUT = 30_000;
+
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
   locale: "en-us",
@@ -85,7 +108,7 @@ function treeRow(): HTMLElement {
 }
 
 describe("ContentExplorerShell tree context menu (#6826)", () => {
-  it("tree right-click mounts the loading popup then the folder-scoped catalog", async () => {
+  it("tree right-click mounts the loading popup then the folder-scoped catalog", { timeout: TREE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     stubTreeAndListFetch();
     let releaseCatalog: (() => void) | undefined;
     const catalogGate = new Promise<void>((resolve) => {
@@ -112,7 +135,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
         loadWorkflowMenuActions={async () => null}
       />,
     );
-    await waitFor(() => expect(treeRow()).toBeInTheDocument());
+    await waitFor(() => expect(treeRow()).toBeInTheDocument(), { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
 
     fireEvent.contextMenu(treeRow(), { clientX: 100, clientY: 200 });
 
@@ -129,6 +152,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
       expect(
         screen.getByTestId("context-menu-item-tree-probe-action"),
       ).toBeInTheDocument(),
+      { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT },
     );
     expect(
       screen.queryByTestId("context-menu-loading"),
@@ -140,7 +164,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
     await renderA11yGate(container);
   });
 
-  it("Escape closes the tree-opened menu", async () => {
+  it("Escape closes the tree-opened menu", { timeout: TREE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     stubTreeAndListFetch();
     const loadMenuActions = vi.fn(async () => [
       {
@@ -159,13 +183,14 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
         loadWorkflowMenuActions={async () => null}
       />,
     );
-    await waitFor(() => expect(treeRow()).toBeInTheDocument());
+    await waitFor(() => expect(treeRow()).toBeInTheDocument(), { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
 
     fireEvent.contextMenu(treeRow(), { clientX: 100, clientY: 200 });
     await waitFor(() =>
       expect(
         screen.getByTestId("context-menu-item-tree-probe-action"),
       ).toBeInTheDocument(),
+      { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT },
     );
 
     // Focus moved into the popup on open (#6826) so Escape reaches it.
@@ -174,7 +199,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
     expect(screen.queryByTestId("context-menu")).not.toBeInTheDocument();
   });
 
-  it("Escape returns focus to the invoking tree row (#6864)", async () => {
+  it("Escape returns focus to the invoking tree row (#6864)", { timeout: TREE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     stubTreeAndListFetch();
     const loadMenuActions = vi.fn(async () => [
       {
@@ -193,7 +218,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
         loadWorkflowMenuActions={async () => null}
       />,
     );
-    await waitFor(() => expect(treeRow()).toBeInTheDocument());
+    await waitFor(() => expect(treeRow()).toBeInTheDocument(), { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
 
     // Keyboard operators open the menu from the focused row; the shell
     // records document.activeElement as the invoker (#6864).
@@ -204,6 +229,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
       expect(
         screen.getByTestId("context-menu-item-tree-probe-action"),
       ).toBeInTheDocument(),
+      { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT },
     );
     expect(screen.getByTestId("context-menu")).toHaveFocus();
 
@@ -215,7 +241,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
     await renderA11yGate(container);
   });
 
-  it("Escape returns focus to the invoking detail row (#6864)", async () => {
+  it("Escape returns focus to the invoking detail row (#6864)", { timeout: TREE_CONTEXT_MENU_TEST_TIMEOUT }, async () => {
     const ROW = {
       id: "n-6864",
       path: "/Sites/Foo",
@@ -261,7 +287,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
         loadWorkflowMenuActions={async () => null}
       />,
     );
-    const detailRow = await screen.findByTestId("detail-row-n-6864");
+    const detailRow = await screen.findByTestId("detail-row-n-6864", undefined, { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT });
 
     detailRow.focus();
     expect(detailRow).toHaveFocus();
@@ -270,6 +296,7 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
       expect(
         screen.getByTestId("context-menu-item-detail-probe-action"),
       ).toBeInTheDocument(),
+      { timeout: TREE_CONTEXT_MENU_ROUND_TRIP_TIMEOUT },
     );
 
     // Invoke close shares the same restore helper as Escape: activating a
