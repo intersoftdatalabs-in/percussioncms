@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -59,6 +62,12 @@ import org.xml.sax.InputSource;
  * ships sentence-case {@code Delivery type} (product UI convention), so it is pinned in
  * {@code EXPECTED_SEG_BY_TUID} instead of {@code EXPECTED_ENGLISH} (which derives the tuid
  * from the English text and requires the segment to equal the suffix).
+ *
+ * <p>Issue #7115 backfilled the non-en ship matrix for every key below (20 engine targets
+ * via {@code i18n_translate_direct.py} + {@code lou} via {@code i18n_lou_draft.py}, scoped
+ * to these TUIDs): {@link #deliveryPanelKeys_haveNonBlankTranslationsForShipMatrix} pins the
+ * full non-en matrix and {@link #deliveryPanelCache_agreesWithShippedTmx} pins cache/TMX
+ * agreement (same mechanics as {@code PSExplorerBatchHelperKeysTmxTest} for #7082).
  */
 public class PSPublishDeliveryPanelKeysTmxTest {
 
@@ -282,11 +291,113 @@ public class PSPublishDeliveryPanelKeysTmxTest {
   private static final Map<String, String> EXPECTED_SEG_BY_TUID =
       Map.of("perc.ui.publish.modern@Delivery Type", "Delivery type");
 
+  /** Non-en locales every backfilled delivery-panel {@code <tu>} must cover (issue #7115). */
+  private static final List<String> REQUIRED_NON_EN_LOCALES =
+      List.of(
+          "ar", "bn", "de", "es", "fr", "he", "hi", "it", "ja-jp", "lou",
+          "nb", "nl", "pl", "pt", "ru", "sv", "te", "tr", "uk", "zh-cn", "zh-tw");
+
   @Test
   public void deliveryPanelKeys_areRegisteredWithEnglish() throws Exception {
     Map<String, List<String>> enSegsByTuid = loadEnSegsByTuid();
     assertKeysRegistered(enSegsByTuid, EXPECTED_ENGLISH);
     assertExplicitSegs(enSegsByTuid, EXPECTED_SEG_BY_TUID);
+  }
+
+  @Test
+  public void deliveryPanelKeys_haveNonBlankTranslationsForShipMatrix() throws Exception {
+    Map<String, Map<String, String>> segsByTuid = loadSegsByTuid();
+    List<String> offenders = new ArrayList<>();
+    List<String> allTuids = new ArrayList<>();
+    for (String en : EXPECTED_ENGLISH) {
+      allTuids.add("perc.ui.publish.modern@" + en);
+    }
+    allTuids.addAll(EXPECTED_SEG_BY_TUID.keySet());
+    for (String tuid : allTuids) {
+      Map<String, String> segs = segsByTuid.get(tuid);
+      if (segs == null) {
+        offenders.add(tuid + " (missing <tu>)");
+        continue;
+      }
+      for (String lang : REQUIRED_NON_EN_LOCALES) {
+        String seg = segs.get(lang);
+        if (seg == null || seg.isBlank()) {
+          offenders.add(tuid + " (missing/blank " + lang + ")");
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "CmsUi.tmx delivery-panel keys lack ship-matrix translations (#7115): "
+            + offenders);
+  }
+
+  /**
+   * Guards issue #7115: the checked-in {@code scripts/cache/i18n_translate.json} entries for
+   * these delivery-panel sources must agree with the shipped {@code CmsUi.tmx} {@code <seg>}
+   * text (cache key is {@code sha256(target + "\\0" + source)}, same as {@code
+   * i18n_translate.cache_key}). Missing keys are fine (uncached); disagreements fail so a
+   * re-run can never write a stale cached segment back over reviewed TMX.
+   */
+  @Test
+  public void deliveryPanelCache_agreesWithShippedTmx() throws Exception {
+    Map<String, Map<String, String>> segsByTuid = loadSegsByTuid();
+    Path cacheFile = resolveTranslateCache();
+    assertNotNull(cacheFile, "i18n_translate.json not found");
+    Map<String, String> cached = parseFlatJsonStringMap(cacheFile);
+
+    List<String> offenders = new ArrayList<>();
+    // Tuid -> en-us source text (explicit pins keyed by tuid, not by suffix).
+    Map<String, String> sourcesByTuid = new LinkedHashMap<>();
+    for (String en : EXPECTED_ENGLISH) {
+      sourcesByTuid.put("perc.ui.publish.modern@" + en, en);
+    }
+    sourcesByTuid.putAll(EXPECTED_SEG_BY_TUID);
+    for (Map.Entry<String, String> e : sourcesByTuid.entrySet()) {
+      Map<String, String> segs = segsByTuid.get(e.getKey());
+      if (segs == null) {
+        continue;
+      }
+      for (String lang : REQUIRED_NON_EN_LOCALES) {
+        checkCacheEntry(e.getKey(), e.getValue(), lang, segs, cached, offenders);
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "i18n_translate.json cache disagrees with shipped CmsUi.tmx (#7115): "
+            + offenders);
+  }
+
+  /** Compare one {@code (tuid, lang)} cell between the checked-in cache and shipped TMX. */
+  private static void checkCacheEntry(
+      String tuid,
+      String en,
+      String lang,
+      Map<String, String> segs,
+      Map<String, String> cached,
+      List<String> offenders)
+      throws Exception {
+    if ("lou".equals(lang)) {
+      return;
+    }
+    String seg = segs.get(lang);
+    if (seg == null) {
+      return;
+    }
+    String cachedValue = cached.get(translateCacheKey(en, lang));
+    if (cachedValue != null && !cachedValue.equals(seg)) {
+      offenders.add(
+          tuid + " [" + lang + "] cache=" + cachedValue + " tmx=" + seg);
+    }
+  }
+
+  /** Mirror of {@code i18n_translate.cache_key}: {@code sha256(target + "\\0" + text)}. */
+  private static String translateCacheKey(String text, String target) throws Exception {
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    digest.update(target.getBytes(StandardCharsets.UTF_8));
+    digest.update((byte) 0);
+    digest.update(text.getBytes(StandardCharsets.UTF_8));
+    return HexFormat.of().formatHex(digest.digest());
   }
 
   private static Map<String, List<String>> loadEnSegsByTuid() throws Exception {
@@ -317,6 +428,173 @@ public class PSPublishDeliveryPanelKeysTmxTest {
       }
     }
     return enSegsByTuid;
+  }
+
+  /** Every {@code perc.ui.publish.modern@} tuid -> (normalized lang -> seg text). */
+  private static Map<String, Map<String, String>> loadSegsByTuid() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found");
+
+    Map<String, Map<String, String>> segsByTuid = new LinkedHashMap<>();
+    Document doc = parse(cmsUi);
+    NodeList tus = doc.getElementsByTagName("tu");
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!tuid.startsWith("perc.ui.publish.modern@")) {
+        continue;
+      }
+      Map<String, String> segs =
+          segsByTuid.computeIfAbsent(tuid, k -> new LinkedHashMap<>());
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLang(readXmlLang(tuv));
+        if (lang.isBlank()) {
+          continue;
+        }
+        NodeList segNodes = tuv.getElementsByTagName("seg");
+        if (segNodes.getLength() > 0) {
+          segs.putIfAbsent(lang, segNodes.item(0).getTextContent());
+        }
+      }
+    }
+    return segsByTuid;
+  }
+
+  /**
+   * Resolve {@code scripts/cache/i18n_translate.json} portably: prefer the module-relative path
+   * (Maven surefire runs with the module dir as CWD), then fall back to repo-root-relative.
+   */
+  private static Path resolveTranslateCache() {
+    Path[] candidates =
+        new Path[] {
+          Paths.get("scripts", "cache", "i18n_translate.json"),
+          Paths.get(
+              "modules", "perc-i18n", "scripts", "cache", "i18n_translate.json"),
+        };
+    for (Path c : candidates) {
+      Path abs = c.toAbsolutePath().normalize();
+      if (Files.isRegularFile(abs)) {
+        return abs;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Parse a flat JSON {@code {"key": "value", ...}} object. Only string keys/values are
+   * supported; full JSON is not needed for the checked-in string cache.
+   */
+  private static Map<String, String> parseFlatJsonStringMap(Path json) throws Exception {
+    String raw = Files.readString(json, StandardCharsets.UTF_8).trim();
+    Map<String, String> map = new LinkedHashMap<>();
+    int[] pos = {0};
+    skipWs(raw, pos);
+    expect(raw, pos, '{');
+    skipWs(raw, pos);
+    if (peek(raw, pos) == '}') {
+      return map;
+    }
+    while (true) {
+      skipWs(raw, pos);
+      String key = readJsonString(raw, pos);
+      skipWs(raw, pos);
+      expect(raw, pos, ':');
+      skipWs(raw, pos);
+      String value = readJsonString(raw, pos);
+      map.put(key, value);
+      skipWs(raw, pos);
+      char c = peek(raw, pos);
+      if (c == ',') {
+        pos[0]++;
+        continue;
+      }
+      if (c == '}') {
+        break;
+      }
+      throw new IllegalArgumentException("Unexpected char '" + c + "' in cache JSON");
+    }
+    return map;
+  }
+
+  private static void skipWs(String raw, int[] pos) {
+    while (pos[0] < raw.length()
+        && (raw.charAt(pos[0]) == ' '
+            || raw.charAt(pos[0]) == '\n'
+            || raw.charAt(pos[0]) == '\r'
+            || raw.charAt(pos[0]) == '\t')) {
+      pos[0]++;
+    }
+  }
+
+  private static char peek(String raw, int[] pos) {
+    if (pos[0] >= raw.length()) {
+      throw new IllegalArgumentException("Truncated cache JSON");
+    }
+    return raw.charAt(pos[0]);
+  }
+
+  private static void expect(String raw, int[] pos, char want) {
+    if (peek(raw, pos) != want) {
+      throw new IllegalArgumentException("Expected '" + want + "' in cache JSON");
+    }
+    pos[0]++;
+  }
+
+  private static String readJsonString(String raw, int[] pos) {
+    expect(raw, pos, '"');
+    StringBuilder sb = new StringBuilder();
+    while (true) {
+      char c = peek(raw, pos);
+      if (c == '"') {
+        pos[0]++;
+        return sb.toString();
+      }
+      if (c != '\\') {
+        sb.append(c);
+        pos[0]++;
+        continue;
+      }
+      pos[0]++;
+      char e = peek(raw, pos);
+      pos[0]++;
+      switch (e) {
+        case '"':
+          sb.append('"');
+          break;
+        case '\\':
+          sb.append('\\');
+          break;
+        case '/':
+          sb.append('/');
+          break;
+        case 'b':
+          sb.append('\b');
+          break;
+        case 'f':
+          sb.append('\f');
+          break;
+        case 'n':
+          sb.append('\n');
+          break;
+        case 'r':
+          sb.append('\r');
+          break;
+        case 't':
+          sb.append('\t');
+          break;
+        case 'u':
+          if (pos[0] + 4 > raw.length()) {
+            throw new IllegalArgumentException("Truncated unicode escape in cache JSON");
+          }
+          sb.append((char) Integer.parseInt(raw.substring(pos[0], pos[0] + 4), 16));
+          pos[0] += 4;
+          break;
+        default:
+          throw new IllegalArgumentException("Bad escape '\\" + e + "' in cache JSON"); // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7115, same as #7116) — backslash is JSON-escape in test helper message, not OS path; real paths use Paths.get joins
+      }
+    }
   }
 
   private static void assertKeysRegistered(
