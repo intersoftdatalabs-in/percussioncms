@@ -43,14 +43,18 @@ import org.xml.sax.InputSource;
 /**
  * Developer content-type chrome i18n registration for issues #7083 (CD-10 search indexing),
  * #7084 (CD-11 icon strategy), and #7114 (CD-01 hide-from-menu remainder), backfilled for
- * issue #7138 (parent #1690).
+ * issue #7138 (parent #1690), plus the remaining icon-chrome strings for issue #7222
+ * (parent #1690).
  *
  * <p>The content-type chrome slices landed their {@code DeveloperUi.tmx} translation units as
  * {@code en-us} only (per the #6894/#7005 precedent), so non-English sessions silently rendered
  * the English {@code message()} fallback. The CD-10 search-indexing TUs never merged with the
  * stranded #7083 branch, so this change also registers those three {@code en-us} units
  * (byte-identical to the {@code WebUI/src/main/ts/developer/messages.ts} suffixes) before
- * backfilling. This test pins the catalog side: every key has an {@code en-us} segment matching
+ * backfilling. Issue #7222 registers six more icon-chrome {@code en-us} units ({@code Source},
+ * {@code Specified file}, {@code From file field}, the value placeholder, the value-required
+ * notice, and the icon hint paragraph); {@code Value} and {@code None} reuse their pre-existing
+ * catalog TUs. This test pins the catalog side: every key has an {@code en-us} segment matching
  * the TypeScript fallback text, and every key ships non-blank {@code <seg>} text for the full
  * 21-locale non-en ship matrix (floor + above-floor), matching the coverage of neighboring
  * translated keys.
@@ -70,9 +74,17 @@ public class PSDeveloperContentTypeKeysTmxTest {
           "Icon strategy",
           "Could not load icon strategy.",
           "Could not save icon strategy.",
-          "Hide from menu");
+          "Hide from menu",
+          "Source",
+          "Value",
+          "None",
+          "Specified file",
+          "From file field",
+          "File path, name, or file field name",
+          "value is required when source is not none",
+          "Lock to edit. none clears the icon. specified is a file path or name. fromFileField is a file field name. Save writes while the lock is held and does not unlock. This chrome does not upload icon binaries.");
 
-  /** Non-en locales every backfilled content-type {@code <tu>} must cover (issue #7138). */
+  /** Non-en locales every backfilled content-type {@code <tu>} must cover (issues #7138/#7222). */
   private static final List<String> REQUIRED_NON_EN_LOCALES =
       List.of(
           "ar", "bn", "de", "es", "fr", "he", "hi", "it", "ja-jp", "lou",
@@ -114,13 +126,13 @@ public class PSDeveloperContentTypeKeysTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "DeveloperUi.tmx content-type keys lack ship-matrix translations (#7138): "
+        "DeveloperUi.tmx content-type keys lack ship-matrix translations (#7138/#7222): "
             + offenders);
   }
 
   /**
    * Guards issue #7116: {@code scripts/cache/i18n_translate.json} once kept stale segments that
-   * a pipeline re-run would write back over corrected TMX. Every cache entry for these 7
+   * a pipeline re-run would write back over corrected TMX. Every cache entry for these 15
    * content-type sources must agree with the shipped {@code DeveloperUi.tmx} {@code <seg>}
    * (cache key is {@code sha256(target + "\\0" + source)}, same as {@code
    * i18n_translate.cache_key}). Missing keys are fine (uncached); disagreements fail.
@@ -153,7 +165,7 @@ public class PSDeveloperContentTypeKeysTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7138): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7138/#7222): "
             + offenders);
   }
 
