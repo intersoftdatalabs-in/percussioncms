@@ -148,6 +148,21 @@ CMS-only cell.
 
 6. Tear down what you started: `python docker/scripts/perc-devctl.py qa-down`.
 
+## Live green runs
+
+Dated proof that the matrices go green on a clean cell — not just that the
+commands exist. Latest first:
+
+| Date (UTC) | Cell | Base | Matrix | Result |
+|------------|------|------|--------|--------|
+| 2026-11-24 | CMS-only H2 (`qa-up`, no DTS) | `eede3df951` (origin/main; `qa-rebuild-chain` from checkout, preflight FRESH) | content-create-matrix + inventory + index | 108/108 cases pass (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; `server.log` 0 ERROR/FATAL |
+
+Run commands are the step 2 / step 3 blocks above; the results JSON
+(`test-results/content-create-matrix.json`, one schema-valid row per
+pinned type) is the per-type accounting. Re-record this table whenever a
+matrix inventory changes or a run goes red — a stale date with a changed
+inventory is a docs defect.
+
 ## Skip contracts (no cell, no failure)
 
 Every matrix is provisioning-aware: without its cell it skips by named reason and exits 0
