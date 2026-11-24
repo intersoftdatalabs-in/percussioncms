@@ -73,13 +73,11 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import io
 import logging
 import os
 import re
 import subprocess
 import sys
-import tarfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,6 +87,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 import maven_local_repo  # noqa: E402  # resolve -Dmaven.repo.local like mvn (#6709)
+import docker_cp_tar_fallback  # noqa: E402  # shared docker-cp tar fallback (#7194)
 
 LOG = logging.getLogger("hot-deploy-rhythmyx-war-jars")
 
@@ -297,93 +296,19 @@ def _docker_cp_with_tar_fallback(
 ) -> int:
     """Copy ``host_path`` to ``container_name:container_dest`` (#7157).
 
-    ``docker cp`` fails deterministically on some QA cells whose
-    writable-layer / graphdriver state is corrupt (daemon:
-    ``mkdirat installer/installer.jar: file exists``) even though
-    ``docker exec`` into the same cell still works. When ``docker cp``
-    fails, retry the same single file through a ``tar`` pipe
-    (``docker exec -i <cell> tar -xf - -C <parent>``) fed from an
-    in-memory stdlib-``tarfile`` archive — no host ``tar`` binary is
-    needed, so this stays cross-platform (Windows / Linux / macOS).
-
-    The archive member is the bare host basename (never a path), so a
-    hostile file name cannot escape ``<parent>`` during extraction.
-    Under ``--dry-run`` only the ``docker cp`` plan is logged; the
-    fallback never triggers because ``_run`` dry-run always succeeds.
+    Thin wrapper over :mod:`docker_cp_tar_fallback` (#7194) injecting
+    this script's ``_run`` (``docker cp`` step) and logger. The tar
+    member is the basename of ``container_dest`` so a rename-on-deploy
+    lands on exactly the path ``docker cp`` would write.
     """
-    host_str = str(host_path.resolve())
-    rc = _run(
-        ["docker", "cp", host_str, f"{container_name}:{container_dest}"],
+    return docker_cp_tar_fallback.docker_cp_with_tar_fallback(
+        host_path,
+        container_name,
+        container_dest,
         dry_run=dry_run,
+        cp_runner=lambda argv: _run(argv, dry_run=dry_run),
+        logger=LOG,
     )
-    if rc == EXIT_OK:
-        return EXIT_OK
-    if dry_run:
-        return rc
-    member = host_path.name
-    if (
-        not member
-        or member in (".", "..")
-        or "/" in member
-        or "\\" in member
-    ):
-        LOG.error("refusing tar fallback for unsafe file name: %r", host_path.name)
-        return EXIT_DOCKER_FAILED
-    LOG.warning(
-        "docker cp %s -> %s:%s failed; retrying via tar pipe (#7157).",
-        host_str,
-        container_name,
-        container_dest,
-    )
-    try:
-        payload = host_path.read_bytes()
-        # Preserve the source mtime in the archive member: TarInfo
-        # defaults to epoch 0, and Jetty serves stable WebUI entry URLs
-        # with Last-Modified conditional requests — a 1970 mtime can make
-        # browsers keep a stale bundle after a changed deploy.
-        mtime = int(host_path.stat().st_mtime)
-    except OSError as exc:
-        LOG.error("cannot read %s for tar fallback: %s", host_path, exc)
-        return EXIT_DOCKER_FAILED
-    buf = io.BytesIO()
-    try:
-        with tarfile.open(fileobj=buf, mode="w") as tf:
-            info = tarfile.TarInfo(name=member)
-            info.size = len(payload)
-            info.mtime = mtime
-            tf.addfile(info, io.BytesIO(payload))
-    except (tarfile.TarError, OSError) as exc:
-        LOG.error("cannot build tar fallback archive for %s: %s", host_path, exc)
-        return EXIT_DOCKER_FAILED
-    parent = container_dest.rpartition("/")[0] or "/"
-    completed = subprocess.run(
-        ["docker", "exec", "-i", container_name, "tar", "-xf", "-", "-C", parent],
-        input=buf.getvalue(),
-        capture_output=True,
-        shell=False,
-        check=False,
-    )
-    if completed.returncode != 0:
-        stderr = (completed.stderr or b"").decode("utf-8", "replace").strip()
-        LOG.error(
-            "docker cp AND tar-pipe fallback both failed for %s -> %s:%s "
-            "(tar extract stderr: %s). The cell writable layer is likely "
-            "corrupt (daemon 'mkdirat ... file exists', #7157): recreate it "
-            "with 'python docker/scripts/perc-devctl.py qa-down' then "
-            "'python docker/scripts/perc-devctl.py qa-up'.",
-            host_str,
-            container_name,
-            container_dest,
-            stderr or "<empty>",
-        )
-        return EXIT_DOCKER_FAILED
-    LOG.info(
-        "tar-pipe fallback copy succeeded: %s -> %s:%s (#7157).",
-        host_str,
-        container_name,
-        container_dest,
-    )
-    return EXIT_OK
 
 
 def _container_running(container_name: str, *, dry_run: bool) -> bool:
