@@ -713,6 +713,9 @@ test.describe("modern React Content Editor — first slice", () => {
         )
         .first();
       if ((await sitesNode.count()) > 0) {
+        // Best-effort focus: the Sites node may already be selected or may
+        // detach during tree refresh; either rejection is safe to ignore.
+        // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — optional Sites node focus; rejection means already selected or detached.
         await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
       }
     }
@@ -864,6 +867,9 @@ test.describe("modern React Content Editor — first slice", () => {
 
       let popupUrl = popup ? popup.url() : "";
       if (popup && (!popupUrl || /about:blank/i.test(popupUrl))) {
+        // Best-effort settle wait: the popup may finish loading (or close)
+        // before the wait attaches; the URL assertion below is the hard gate.
+        // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — optional popup load-state wait; rejection means already settled or closed.
         await popup.waitForLoadState("domcontentloaded").catch(() => {});
         popupUrl = popup.url();
       }
@@ -875,6 +881,9 @@ test.describe("modern React Content Editor — first slice", () => {
         await expect(
           popup.locator(`[data-testid="${TEST_IDS.editorHost}"]`),
         ).toBeVisible({ timeout: 20_000 });
+        // Best-effort cleanup: the popup may already be closed by the app;
+        // rejection means there is nothing left to close.
+        // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — popup cleanup close; rejection means already closed.
         await popup.close().catch(() => {});
       }
 
@@ -908,6 +917,9 @@ test.describe("modern React Content Editor — first slice", () => {
             isProductEditorUrl(folderUrl),
             `Folder Open must not land the React editor; got ${folderUrl}`,
           ).toBe(false);
+          // Best-effort cleanup: the folder popup may already be closed by
+          // the app; rejection means there is nothing left to close.
+          // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — folder popup cleanup close; rejection means already closed.
           await maybeEditor.close().catch(() => {});
         }
       }
@@ -976,6 +988,9 @@ test.describe("modern React Content Editor — first slice", () => {
 
       await pageRow.click({ button: "right", force: true });
       const contextMenu = page.locator('[data-testid="context-menu"]');
+      // Best-effort visibility probe: the context menu may not appear on this
+      // build; the contextEdit/toolbarEdit branch below is the hard gate.
+      // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — optional context-menu wait; rejection falls through to toolbar Edit.
       await contextMenu.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
       const contextEdit = page.locator(`[data-testid="${TEST_IDS.contextEdit}"]`);
       const toolbarEdit = page.locator(`[data-testid="${TEST_IDS.edit}"]`);
@@ -994,9 +1009,16 @@ test.describe("modern React Content Editor — first slice", () => {
           pageErrors.push(msg.text());
         }
       });
+      // Best-effort settle wait: the Edit popup may finish loading (or close)
+      // before the wait attaches; the product-editor URL assertion below is
+      // the hard gate.
+      // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — optional popup load-state wait; rejection means already settled or closed.
       await popup.waitForLoadState("domcontentloaded").catch(() => {});
       let popupUrl = popup.url();
       if (!popupUrl || /about:blank/i.test(popupUrl)) {
+        // Best-effort re-wait for a slow blank popup; the URL assertion below
+        // still gates on the product editor URL.
+        // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — optional blank-popup re-wait; rejection means already settled or closed.
         await popup.waitForLoadState("domcontentloaded").catch(() => {});
         popupUrl = popup.url();
       }
@@ -1039,6 +1061,9 @@ test.describe("modern React Content Editor — first slice", () => {
       ).toEqual([]);
 
       if (popup && !popup.isClosed()) {
+        // Best-effort cleanup: the popup may close itself between the guard
+        // and the close call; rejection means there is nothing left to close.
+        // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #7211) — popup cleanup close; rejection means already closed.
         await popup.close().catch(() => {});
       }
     },
