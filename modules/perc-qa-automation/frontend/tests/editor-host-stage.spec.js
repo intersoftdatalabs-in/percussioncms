@@ -188,12 +188,17 @@ test.describe("React Content Editor Stage", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.stage}"]`)).toBeVisible({
         timeout: 20_000,
       });
+      // The done region stays mounted and empty until staging completes
+      // (persistent live region, #7169) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeEmpty();
       await page.locator(`[data-testid="${TEST_IDS.stage}"]`).click();
       await expect.poll(() => stageCalls.length).toBe(1);
       expect(stageCalls[0].method).toBe("GET");
       expect(isPageStageUrl(stageCalls[0].url)).toBe(true);
       expect(parseStageUrl(stageCalls[0].url)).toEqual({ kind: "page", itemId: "42" });
       await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).not.toBeEmpty();
       await expect(page.locator(`[data-testid="${TEST_IDS.stageError}"]`)).toHaveCount(0);
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
@@ -218,7 +223,7 @@ test.describe("React Content Editor Stage", () => {
       });
       await page.locator(`[data-testid="${TEST_IDS.stage}"]`).click();
       expect(stageCalls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeEmpty();
     },
   );
 
@@ -240,7 +245,7 @@ test.describe("React Content Editor Stage", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.stageError}"]`)).toContainText(
         /Could not stage this item/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeEmpty();
     },
   );
 
@@ -262,7 +267,7 @@ test.describe("React Content Editor Stage", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.stageError}"]`)).toContainText(
         /Could not stage this item/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.stageDone}"]`)).toBeEmpty();
     },
   );
 

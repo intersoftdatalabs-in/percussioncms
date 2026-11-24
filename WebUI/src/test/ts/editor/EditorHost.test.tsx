@@ -11192,7 +11192,9 @@ describe("EditorHost stage the open item (#4915)", () => {
       expect(stageItem).toHaveBeenCalledWith("42", "page");
     });
     await waitFor(() => {
-      expect(screen.getByTestId("editor-stage-done")).toBeTruthy();
+      expect(screen.getByTestId("editor-stage-done").textContent).toMatch(
+        /staged/i,
+      );
     });
     expect(screen.queryByTestId("editor-stage-error")).toBeNull();
   });
@@ -11224,7 +11226,8 @@ describe("EditorHost stage the open item (#4915)", () => {
     await waitFor(() => {
       expect(stageItem).not.toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor-stage-done")).toBeNull();
+    // Cancel leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-stage-done").textContent).toBe("");
   });
 
   it("keeps HTTP 403 on the host and does not claim success", async () => {
@@ -11254,7 +11257,8 @@ describe("EditorHost stage the open item (#4915)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-stage-error").textContent).toMatch(/403/);
     });
-    expect(screen.queryByTestId("editor-stage-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-stage-done").textContent).toBe("");
   });
 
   it("hides Stage for a template and in view mode", async () => {
@@ -11349,7 +11353,9 @@ describe("EditorHost remove the open item from staging (#4916)", () => {
       expect(removeFromStaging).toHaveBeenCalledWith("42", "page");
     });
     await waitFor(() => {
-      expect(screen.getByTestId("editor-unstage-done")).toBeTruthy();
+      expect(screen.getByTestId("editor-unstage-done").textContent).toMatch(
+        /removed from staging/i,
+      );
     });
     expect(screen.queryByTestId("editor-unstage-error")).toBeNull();
   });
@@ -11381,7 +11387,8 @@ describe("EditorHost remove the open item from staging (#4916)", () => {
     await waitFor(() => {
       expect(removeFromStaging).not.toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+    // Cancel leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-unstage-done").textContent).toBe("");
   });
 
   it("keeps HTTP 403 and HTTP 400 on the host and does not claim success", async () => {
@@ -11414,7 +11421,8 @@ describe("EditorHost remove the open item from staging (#4916)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-unstage-error").textContent).toMatch(/403/);
     });
-    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-unstage-done").textContent).toBe("");
     unmount();
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
@@ -11441,7 +11449,8 @@ describe("EditorHost remove the open item from staging (#4916)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-unstage-error").textContent).toMatch(/400/);
     });
-    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-unstage-done").textContent).toBe("");
   });
 
   it("hides Remove from staging for a template and in view mode", async () => {
@@ -11849,7 +11858,9 @@ describe("EditorHost takedown (#4862)", () => {
       );
     });
     await waitFor(() => {
-      expect(screen.getByTestId("editor-takedown-done")).toBeTruthy();
+      expect(screen.getByTestId("editor-takedown-done").textContent).toMatch(
+        /taken down/i,
+      );
     });
     expect(screen.queryByTestId("editor-takedown-error")).toBeNull();
   });
@@ -11882,7 +11893,8 @@ describe("EditorHost takedown (#4862)", () => {
     await waitFor(() => {
       expect(takedownItem).not.toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor-takedown-done")).toBeNull();
+    // Cancel leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-takedown-done").textContent).toBe("");
   });
 
   it("surfaces FORBIDDEN as failure, not success", async () => {
@@ -11915,7 +11927,8 @@ describe("EditorHost takedown (#4862)", () => {
         /FORBIDDEN/,
       );
     });
-    expect(screen.queryByTestId("editor-takedown-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-takedown-done").textContent).toBe("");
   });
 
   it("hides Take down in view mode and for a new unsaved item", async () => {
@@ -12296,7 +12309,9 @@ describe("EditorHost preview assembled item (#4568)", () => {
     });
     expect(confirmUnsavedPreview).not.toHaveBeenCalled();
     await waitFor(() => {
-      expect(screen.getByTestId("editor-preview-done")).toBeTruthy();
+      expect(screen.getByTestId("editor-preview-done").textContent).toMatch(
+        /preview opened/i,
+      );
     });
     expect(screen.queryByTestId("editor-preview-error")).toBeNull();
   });
@@ -12427,7 +12442,8 @@ describe("EditorHost preview assembled item (#4568)", () => {
     await waitFor(() => {
       expect(previewItem).not.toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor-preview-done")).toBeNull();
+    // Cancel leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-preview-done").textContent).toBe("");
   });
 
   it("surfaces FORBIDDEN as failure, not success", async () => {
@@ -12462,7 +12478,8 @@ describe("EditorHost preview assembled item (#4568)", () => {
         /FORBIDDEN/,
       );
     });
-    expect(screen.queryByTestId("editor-preview-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7169).
+    expect(screen.getByTestId("editor-preview-done").textContent).toBe("");
   });
 
   it("hides Preview in promote mode", async () => {
