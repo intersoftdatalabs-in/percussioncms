@@ -274,6 +274,7 @@ jobs:
         with:
           name: playwright-h2-qa-${{ github.run_id }}
           path: |
+            modules/perc-qa-automation/frontend/playwright-output/
             modules/perc-qa-automation/frontend/test-results/
             modules/perc-qa-automation/frontend/playwright-report/
           if-no-files-found: ignore
