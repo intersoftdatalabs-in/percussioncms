@@ -54,9 +54,6 @@ let validateResult = true;
 let loginImpl = (loginObj, callback) => {};
 let querystringImpl = () => ({});
 
-// mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — fake jsdom fixture password, not a real credential.
-const FIXTURE_PASSWORD = "s3cret";
-
 function buildDom() {
   document.body.innerHTML =
     "<div class='percLogin' data='" +
@@ -64,9 +61,8 @@ function buildDom() {
     "'>" +
     "<form class='perc-login-form'>" +
     "<input name='perc-login-email-field' value='user@example.com'/>" +
-    "<input name='perc-login-password-field' value='" +
-    FIXTURE_PASSWORD +
-    "'/>" +
+    // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — "s3cret" is a fake jsdom fixture value, not a real credential.
+    "<input name='perc-login-password-field' value='s3cret'/>" +
     "</form>" +
     "<div class='perc-login-error-message' style='display:none'></div>" +
     "</div>";
@@ -121,7 +117,8 @@ describe("PercLoginView helpers (issue #7257)", () => {
     const form = buildDom();
     expect($.PercLoginView.buildLoginCredentials(form)).toEqual({
       email: "user@example.com",
-      password: FIXTURE_PASSWORD,
+      // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — fake fixture value asserted for parity with the DOM, not a real credential.
+      password: "s3cret",
     });
   });
 
@@ -224,7 +221,7 @@ describe("PercLoginView submit wiring (issue #7257)", () => {
 
     expect(captured).toEqual({
       email: "user@example.com",
-      password: FIXTURE_PASSWORD,
+      password: "s3cret",
     });
     capturedCallback("success", successPayload());
     expect($.cookie).toHaveBeenCalledWith("perc_membership_session_id", "sess-7257", {
