@@ -16,10 +16,11 @@
  */
 
 /**
- * Contention predicates for the keyword-level editors in KeywordEditorPanel
- * (#6985). Each editor handler used to inline a 15+ disjunct boolean chain
- * (cyclomatic 16-28); the busy/inflight/confirm tail of every chain now
- * lives here as a flat predicate over a snapshot the component assembles.
+ * Contention predicates for the keyword editors in KeywordEditorPanel
+ * (#6985 keyword-level, #6983 choice-level save reuse). Each editor handler
+ * used to inline a 15+ disjunct boolean chain (cyclomatic 16-29); the
+ * busy/inflight/confirm tail of every chain now lives here as a flat
+ * predicate over a snapshot the component assembles.
  *
  * The null/loading/editing head of each chain stays inline in the handler
  * so TypeScript keeps narrowing `id` and `serverKeyword` to non-null.
@@ -39,10 +40,11 @@ export interface KeywordWriteContention {
 }
 
 /**
- * Shared contention check for the keyword-level save editors. Each save
- * passes its own inflight/peerBusy aggregates so the predicate stays flat
- * while preserving the exact per-handler flag sets (each save yields to a
- * different subset of the keyword busy flags).
+ * Shared contention check for the keyword save editors (#6985) and the
+ * choice save editors (#6983). Each save passes its own inflight/peerBusy
+ * aggregates so the predicate stays flat while preserving the exact
+ * per-handler flag sets (each save yields to a different subset of the
+ * choice busy flags, excluding its own).
  */
 export function isKeywordWriteContended(contention: KeywordWriteContention): boolean {
   return (

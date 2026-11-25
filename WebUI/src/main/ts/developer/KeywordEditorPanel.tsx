@@ -812,25 +812,18 @@ export function KeywordEditorPanel({
 
   async function handleChoiceLabelSave(): Promise<void> {
     const index = labelEditIndex;
+    if (!id || isNew || !serverKeyword || !detailReady || index == null) {
+      return;
+    }
+    // #6983: busy/inflight/confirm tail via the shared #6985 predicate;
+    // the peer-busy aggregate excludes this editor's own busy flag.
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      index == null ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      valueBusy ||
-      descriptionBusy ||
-      sequenceBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: anyFlagSet([addBusy, removeBusy, valueBusy, descriptionBusy, sequenceBusy]),
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
@@ -942,25 +935,18 @@ export function KeywordEditorPanel({
 
   async function handleChoiceValueSave(): Promise<void> {
     const index = valueEditIndex;
+    if (!id || isNew || !serverKeyword || !detailReady || index == null) {
+      return;
+    }
+    // #6983: busy/inflight/confirm tail via the shared #6985 predicate;
+    // the peer-busy aggregate excludes this editor's own busy flag.
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      index == null ||
-      valueInflight.current ||
-      labelInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      descriptionBusy ||
-      sequenceBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: anyFlagSet([addBusy, removeBusy, labelBusy, descriptionBusy, sequenceBusy]),
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
@@ -1038,10 +1024,10 @@ export function KeywordEditorPanel({
     setDescriptionError(null);
   }
 
-  // #6985: aggregates for the keyword-level guards below. Each stays flat
-  // (a single `.some(Boolean)`) so the cyclomatic cost of the original
-  // 15+ disjunct chains moves into the pure predicates in
-  // keywordEditorGuards.ts instead of living in every handler.
+  // #6985: aggregates for the editor guards (keyword-level below, choice
+  // #6983 saves above). Each stays flat (a single `.some(Boolean)`) so the
+  // cyclomatic cost of the original 15+ disjunct chains moves into the pure
+  // predicates in keywordEditorGuards.ts instead of living in every handler.
   function keywordLevelInflight(): boolean {
     return anyFlagSet([
       keywordDescriptionInflight.current,
@@ -1119,25 +1105,18 @@ export function KeywordEditorPanel({
 
   async function handleChoiceDescriptionSave(): Promise<void> {
     const index = descriptionEditIndex;
+    if (!id || isNew || !serverKeyword || !detailReady || index == null) {
+      return;
+    }
+    // #6983: busy/inflight/confirm tail via the shared #6985 predicate;
+    // the peer-busy aggregate excludes this editor's own busy flag.
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      index == null ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      valueBusy ||
-      sequenceBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: anyFlagSet([addBusy, removeBusy, labelBusy, valueBusy, sequenceBusy]),
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
@@ -1245,25 +1224,18 @@ export function KeywordEditorPanel({
 
   async function handleChoiceSequenceSave(): Promise<void> {
     const index = sequenceEditIndex;
+    if (!id || isNew || !serverKeyword || !detailReady || index == null) {
+      return;
+    }
+    // #6983: busy/inflight/confirm tail via the shared #6985 predicate;
+    // the peer-busy aggregate excludes this editor's own busy flag.
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      index == null ||
-      sequenceInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      valueBusy ||
-      descriptionBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: anyFlagSet([addBusy, removeBusy, labelBusy, valueBusy, descriptionBusy]),
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
