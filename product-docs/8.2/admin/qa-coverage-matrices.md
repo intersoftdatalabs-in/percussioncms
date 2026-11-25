@@ -169,6 +169,7 @@ commands exist. Latest first:
 
 | Date (UTC) | Cell | Base | Matrix | Result |
 |------------|------|------|--------|--------|
+| 2026-11-25 | CMS-only H2 (`qa-up`, no DTS; chain rebuilt from checkout incl. `system` clean install + `perc-distribution-tree` package, preflight FRESH) | `51b18b30b7` (origin/main) | content-create-matrix + inventory + index | 108/108 cases pass on two consecutive runs (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; unit 15/15; `server.log` 1 transient ERROR + 0 FATAL (single `PSItemWorkflowService` design-object miss during the first run only — the clean re-run added zero; 0 serious JS console errors both runs) |
 | 2026-11-24 | DTS H2 (`qa-up --with-dts`, chain rebuilt from checkout + `system` clean install, preflight FRESH) | `706a05b811` (origin/main) | retrieval family: polls-vote + feeds-entries + metadata-index + comments-moderation + membership-registration + forms-confirmation | 18/18 cases pass (6/6 rows `pass`, 0 fail, 0 skip); CMS `server.log` 0 ERROR/FATAL; DTS service logs 0 except 2 feeds ERROR lines from the asserted unseeded-name 404→redirect probe (`unseededRedirects` case); 4 boot-time Tomcat security-constraint warnings pre-run |
 | 2026-11-24 | CMS-only H2 (`qa-up`, no DTS) | `eede3df951` (origin/main; `qa-rebuild-chain` from checkout, preflight FRESH) | content-create-matrix + inventory + index | 108/108 cases pass (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; `server.log` 0 ERROR/FATAL |
 
