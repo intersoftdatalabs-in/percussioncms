@@ -130,6 +130,7 @@
   function buildLoginCredentials(form) {
     return {
       email: form.find("input[name=perc-login-email-field]").val(),
+      // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — "password" is the login form's DOM input name, not credential material.
       password: form.find("input[name=perc-login-password-field]").val(),
     };
   }

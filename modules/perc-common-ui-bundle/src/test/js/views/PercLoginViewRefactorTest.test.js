@@ -61,6 +61,7 @@ function buildDom() {
     "'>" +
     "<form class='perc-login-form'>" +
     "<input name='perc-login-email-field' value='user@example.com'/>" +
+    // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — "s3cret" is a fake jsdom fixture value, not a real credential.
     "<input name='perc-login-password-field' value='s3cret'/>" +
     "</form>" +
     "<div class='perc-login-error-message' style='display:none'></div>" +
@@ -116,6 +117,7 @@ describe("PercLoginView helpers (issue #7257)", () => {
     const form = buildDom();
     expect($.PercLoginView.buildLoginCredentials(form)).toEqual({
       email: "user@example.com",
+      // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — fake fixture value asserted for parity with the DOM, not a real credential.
       password: "s3cret",
     });
   });
