@@ -2827,7 +2827,10 @@ appears on `GET /services/cecontrols`.
 Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
 key and is not renamed on PUT. Developer chrome always sends `displayName`, `dimension`, and `choiceSet` (blank dimension/choice set send `single` / `none`). Blank `description` and `xslSource` are omitted on the wire. The source editor sends the current
 stylesheet when it is non-blank. Omitted `xslSource` regenerates a default stylesheet from
-metadata (send `xslSource` to keep a custom stylesheet). Invalid `xslSource` is **400**.
+metadata (send `xslSource` to keep a custom stylesheet). When `xslSource` is supplied on
+update, explicitly sent metadata fields (`displayName`, `dimension`, `choiceSet`,
+`description`) win over the stylesheet's `ControlMeta` before persisting, so a metadata-only
+edit is reflected on the PUT response and the next GET/list. Invalid `xslSource` is **400**.
 Unknown name is **404**. A **system** control is **409** (packaged files are not mutated).
 Non-Admin is **403**.
 

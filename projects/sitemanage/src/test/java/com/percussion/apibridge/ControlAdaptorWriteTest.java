@@ -31,6 +31,7 @@ import jakarta.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -313,6 +314,67 @@ class ControlAdaptorWriteTest {
     ControlDef fetched = adaptor.findControlByName("myUserControl");
     assertNotNull(fetched);
     assertEquals(xsl, fetched.getXslSource());
+  }
+
+  @Test
+  void save_staleXslSource_syncsMetadataIntoStylesheet() throws IOException {
+    // #7267: the SPA sends back the stylesheet text loaded at detail open, so a metadata-only
+    // edit must not persist a stale ControlMeta displayName.
+    ControlDef created = new ControlDef();
+    created.setName("myUserControl");
+    created.setDisplayName("Original");
+    adaptor.createControl(created);
+    String staleXsl =
+        Files.readString(io.dir.resolve("myUserControl.xsl"), StandardCharsets.UTF_8);
+    assertTrue(staleXsl.contains("displayName=\"Original\""));
+
+    ControlDef body = new ControlDef();
+    body.setDisplayName("Updated");
+    body.setDescription("saved via REST");
+    body.setDimension("table");
+    body.setXslSource(staleXsl);
+    ControlDef out = adaptor.saveControl("myUserControl", body);
+
+    assertEquals("Updated", out.getDisplayName());
+    assertEquals("table", out.getDimension());
+    ControlDef fetched = adaptor.findControlByName("myUserControl");
+    assertNotNull(fetched);
+    assertEquals("Updated", fetched.getDisplayName());
+    assertEquals("table", fetched.getDimension());
+    assertEquals("saved via REST", fetched.getDescription());
+    String written =
+        Files.readString(io.dir.resolve("myUserControl.xsl"), StandardCharsets.UTF_8);
+    assertTrue(written.contains("displayName=\"Updated\""));
+    assertFalse(written.contains("displayName=\"Original\""));
+    ControlAdaptor.validateXslSource("myUserControl", written);
+  }
+
+  @Test
+  void syncControlMeta_matchingMetadata_returnsSameString() {
+    String xsl =
+        ControlAdaptor.generateDefaultXsl("myUserControl", "Label", "desc", "single", "none");
+    assertEquals(
+        xsl, ControlAdaptor.syncControlMeta(xsl, "Label", "desc", "single", "none"));
+  }
+
+  @Test
+  void syncControlMeta_preservesTemplateMarkup() {
+    String xsl =
+        ControlAdaptor.generateDefaultXsl("myUserControl", "Label", "desc", "single", "none")
+            .replace(
+                "<input type=\"text\" name=\"{@paramName}\" value=\"{Value}\"/>",
+                "<div>Hello <b>world</b>!</div>");
+    ControlAdaptor.validateXslSource("myUserControl", xsl);
+    String synced = ControlAdaptor.syncControlMeta(xsl, "Renamed", null, null, null);
+    assertTrue(synced.contains("displayName=\"Renamed\""));
+    assertTrue(synced.contains("<div>Hello <b>world</b>!</div>"));
+  }
+
+  @Test
+  void syncControlMeta_absentFields_keepStylesheetValues() {
+    String xsl =
+        ControlAdaptor.generateDefaultXsl("myUserControl", "Label", "desc", "single", "none");
+    assertEquals(xsl, ControlAdaptor.syncControlMeta(xsl, "Label", null, null, null));
   }
 
   @Test
