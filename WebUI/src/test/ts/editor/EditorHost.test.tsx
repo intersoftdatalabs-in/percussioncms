@@ -13259,10 +13259,19 @@ describe("EditorHost copy to folder (#4793)", () => {
       expect(
         screen.getByTestId("explorer-copy-dest-server-error").textContent,
       ).toMatch(/Sites\/Other/);
-      // The picker stays open and focus moves to the dialog error.
+      // The picker stays open and focus moves to the dialog error. Poll
+      // the focus landing, not just the error mount (#7213, #7209
+      // pattern): the error-focus effect can trail the textContent gate
+      // under full-suite load, so a single-shot activeElement check races
+      // effect scheduling while the mount gate above already passed.
       expect(screen.getByTestId("explorer-copy-dest-picker")).toBeTruthy();
-      expect(document.activeElement).toBe(
-        screen.getByTestId("explorer-copy-dest-server-error"),
+      await waitFor(
+        () => {
+          expect(document.activeElement).toBe(
+            screen.getByTestId("explorer-copy-dest-server-error"),
+          );
+        },
+        { timeout: PICKER_MOUNT_TIMEOUT },
       );
       // No success notice, the open item is unchanged, and no host error.
       expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
@@ -13274,7 +13283,17 @@ describe("EditorHost copy to folder (#4793)", () => {
         expect(screen.queryByTestId("explorer-copy-dest-picker")).toBeNull();
       });
       expect(copyItemToFolder).toHaveBeenCalledTimes(1);
-      expect(document.activeElement).toBe(screen.getByTestId("editor-copy-to-folder"));
+      // Poll the focus return for the same reason (#7213): the
+      // cancel-commit focus move can trail the picker-unmount gate while
+      // the worker host is saturated by the full suite.
+      await waitFor(
+        () => {
+          expect(document.activeElement).toBe(
+            screen.getByTestId("editor-copy-to-folder"),
+          );
+        },
+        { timeout: PICKER_MOUNT_TIMEOUT },
+      );
     }
   });
 });
