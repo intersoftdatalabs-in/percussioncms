@@ -160,14 +160,21 @@
     //Initialize the unassigned panel.
     initializeUnassignedPanel();
 
+    // Reads the persisted unassigned-panel preference for the site. The raw
+    // cookie value defaults to "null" so a first visit (no cookie yet, or an
+    // empty value) parses to null instead of throwing: the npm
+    // jquery.cookie 1.4.1 dist returns undefined for a missing key where
+    // the old in-repo rewrite returned null (issue #7177).
+    function readPanelSettings(siteName) {
+      var rawCookie = $.cookie(
+        "perc-unassigned-panel-" + siteName + "-settings",
+      );
+      return JSON.parse(rawCookie || "null");
+    }
+
     function setPanelPreference(showPanel, pageNumber) {
       var siteName = $.PercNavigationManager.getSiteName();
-      // The npm jquery.cookie 1.4.1 dist (issue #7177) returns undefined
-      // for a missing key where the old rewrite returned null; default to
-      // "null" so a first visit (no cookie yet) keeps parsing to null.
-      var panelSettings = JSON.parse(
-        $.cookie("perc-unassigned-panel-" + siteName + "-settings") || "null",
-      );
+      var panelSettings = readPanelSettings(siteName);
       if (panelSettings != null) {
         if (showPanel != null && typeof showPanel != "undefined")
           panelSettings.showPanel = showPanel;
@@ -185,99 +192,120 @@
     function initializeUnassignedPanel() {
       var panelExpanderIcon = $(".perc-panel-expander-icon");
       var panel = $(".perc-unassigned-panel");
+      bindPanelExpander(panelExpanderIcon, panel);
+      loadInitialPanelState(panelExpanderIcon, panel);
+      bindUnassignedPagination();
+      markFirstMenuLink(
+        "#perc-dropdown-actions",
+        'I18N.message("perc.ui.template.design.view@Actions")',
+      );
+      markFirstMenuLink(
+        "#perc-dropdown-view",
+        'I18N.message("perc.ui.template.design.view@View")',
+      );
+    }
+
+    function bindPanelExpander(panelExpanderIcon, panel) {
       panelExpanderIcon.on("click", function (evt) {
-        if (typeof $.PercNavigationManager.getSiteName() != "undefined") {
-          setPanelPreference(panelExpanderIcon.is(".perc-collapsed"));
-          if (panelExpanderIcon.is(".perc-collapsed")) {
-            panel.removeClass("perc-closed").addClass("perc-opened");
-            panelExpanderIcon.attr(
-              "title",
-              '<i18n:message key = "perc.ui.workflow.view@Minimize"/>',
-            );
-            panel.show("slide", {}, 500, function () {
-              $("#perc-assigned-templates").template_selected(
-                "updateTemplatesPagingSize",
-              );
-            });
-            panelExpanderIcon
-              .removeClass("perc-collapsed")
-              .addClass("perc-expanded");
-            requestUnassignedPages();
-            intervalId = setInterval(requestUnassignedPages, 10000);
-          } else {
-            panel.removeClass("perc-opened").addClass("perc-closed");
-            panel.hide("slide", {}, 500, function () {
-              $("#perc-assigned-templates").template_selected(
-                "updateTemplatesPagingSize",
-              );
-            });
-            panelExpanderIcon
-              .removeClass("perc-expanded")
-              .addClass("perc-collapsed");
-            panelExpanderIcon.attr(
-              "title",
-              '<i18n:message key = "perc.ui.workflow.view@Maximize"/>',
-            );
-            window.clearInterval(intervalId);
-            setPanelPreference(false);
-          }
-        }
+        if (typeof $.PercNavigationManager.getSiteName() == "undefined") return;
+        toggleUnassignedPanel(panelExpanderIcon, panel);
       });
       panelExpanderIcon.on("keydown", function (event) {
         if (event.code == "Enter" || event.code == "Space") {
           document.activeElement.click();
         }
       });
+    }
 
-      var siteName = $.PercNavigationManager.getSiteName();
-      if (typeof siteName != "undefined") {
-        $.PercPageService.getUnassignedPagesBySite(
-          siteName,
-          1,
-          UNASSIGNED_MAX_RESULTS,
-          function (status, result) {
-            if (status === $.PercServiceUtils.STATUS_SUCCESS) {
-              // The npm jquery.cookie 1.4.1 dist (issue #7177) returns
-              // undefined for a missing key where the old rewrite returned
-              // null; default to "null" so a first visit keeps the defaults.
-              var panelSettings = JSON.parse(
-                $.cookie(
-                  "perc-unassigned-panel-" +
-                    $.PercNavigationManager.getSiteName() +
-                    "-settings",
-                ) || "null",
-              );
-              var showPanel = false;
-              var pageNumber = 1;
-              if (panelSettings != null) {
-                showPanel = panelSettings.showPanel;
-                pageNumber = panelSettings.pageNumber;
-              } else {
-                var unassignedResult = result.UnassignedResults;
-                if (
-                  typeof unassignedResult.unassignedItemList.childrenInPage !=
-                  "undefined"
-                )
-                  showPanel =
-                    unassignedResult.unassignedItemList.childrenInPage.length >
-                    0;
-              }
-              if (showPanel) {
-                panel.removeClass("perc-closed").addClass("perc-opened");
-                panel.show("slide", {}, 500, function () {});
-                panelExpanderIcon
-                  .removeClass("perc-collapsed")
-                  .addClass("perc-expanded");
-                requestUnassignedPages(pageNumber);
-                intervalId = setInterval(requestUnassignedPages, 10000);
-              }
-            }
-          },
-        );
+    function toggleUnassignedPanel(panelExpanderIcon, panel) {
+      setPanelPreference(panelExpanderIcon.is(".perc-collapsed"));
+      if (panelExpanderIcon.is(".perc-collapsed")) {
+        expandUnassignedPanel(panelExpanderIcon, panel);
       } else {
-        panelExpanderIcon.addClass("perc-disabled");
+        collapseUnassignedPanel(panelExpanderIcon, panel);
       }
+    }
 
+    function expandUnassignedPanel(panelExpanderIcon, panel) {
+      panel.removeClass("perc-closed").addClass("perc-opened");
+      panelExpanderIcon.attr(
+        "title",
+        '<i18n:message key = "perc.ui.workflow.view@Minimize"/>',
+      );
+      panel.show("slide", {}, 500, function () {
+        $("#perc-assigned-templates").template_selected(
+          "updateTemplatesPagingSize",
+        );
+      });
+      panelExpanderIcon.removeClass("perc-collapsed").addClass("perc-expanded");
+      requestUnassignedPages();
+      intervalId = setInterval(requestUnassignedPages, 10000);
+    }
+
+    function collapseUnassignedPanel(panelExpanderIcon, panel) {
+      panel.removeClass("perc-opened").addClass("perc-closed");
+      panel.hide("slide", {}, 500, function () {
+        $("#perc-assigned-templates").template_selected(
+          "updateTemplatesPagingSize",
+        );
+      });
+      panelExpanderIcon.removeClass("perc-expanded").addClass("perc-collapsed");
+      panelExpanderIcon.attr(
+        "title",
+        '<i18n:message key = "perc.ui.workflow.view@Maximize"/>',
+      );
+      window.clearInterval(intervalId);
+      setPanelPreference(false);
+    }
+
+    function loadInitialPanelState(panelExpanderIcon, panel) {
+      var siteName = $.PercNavigationManager.getSiteName();
+      if (typeof siteName == "undefined") {
+        panelExpanderIcon.addClass("perc-disabled");
+        return;
+      }
+      $.PercPageService.getUnassignedPagesBySite(
+        siteName,
+        1,
+        UNASSIGNED_MAX_RESULTS,
+        function (status, result) {
+          if (status !== $.PercServiceUtils.STATUS_SUCCESS) return;
+          applyInitialPanelState(panelExpanderIcon, panel, result);
+        },
+      );
+    }
+
+    function applyInitialPanelState(panelExpanderIcon, panel, result) {
+      var panelSettings = readPanelSettings(
+        $.PercNavigationManager.getSiteName(),
+      );
+      var showPanel = false;
+      var pageNumber = 1;
+      if (panelSettings != null) {
+        showPanel = panelSettings.showPanel;
+        pageNumber = panelSettings.pageNumber;
+      } else {
+        showPanel = hasUnassignedChildren(result);
+      }
+      if (!showPanel) return;
+      panel.removeClass("perc-closed").addClass("perc-opened");
+      panel.show("slide", {}, 500, function () {});
+      panelExpanderIcon.removeClass("perc-collapsed").addClass("perc-expanded");
+      requestUnassignedPages(pageNumber);
+      intervalId = setInterval(requestUnassignedPages, 10000);
+    }
+
+    function hasUnassignedChildren(result) {
+      var unassignedResult = result.UnassignedResults;
+      if (
+        typeof unassignedResult.unassignedItemList.childrenInPage ==
+        "undefined"
+      )
+        return false;
+      return unassignedResult.unassignedItemList.childrenInPage.length > 0;
+    }
+
+    function bindUnassignedPagination() {
       //Set a filter to each of the paging selectors to allow only digits.
       var percJump = $(
         ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
@@ -308,31 +336,20 @@
           return false;
         },
       );
-      //setting attributes for first child, for Action dropdown
-      var actionMenuAnchor_child = $("#perc-dropdown-actions")
+    }
+
+    function markFirstMenuLink(menuSelector, linkTitle) {
+      //setting attributes for first child, for Action/View dropdown
+      var menuAnchorChildren = $(menuSelector)
         .children()
         .children()
         .children();
-      for (var i = 0; i < actionMenuAnchor_child.length; i++) {
-        var child = actionMenuAnchor_child[i];
+      for (var i = 0; i < menuAnchorChildren.length; i++) {
+        var child = menuAnchorChildren[i];
         if (child.nodeName == "A") {
           child.tabIndex = "0";
           child.setAttribute("role", "button");
-          child.title = 'I18N.message("perc.ui.template.design.view@Actions")';
-          break;
-        }
-      }
-      //setting attributes for first child, for View dropdown
-      var viewMenuAnchor_child = $("#perc-dropdown-view")
-        .children()
-        .children()
-        .children();
-      for (let i = 0; i < viewMenuAnchor_child.length; i++) {
-        let child = viewMenuAnchor_child[i];
-        if (child.nodeName == "A") {
-          child.tabIndex = "0";
-          child.setAttribute("role", "button");
-          child.title = 'I18N.message("perc.ui.template.design.view@View")';
+          child.title = linkTitle;
           break;
         }
       }
