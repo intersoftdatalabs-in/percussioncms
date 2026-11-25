@@ -186,9 +186,11 @@
         function (status, data) {
           if (status === $.PercServiceUtils.STATUS_SUCCESS) {
             // If successful login, store the ID session in a cookie and redirect to corresponding page
+            // Session cookie (no expires): the old rewrite ignored the
+            // expires:"null" marker, while the npm jquery.cookie 1.4.1
+            // dist (issue #7177) would throw on its missing toUTCString.
             $.cookie("perc_membership_session_id", data.sessionId, {
               path: "/",
-              expires: "null",
             });
             // After successfully resetting the password - take user to home page fo website.
             window.location.replace("/");
@@ -242,9 +244,10 @@
           ) {
             if (!options.verReq) {
               // If successful registration, store the ID session in a cookie
+              // Session cookie (no expires): see the expires:"null" note
+              // above (issue #7177).
               $.cookie("perc_membership_session_id", data.sessionId, {
                 path: "/",
-                expires: "null",
               });
 
               // If there is no confirmation page redirect to registrationRedirect (after

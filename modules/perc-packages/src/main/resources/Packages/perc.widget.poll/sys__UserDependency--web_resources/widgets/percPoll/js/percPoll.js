@@ -69,12 +69,20 @@
             if (u.status === "SUCCESS") {
               if (o === "Cookie") {
                 var q = h.pollName;
-                a.cookie("PercPoll-" + m, "voted", {
-                  expires: 7,
-                  sameSite: "none",
-                  secure: true,
-                  httpOnly: "false",
-                });
+                // The npm jquery.cookie 1.4.1 dist (issue #7177) has no
+                // sameSite option, but the repeat-vote marker needs
+                // SameSite=None for cross-site embeds (the old rewrite
+                // rendered it). Write the marker explicitly with a 7-day
+                // expiry + Secure, mirroring the rewrite's output for
+                // these options; httpOnly was always a JS no-op. The read
+                // side below keeps using a.cookie (name decode matches).
+                var voteExpiry = new Date();
+                voteExpiry.setTime(voteExpiry.getTime() + 7 * 864e5);
+                document.cookie =
+                  encodeURIComponent("PercPoll-" + m) +
+                  "=voted; expires=" +
+                  voteExpiry.toUTCString() +
+                  "; SameSite=none; Secure";
               }
               var s = u.result;
               e(s);

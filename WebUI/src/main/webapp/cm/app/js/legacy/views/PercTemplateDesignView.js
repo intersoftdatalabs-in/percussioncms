@@ -162,8 +162,11 @@
 
     function setPanelPreference(showPanel, pageNumber) {
       var siteName = $.PercNavigationManager.getSiteName();
+      // The npm jquery.cookie 1.4.1 dist (issue #7177) returns undefined
+      // for a missing key where the old rewrite returned null; default to
+      // "null" so a first visit (no cookie yet) keeps parsing to null.
       var panelSettings = JSON.parse(
-        $.cookie("perc-unassigned-panel-" + siteName + "-settings"),
+        $.cookie("perc-unassigned-panel-" + siteName + "-settings") || "null",
       );
       if (panelSettings != null) {
         if (showPanel != null && typeof showPanel != "undefined")
@@ -234,12 +237,15 @@
           UNASSIGNED_MAX_RESULTS,
           function (status, result) {
             if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+              // The npm jquery.cookie 1.4.1 dist (issue #7177) returns
+              // undefined for a missing key where the old rewrite returned
+              // null; default to "null" so a first visit keeps the defaults.
               var panelSettings = JSON.parse(
                 $.cookie(
                   "perc-unassigned-panel-" +
                     $.PercNavigationManager.getSiteName() +
                     "-settings",
-                ),
+                ) || "null",
               );
               var showPanel = false;
               var pageNumber = 1;

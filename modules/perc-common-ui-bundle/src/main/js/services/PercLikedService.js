@@ -169,7 +169,25 @@
     }
 
     var likedState = $.cookie(url);
-    if (null === likedState) {
+    if (undefined === likedState && url.indexOf("%") !== -1) {
+      // Legacy fallback (issue #7177): the rewrite stored URL keys
+      // verbatim, but the npm dist decodes names before comparing, so
+      // pre-migration markers for percent-escaped page URLs miss. Scan the
+      // raw jar for the verbatim spelling. Rewrite-cohort markers expire
+      // within a year of the swap; this fallback can go once they have.
+      var jar = document.cookie ? document.cookie.split("; ") : [];
+      for (var i = 0; i < jar.length; i++) {
+        if (jar[i].lastIndexOf(url + "=", 0) === 0) {
+          likedState = jar[i].substring(url.length + 1);
+          break;
+        }
+      }
+    }
+    // The npm jquery.cookie 1.4.1 dist (issue #7177) returns undefined for
+    // a missing key where the old rewrite returned null; treat both as
+    // "not liked" so a first-time visitor never reaches toLowerCase on
+    // undefined.
+    if (null == likedState) {
       return false;
     }
 
@@ -249,7 +267,24 @@
       likedString = null;
     }
 
-    $.cookie(url, likedString, { expires: constants.PERC_ONE_YEAR });
+    if (null === likedString) {
+      // Unlike = delete the marker. The old rewrite deleted on a null
+      // value; the npm jquery.cookie 1.4.1 dist (issue #7177) would persist
+      // the literal "null" string for a year instead.
+      $.removeCookie(url);
+      // Upgrade path: the rewrite stored the URL key verbatim while the
+      // npm dist encodes it, so removeCookie misses pre-migration markers.
+      // Expire the raw spelling too, at the browser's default cookie path
+      // (request path to the last slash, no trailing slash); a no-op when
+      // no legacy marker exists.
+      var legacyDir = window.location.pathname
+        .replace(/[^/]*$/, "")
+        .replace(/\/$/, "") || "/";
+      document.cookie =
+        url + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=" + legacyDir;
+    } else {
+      $.cookie(url, likedString, { expires: constants.PERC_ONE_YEAR });
+    }
   };
   var PercLikedService = {
     constants: constants,
