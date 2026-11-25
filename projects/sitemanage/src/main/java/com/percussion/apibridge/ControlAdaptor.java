@@ -14,10 +14,12 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.xml.PSXmlTreeWalker;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -413,7 +416,22 @@ public class ControlAdaptor implements IControlAdaptor {
       String name, ControlDef body, ControlDef existing, String dimension, String choiceSet) {
     if (body.getXslSource() != null && !body.getXslSource().isBlank()) {
       validateXslSource(name, body.getXslSource());
-      return body.getXslSource();
+      if (existing == null) {
+        // Create with an explicit stylesheet: the stylesheet's own ControlMeta is authoritative.
+        return body.getXslSource();
+      }
+      // Update with an explicit stylesheet: the SPA detail editor loads the stylesheet text at
+      // open and sends it back verbatim on save, so a metadata-only edit (e.g. displayName)
+      // would otherwise persist a stale ControlMeta and the PUT response / next GET would keep
+      // showing the old label (#7267). Explicitly sent metadata fields are authoritative and win
+      // over the supplied stylesheet; absent fields keep the stylesheet value.
+      String displayName =
+          StringUtils.isNotBlank(body.getDisplayName()) ? body.getDisplayName().trim() : null;
+      String dim =
+          body.getDimension() != null && !body.getDimension().isBlank() ? dimension : null;
+      String cs =
+          body.getChoiceSet() != null && !body.getChoiceSet().isBlank() ? choiceSet : null;
+      return syncControlMeta(body.getXslSource(), displayName, body.getDescription(), dim, cs);
     }
     String displayName =
         firstNonBlank(
@@ -442,6 +460,123 @@ public class ControlAdaptor implements IControlAdaptor {
     } catch (Exception e) {
       throw new IllegalArgumentException("invalid xslSource", e);
     }
+  }
+
+  /**
+   * Sync request metadata into a caller-supplied stylesheet before persisting it.
+   *
+   * <p>The SPA detail editor loads the stylesheet text at open and sends it back verbatim on
+   * save, so a metadata-only edit would otherwise persist a stale {@code ControlMeta} whose
+   * displayName/dimension/choiceset/Description no longer match the request. The file is the
+   * displayName store, so the stale value would surface on the PUT response and the next
+   * GET/list (observed: detail title stuck on the created label after PUT, #7267). Explicitly
+   * sent metadata fields are authoritative: they win over the supplied stylesheet's {@code
+   * ControlMeta}; {@code null} displayName/dimension/choiceSet/description keep the
+   * stylesheet value.
+   *
+   * <p>Returns the input unchanged (same string) when every applied value already matches,
+   * preserving byte-identical round-trips for metadata-consistent stylesheets.
+   */
+  static String syncControlMeta(
+      String xsl, String displayName, String description, String dimension, String choiceSet) {
+    Document doc;
+    try {
+      doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(xsl), false);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("invalid xslSource", e);
+    }
+    NodeList nodes = doc.getElementsByTagName(PSControlMeta.XML_NODE_NAME);
+    if (nodes.getLength() != 1) {
+      throw new IllegalArgumentException(
+          "xslSource must contain exactly one " + PSControlMeta.XML_NODE_NAME);
+    }
+    Element meta = (Element) nodes.item(0);
+    boolean dirty = false;
+    if (displayName != null) {
+      dirty |= setAttributeIfDifferent(meta, "displayName", displayName);
+    }
+    if (dimension != null) {
+      dirty |= setAttributeIfDifferent(meta, "dimension", dimension);
+    }
+    if (choiceSet != null) {
+      dirty |= setAttributeIfDifferent(meta, "choiceset", choiceSet);
+    }
+    if (description != null) {
+      dirty |= syncDescriptionChild(doc, meta, description);
+    }
+    if (!dirty) {
+      return xsl;
+    }
+    try {
+      StringWriter out = new StringWriter();
+      // No pretty-printing: added indentation would churn the user's stylesheet (whitespace-only
+      // text nodes inside templates). Original formatting is preserved as parsed.
+      new PSXmlTreeWalker(doc).write(out, false, false, false, StandardCharsets.UTF_8.name());
+      return out.toString();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to serialize user control stylesheet", e);
+    }
+  }
+
+  private static boolean setAttributeIfDifferent(Element element, String attr, String value) {
+    String want = value != null ? value : "";
+    if (want.equals(element.getAttribute(attr))) {
+      return false;
+    }
+    element.setAttribute(attr, want);
+    return true;
+  }
+
+  /**
+   * Sync the {@code Description} child of a control {@code ControlMeta} element. Creates it
+   * (first child, per the DTD) when missing and non-blank, removes it when blank, updates text
+   * otherwise. Returns true when the DOM changed.
+   */
+  private static boolean syncDescriptionChild(Document doc, Element meta, String want) {
+    Element desc = findChildByLocalName(meta, "Description");
+    String current = desc == null || desc.getTextContent() == null ? "" : desc.getTextContent();
+    if (current.equals(want)) {
+      return false;
+    }
+    if (desc == null) {
+      if (want.isEmpty()) {
+        return false;
+      }
+      desc = doc.createElement(descriptionTagFor(meta));
+      desc.setTextContent(want);
+      // Description is the first child per the ControlMeta DTD.
+      meta.insertBefore(desc, meta.getFirstChild());
+      return true;
+    }
+    if (want.isEmpty()) {
+      meta.removeChild(desc);
+      return true;
+    }
+    desc.setTextContent(want);
+    return true;
+  }
+
+  private static String descriptionTagFor(Element meta) {
+    String metaTag = meta.getTagName();
+    return metaTag.contains(":")
+        ? metaTag.substring(0, metaTag.indexOf(':') + 1) + "Description"
+        : "Description";
+  }
+
+  private static Element findChildByLocalName(Element parent, String localName) {
+    NodeList children = parent.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() != Node.ELEMENT_NODE) {
+        continue;
+      }
+      String tag = ((Element) child).getTagName();
+      String local = tag.contains(":") ? tag.substring(tag.indexOf(':') + 1) : tag;
+      if (localName.equals(local)) {
+        return (Element) child;
+      }
+    }
+    return null;
   }
 
   static String generateDefaultXsl(
