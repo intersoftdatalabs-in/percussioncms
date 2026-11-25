@@ -940,18 +940,33 @@
 		<PSUpgradeRelationshipConfig
 			rootDir="${install.dir}" />
 	</target>
-	<target name="backupTinymceRxresources">
-		<echo>Backup tinymce overrides as needs to be upgraded to 5...</echo>
-		<copy todir="${install.dir}/rx_resources/tinymce_811Upgrade_BAK">
-			<fileset dir="${install.dir}/rx_resources/tinymce" />
-		</copy>
-		<delete failonerror="false" includeemptydirs="true"
-			verbose="true">
-			<fileset dir="${install.dir}/rx_resources/tinymce">
-				<include name="**/*" />
-				<exclude name="**/customer_config_override.json" />
-			</fileset>
-		</delete>
+	<target name="backupTinymceRxresources"
+		description="Back up legacy rx_resources/tinymce overrides before the 8.1.1 TinyMCE 5 upgrade cleanup. Skips cleanly when the tree is absent (fresh installs no longer ship it since #5734; #7264).">
+		<!-- #7264: fresh installs no longer ship rx_resources/tinymce (retired with
+			modules/perc-tinymce, #5734), so a restart/upgrade over an install dir
+			that never had the tree failed here with
+			"rx_resources/tinymce does not exist" on the unconditional <copy>.
+			Guard on existence: legacy dirs still get the backup; absent trees skip. -->
+		<if>
+			<available
+				file="${install.dir}/rx_resources/tinymce" type="dir" />
+			<then>
+				<echo>Backup tinymce overrides as needs to be upgraded to 5...</echo>
+				<copy todir="${install.dir}/rx_resources/tinymce_811Upgrade_BAK">
+					<fileset dir="${install.dir}/rx_resources/tinymce" />
+				</copy>
+				<delete failonerror="false" includeemptydirs="true"
+					verbose="true">
+					<fileset dir="${install.dir}/rx_resources/tinymce">
+						<include name="**/*" />
+						<exclude name="**/customer_config_override.json" />
+					</fileset>
+				</delete>
+			</then>
+			<else>
+				<echo>Skipping tinymce backup: rx_resources/tinymce not present (fresh install or already migrated).</echo>
+			</else>
+		</if>
 	</target>
 	<target name="removeRetiredTinymceShippedTree">
 		<!-- #5734: modules/perc-tinymce (TinyMCE 6.8.6 vendor tree) retired,
