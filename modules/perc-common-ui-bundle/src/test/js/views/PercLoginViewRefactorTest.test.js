@@ -117,8 +117,7 @@ describe("PercLoginView helpers (issue #7257)", () => {
     const form = buildDom();
     expect($.PercLoginView.buildLoginCredentials(form)).toEqual({
       email: "user@example.com",
-      // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — fake fixture value asserted for parity with the DOM, not a real credential.
-      password: "s3cret",
+      password: "s3cret", // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #7257) — fake fixture value, not a real credential.
     });
   });
 
