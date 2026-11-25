@@ -170,6 +170,84 @@ class BackoffTest(unittest.TestCase):
         self.assertEqual(slept, [])
 
 
+class Soft429RetryTest(unittest.TestCase):
+    """Issue #7217: rc=0 empty output with a rate-limit banner must retry."""
+
+    SOFT429_STDERR = (
+        "[ERROR] Google did not return results "
+        "because rate limiting is in effect"
+    )
+
+    class _FakeResult:
+        def __init__(self, rc=0, stdout="", stderr=""):
+            self.returncode = rc
+            self.stdout = stdout
+            self.stderr = stderr
+
+    def _patch(self, results):
+        """Stub _run_engine with a script of results; capture sleeps."""
+        calls = {"n": 0}
+        slept: list[float] = []
+
+        def fake_run_engine(cmd):
+            calls["n"] += 1
+            outcome = results[min(calls["n"] - 1, len(results) - 1)]
+            if isinstance(outcome, Exception):
+                raise outcome
+            return outcome
+
+        orig_run = itd._run_engine
+        orig_sleep = itd.time.sleep
+        itd._run_engine = fake_run_engine
+        itd.time.sleep = lambda s: slept.append(s)
+        return calls, slept, orig_run, orig_sleep
+
+    @staticmethod
+    def _restore(orig_run, orig_sleep):
+        itd._run_engine = orig_run
+        itd.time.sleep = orig_sleep
+
+    def test_soft429_retries_then_succeeds(self):
+        results = [
+            self._FakeResult(rc=0, stdout="", stderr=self.SOFT429_STDERR),
+            self._FakeResult(rc=0, stdout="", stderr=self.SOFT429_STDERR),
+            self._FakeResult(rc=0, stdout="مرحبا\n", stderr=""),
+        ]
+        calls, slept, orig_run, orig_sleep = self._patch(results)
+        try:
+            self.assertEqual(itd.invoke_translate("Hello", "ar"), "مرحبا")
+        finally:
+            self._restore(orig_run, orig_sleep)
+        self.assertEqual(calls["n"], 3)
+        self.assertEqual(len(slept), 2)
+        self.assertGreater(slept[1], slept[0])
+
+    def test_soft429_exhausts_budget_then_raises(self):
+        results = [
+            self._FakeResult(rc=0, stdout="", stderr=self.SOFT429_STDERR),
+        ]
+        calls, slept, orig_run, orig_sleep = self._patch(results)
+        try:
+            with self.assertRaises(RuntimeError):
+                itd.invoke_translate("Hello", "ar")
+        finally:
+            self._restore(orig_run, orig_sleep)
+        self.assertEqual(calls["n"], itd.BACKOFF_MAX_ATTEMPTS)
+        self.assertEqual(len(slept), itd.BACKOFF_MAX_ATTEMPTS - 1)
+
+    def test_non_ratelimit_empty_raises_immediately(self):
+        results = [self._FakeResult(rc=0, stdout="", stderr="")]
+        calls, slept, orig_run, orig_sleep = self._patch(results)
+        try:
+            with self.assertRaises(RuntimeError) as ctx:
+                itd.invoke_translate("Hello", "ar")
+        finally:
+            self._restore(orig_run, orig_sleep)
+        self.assertIn("empty translation", str(ctx.exception))
+        self.assertEqual(calls["n"], 1)
+        self.assertEqual(slept, [])
+
+
 class DockerFallbackTest(unittest.TestCase):
     def setUp(self):
         self._force = itd._force_docker
