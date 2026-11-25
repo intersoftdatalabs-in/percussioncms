@@ -60,6 +60,13 @@ import org.xml.sax.InputSource;
  * (Developer kind-chrome plus the three precedent TUs): {@code Coutume} → {@code
  * Personnalisé}, {@code Brauch} → {@code Benutzerdefiniert}, {@code Costume} → {@code
  * Personalizzato}, with the shared cache entries synced TMX-leads-cache-follows.
+ *
+ * <p>Issue #7252 (hi slice) extends the pin to Hindi across all four {@code Custom} TUs:
+ * {@code रिवाज़} ("tradition/ritual", noun sense) → {@code कस्टम}, aligning the three
+ * corrected TUs with the {@code perc.ui.dashboard@Custom} TUV that already ships the
+ * transliteration, with the shared {@code hi + "Custom"} cache entry synced
+ * TMX-leads-cache-follows. Remaining locales (zh-cn / zh-tw / ru / pl / tr / nb / he /
+ * sv / uk) are left for per-group native-confirmation follow-ups.
  */
 public class PSDeveloperCustomKindKeyTmxTest {
 
@@ -78,6 +85,15 @@ public class PSDeveloperCustomKindKeyTmxTest {
   private static final String EXPECTED_DE = "Benutzerdefiniert";
 
   private static final String EXPECTED_IT = "Personalizzato";
+
+  /**
+   * Issue #7252 (hi slice of the [7241-residual]): the same wrong-sense noun rendering
+   * ({@code रिवाज़}, "tradition/ritual") shipped for hi in three of the four {@code Custom}
+   * TUs. Corrected target is the transliteration {@code कस्टम} — the standard Hindi-UI
+   * rendering of the adjective sense ("customized") — already shipped by the fourth TU
+   * ({@code perc.ui.dashboard@Custom}), so this slice is an in-product alignment.
+   */
+  private static final String EXPECTED_HI = "कस्टम";
 
   /**
    * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
@@ -132,6 +148,22 @@ public class PSDeveloperCustomKindKeyTmxTest {
             + offenders);
   }
 
+  @Test
+  public void customKindKey_hindiUsesAdjectiveSense() throws Exception {
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      if (!EXPECTED_HI.equals(segs.get("hi"))) {
+        offenders.add(tu.getKey() + " [hi]=" + segs.get("hi"));
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized कस्टम), not the noun (रिवाज़): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -151,7 +183,8 @@ public class PSDeveloperCustomKindKeyTmxTest {
             "es", EXPECTED_ES,
             "fr", EXPECTED_FR,
             "de", EXPECTED_DE,
-            "it", EXPECTED_IT);
+            "it", EXPECTED_IT,
+            "hi", EXPECTED_HI);
     for (Map.Entry<String, String> want : expected.entrySet()) {
       String seg = segs.get(want.getKey());
       if (seg != null) {
@@ -163,7 +196,7 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252): "
             + offenders);
   }
 
