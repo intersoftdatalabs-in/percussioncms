@@ -39,8 +39,8 @@
  * | jquery-layout/jquery.layout_customresizer.js | unstated (no banner; Percussion glue) | UNSTATED | same as layout | none | #7175 |
  * | jquery-layout/layout-default.css | 1.6.3-era | MIT/GPL | none found (possibly dynamic) | none | #7175 |
  * | jquery-dropdown/jquery.dropdown.js + .css | MIGRATED #7176: npm @claviska/jquery-dropdown 2.0.3 | MIT (dist banner + pkg) | same stable URLs, npm-backed | @claviska/jquery-dropdown | #7176 DONE |
- * | retiredjs/jquery.blockUI.js | 2.70.0 malsup | MIT/GPL | common_js.jsp + shared-common.js | block-ui@2.70.1 | #7177 |
- * | retiredjs/jquery.cookie.js | UNKNOWN (bannerless rewrite) | UNKNOWN | common_js.jsp + shared-common.js | jquery.cookie/js-cookie | #7177 |
+ * | retiredjs/jquery.blockUI.js | MIGRATED #7177: npm block-ui 2.70.1 (malsup lineage) | MIT/GPL (dist banner + pkg) | same stable URLs, npm-backed | block-ui | #7177 DONE |
+ * | retiredjs/jquery.cookie.js | MIGRATED #7177: npm jquery.cookie 1.4.1 (Klaus Hartl lineage) | MIT (dist banner + pkg) | same stable URLs, npm-backed | jquery.cookie | #7177 DONE |
  * | retiredjs/jquery.tooltip.js + .css | 2006-2008 Zaefferer | MIT/GPL | common_js.jsp + shared-common | none equivalent | #7178 |
  * | retiredjs/jquery.autocomplete.js + .css | 2007 bassistance | MIT/GPL | common_js.jsp + shared-common | none equivalent | #7178 |
  * | retiredjs/jquery.metadata.js | 2006-era Resig et al | MIT/GPL | shared-common.js | none | #7178 |
@@ -112,8 +112,6 @@ const THIRD_PARTY = [
   // No banner: Percussion resize glue over $.layout (provenance confirmed in #7175).
   [`${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_customresizer.js`, /resizeJQuery/, null, 7175],
   [`${JSLIB}/jquery/plugins/jquery-layout/layout-default.css`, /Fabrizio Balliano/, /Dual licensed/, 7175],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js`, /Version 2\.70/, /MIT/, 7177],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js`, null, null, 7177],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js`, /Jorn Zaef|Jörn Zaef/, /MIT and GPL/, 7178],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js`, /Dylan Verheul/, /MIT and GPL/, 7178],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js`, /John Resig/, /MIT and GPL/, 7178],

@@ -188,6 +188,27 @@ const NPM_LIBRARY_MAPPINGS = {
     "@claviska/jquery-dropdown/jquery.dropdown.js",
   "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css":
     "@claviska/jquery-dropdown/jquery.dropdown.css",
+  // blockUI + cookie from npm (issue #7177, parent audit #5627). The
+  // vendored malsup blockUI 2.70 (locally reformatted: spaces/LF, typeof
+  // setExpression check, trailing commas) is functionally identical to the
+  // upstream `block-ui` 2.70.1 dist (same `$.blockUI/$.unblockUI/$.growlUI`
+  // + `$.fn.block/$.fn.unblock` surface, MIT/GPL); the bannerless 1KB
+  // `$.cookie` rewrite is a modern-syntax reimplementation of the Klaus
+  // Hartl `jquery.cookie` 1.4.1 write path (expires-days/path/domain/secure)
+  // with null-on-missing reads. Both vendored copies are deleted; classic
+  // pages keep loading the stable jslib URLs, served from these
+  // Dependabot-tracked npm dist files via the generated-webui overlay
+  // (STANDALONE_NPM_COPIES) and bundle resolution below. Recorded deltas
+  // (both unobservable at every in-repo call site): upstream blockUI keeps
+  // the CRLF/tabs formatting, the `$.isFunction(setExpression)` check, and
+  // no trailing commas; upstream cookie returns `undefined` (not `null`)
+  // for a missing key — the two `JSON.parse($.cookie(...))` readers in
+  // PercTemplateDesignView now default to `"null"` (same-as-before result,
+  // plus it also hardens the pre-existing `JSON.parse("")` throw).
+  "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js":
+    "block-ui/jquery.blockUI.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js":
+    "jquery.cookie/jquery.cookie.js",
 };
 
 // List of bundle config files to process
@@ -716,6 +737,21 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "@claviska/jquery-dropdown/jquery.dropdown.css",
     dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+    required: true,
+  },
+  // blockUI + cookie from npm (issue #7177). Dest paths are the stable
+  // classic-UI jslib URLs (both common_js.jsp twins keep referencing them
+  // unchanged); sources are the Dependabot-tracked `block-ui` 2.70.1
+  // (malsup lineage) and `jquery.cookie` 1.4.1 (Klaus Hartl lineage) dist
+  // files. The vendored copies were deleted, so both entries are required.
+  {
+    src: "block-ui/jquery.blockUI.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",
+    required: true,
+  },
+  {
+    src: "jquery.cookie/jquery.cookie.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
     required: true,
   },
 ];

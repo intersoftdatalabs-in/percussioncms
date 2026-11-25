@@ -11,6 +11,10 @@
 	<file id="jquery-cookie"
 		path="/web_resources/cm/jslib/jquery.cookie.js" type="javascript">
 		<dependency refid="percSystem.jquery" />
+		<!-- The npm jquery.cookie 1.4.1 dist (issue #7177) restores the
+			removed $.isFunction API via jquery-migrate; without this edge
+			every cookie call throws on the shipped jQuery 4. -->
+		<dependency refid="percSystem.jquery-migrate" />
 	</file>
 	<file id="perc-poll"
 		path="/web_resources/widgets/percPoll/js/percPoll.min.js"

@@ -28,7 +28,8 @@
  * adminWorkflow, webmgt, …) must load the plugin cluster from the
  * npm-backed files (form 4.3.0, validation 1.22.x, jeditable 2.0.x,
  * superfish 1.7.10, timeago 1.6.7, multiselect 3.0.x, hoverintent 2.2.x,
- * claviska dropdown 2.0.3 (issue #7176) —
+ * claviska dropdown 2.0.3 (issue #7176), malsup blockUI 2.70.1 +
+ * Klaus Hartl cookie 1.4.1 (issue #7177) —
  * Dependabot-tracked in {@code WebUI/src/main/frontend/package.json}), and
  * the deleted dead copies (FixedHeader, standalone print-this, collapser,
  * war/api/lib ba-bbq/slideto/wiggle) must no longer resolve.</p>
@@ -53,7 +54,12 @@ const NPM_SERVED = [
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+  // blockUI + cookie are npm-served since #7177 (block-ui 2.70.1,
+  // jquery.cookie 1.4.1 at the same stable retiredjs URLs).
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
 ];
 
 const REMOVED_DEAD = [
@@ -88,7 +94,7 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         // set_label) that the already-merged #5660 dashboard spec fails on
         // identically in this cell — unrelated to the plugin cluster.
         if (
-          /plugins\/jquery-(form|validation|jeditable|superfish|hoverintent|timeago|multiselect|dropdown)/.test(
+          /plugins\/jquery-(form|validation|jeditable|superfish|hoverintent|timeago|multiselect|dropdown|perc-retiredjs)/.test(
             stack,
           )
         ) {
@@ -139,10 +145,19 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.multiselect === "function",
         // Dropdown is npm-served since #7176 (@claviska/jquery-dropdown
-        // 2.0.3 at the same stable URL); Dalman layout stays keep-vendored.
+        // 2.0.3 at the same stable URL); blockUI + cookie are npm-served
+        // since #7177 (block-ui 2.70.1 + jquery.cookie 1.4.1 at the same
+        // stable retiredjs URLs); Dalman layout stays keep-vendored.
         jqDropdown:
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.jqDropdown === "function",
+        blockUI:
+          typeof window.jQuery === "function" &&
+          typeof window.jQuery.blockUI === "function" &&
+          typeof window.jQuery.unblockUI === "function",
+        cookie:
+          typeof window.jQuery === "function" &&
+          typeof window.jQuery.cookie === "function",
         dataTable:
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.DataTable === "function",
@@ -163,6 +178,10 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
       expect(plugins.jqDropdown, "dropdown regressed (npm-served #7176)").toBe(
         true,
       );
+      expect(plugins.blockUI, "blockUI regressed (npm-served #7177)").toBe(
+        true,
+      );
+      expect(plugins.cookie, "cookie regressed (npm-served #7177)").toBe(true);
       expect(plugins.dataTable, "kept DataTables regressed").toBe(true);
 
       expect(

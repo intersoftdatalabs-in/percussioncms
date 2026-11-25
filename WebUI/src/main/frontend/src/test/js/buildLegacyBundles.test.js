@@ -2075,6 +2075,208 @@ describe("classic-UI claviska dropdown from npm (issue #7176)", () => {
 });
 
 /**
+ * blockUI + cookie from npm (issue #7177, parent audit #5627).
+ *
+ * The vendored malsup blockUI 2.70 (locally reformatted) is functionally
+ * identical to the upstream `block-ui` 2.70.1 dist, and the bannerless 1KB
+ * `$.cookie` rewrite is a modern-syntax reimplementation of the Klaus Hartl
+ * `jquery.cookie` 1.4.1 write path — so both pairs are served from the
+ * Dependabot-tracked npm dists at the same stable jslib URLs via the
+ * generated-webui overlay (STANDALONE_NPM_COPIES) and bundle resolution
+ * (NPM_LIBRARY_MAPPINGS). Both common_js.jsp twins and both minify bundle
+ * configs keep referencing the stable URLs unchanged (the retired plugin
+ * next to them in the retiredjs dir has no mapping: zero callers).
+ *
+ * Recorded deltas (each unobservable at every in-repo call site — callers
+ * use only `$.blockUI()` / `$.unblockUI()` and `$.cookie(name[, value])`
+ * with no options object):
+ *
+ *   * upstream blockUI keeps the CRLF/tabs formatting, the
+ *     `$.isFunction(setExpression)` check (restored at runtime by the
+ *     jquery-migrate script common_js.jsp loads before the plugins), and
+ *     no trailing commas.
+ *   * upstream cookie returns `undefined` (not `null`) for a missing key —
+ *     the two `JSON.parse($.cookie(...))` readers in PercTemplateDesignView
+ *     now default to `"null"`; it also lacks the rewrite's unused
+ *     `sameSite` option (zero callers) while adding RFC2068-unquote and
+ *     plus-to-space tolerance on reads (superset for our values).
+ *
+ * Behavioral parity of both shipped APIs is pinned in
+ * `blockUiCookieNpm.test.js`.
+ *
+ * These tests pin:
+ *
+ *   1. Both stable URLs are npm-mapped + standalone-required.
+ *   2. Served bytes are byte-identical to the npm dists; no vendored copy
+ *      remains in any tree.
+ *   3. Bundle resolution lands in node_modules, not vendored files.
+ *   4. The stable URLs are still referenced from both JSP twins and the
+ *      minify bundle configs.
+ *   5. The MIT/GPL (blockUI) + MIT (cookie) license chain: dist banners,
+ *      npm package metadata, and Dependabot pins.
+ */
+describe("classic-UI blockUI + cookie from npm (issue #7177)", () => {
+  const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBUI_DIR = path.dirname(path.dirname(path.dirname(FRONTEND_ROOT)));
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+
+  const PAIR = [
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",
+      src: "block-ui/jquery.blockUI.js",
+      versionRe: /Version 2\.70/,
+      licenseRe: /Dual licensed under the MIT and GPL licenses/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
+      src: "jquery.cookie/jquery.cookie.js",
+      versionRe: /jQuery Cookie Plugin v1\.4\.1/,
+      licenseRe: /Released under the MIT license/,
+    },
+  ];
+
+  // The vendor mirror roots at vendor/js/legacy and the war mirror at
+  // war/jslib (no jslib/ segment in either), while WAR_DIR roots at the
+  // jslib/ segment.
+  const WAR_JSLIB_MIRROR = path.join(WAR_MIRROR, "jslib");
+  const TREES = [WAR_DIR, VENDOR_MIRROR, WAR_JSLIB_MIRROR];
+  const inTree = (root, dest) =>
+    root === WAR_DIR
+      ? path.join(root, dest)
+      : path.join(root, dest.replace(/^jslib\//, ""));
+
+  it("pins the blockUI + cookie pair in NPM_LIBRARY_MAPPINGS + STANDALONE_NPM_COPIES", () => {
+    for (const { dest, src } of PAIR) {
+      expect(NPM_LIBRARY_MAPPINGS[dest], `no npm mapping for ${dest}`).toBe(
+        src,
+      );
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("serves blockUI + cookie bytes identical to the npm dists, vendored copies gone", () => {
+    const missing = PAIR.map(({ src }) =>
+      path.join(NODE_MODULES, src),
+    ).filter((p) => !fs.existsSync(p));
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { dest, src, versionRe, licenseRe } of PAIR) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      expect(generated.toString("utf8", 0, 4096)).toMatch(licenseRe);
+      // The deleted vendored copies must not leak back into any tree.
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `vendored pair file still present: ${inTree(root, dest)}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("resolves blockUI + cookie bundle paths into node_modules, not vendored files", () => {
+    for (const { dest } of PAIR) {
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("keeps the stable blockUI + cookie URLs referenced from JSP twins + bundle configs", () => {
+    for (const includes of [
+      "app/includes/common_js.jsp",
+      "pages/app/includes/common_js.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, includes), "utf8");
+      expect(text).toMatch(
+        /jquery-perc-retiredjs\/jquery\.blockUI\.js/,
+      );
+      expect(text).toMatch(/jquery-perc-retiredjs\/jquery\.cookie\.js/);
+    }
+    for (const configFile of [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+    ]) {
+      const config = JSON.parse(
+        fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, configFile), "utf8"),
+      );
+      const sources = JSON.stringify(config);
+      expect(sources).toContain(
+        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",
+      );
+      expect(sources).toContain(
+        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
+      );
+    }
+  });
+
+  it("pins the MIT/GPL + MIT license chain for the npm-served pair (issue #7177)", () => {
+    // The deleted blockUI copy carried the malsup dual-license banner; the
+    // deleted cookie copy was a bannerless rewrite of UNKNOWN provenance
+    // (the audit's weakest row). The npm migration restores a pinned chain:
+    // the served dist banners, the npm package metadata (author + license),
+    // and the Dependabot-tracked dependency pins.
+    const blockUiPkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "block-ui/package.json"),
+        "utf8",
+      ),
+    );
+    expect(blockUiPkg.name).toBe("block-ui");
+    expect(blockUiPkg.version).toBe("2.70.1");
+    expect(
+      JSON.stringify(blockUiPkg.licenses || blockUiPkg.license),
+      "block-ui npm package lost the MIT grant",
+    ).toMatch(/MIT/);
+    expect(
+      JSON.stringify(blockUiPkg.licenses || blockUiPkg.license),
+      "block-ui npm package lost the GPL grant",
+    ).toMatch(/GPL/);
+    expect(
+      `${blockUiPkg.author}`,
+      "block-ui npm package lost upstream attribution",
+    ).toMatch(/Alsup/);
+    const cookiePkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "jquery.cookie/package.json"),
+        "utf8",
+      ),
+    );
+    expect(cookiePkg.name).toBe("jquery.cookie");
+    expect(cookiePkg.version).toBe("1.4.1");
+    expect(cookiePkg.license).toBe("MIT");
+    expect(
+      `${cookiePkg.author}`,
+      "cookie npm package lost upstream attribution",
+    ).toMatch(/Klaus Hartl/);
+    const frontendPkg = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    expect(
+      (frontendPkg.dependencies || {})["block-ui"],
+      "block-ui is not Dependabot-tracked in frontend/package.json",
+    ).toBe("2.70.1");
+    expect(
+      (frontendPkg.dependencies || {})["jquery.cookie"],
+      "jquery.cookie is not Dependabot-tracked in frontend/package.json",
+    ).toBe("1.4.1");
+  });
+});
+
+/**
  * jQuery BBQ 1.1 retirement (issue #5663).
  *
  * The dead-upstream `jquery.bbq.js` copy (2010, no npm package) is gone from

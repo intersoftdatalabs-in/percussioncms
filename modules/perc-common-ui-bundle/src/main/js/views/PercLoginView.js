@@ -115,9 +115,11 @@
             $.PercServiceUtils.STATUS_SUCCESS.toUpperCase()
           ) {
             // If successful login, store the ID session in a cookie and redirect to corresponding page
+            // Session cookie (no expires): the old rewrite ignored the
+            // expires:"null" marker, while the npm jquery.cookie 1.4.1
+            // dist (issue #7177) would throw on its missing toUTCString.
             $.cookie("perc_membership_session_id", data.sessionId, {
               path: "/",
-              expires: "null",
             });
 
             self.parent().find(".perc-login-error-message").hide();

@@ -1117,7 +1117,10 @@
             else
             {
                 jQuery("div[title ='" + tempName + "']").trigger("click");
-                $.cookie("templateImport", null);
+                // Delete the marker. The npm jquery.cookie 1.4.1 dist (issue
+                // #7177) persists a null value as the literal "null" string,
+                // so the rewrite's null-delete maps to removeCookie here.
+                $.removeCookie("templateImport");
             }
         },
 
