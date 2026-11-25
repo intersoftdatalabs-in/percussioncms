@@ -125,6 +125,11 @@ CMS-only cell.
    credentials are needed: every case is an anonymous GET against the
    published origin.
 
+   Evidence from earlier steps survives: matrix JSONs accumulate in
+   `test-results/` (gitignored), which is separate from Playwright's
+   failure-artifact `outputDir` (`playwright-output/`), so running the
+   steps in order never wipes a previous matrix (#7263).
+
 5. Seed the DTS fixtures, then run the interaction matrix:
 
    ```bash

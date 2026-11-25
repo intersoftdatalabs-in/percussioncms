@@ -46,8 +46,11 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 - Pure resolver + unit tests: `frontend/tests/helpers/resolve-cms-env.js`,
   `npm run test:unit` (no live CMS).
 
-- Failure artifact dirs: `frontend/test-results/`, `frontend/playwright-report/`
+- Failure artifact dirs: `frontend/playwright-output/`, `frontend/playwright-report/`
   (attach runbook: `docs/developer-module/playwright-failure-artifacts.md`).
+  Matrix evidence JSONs live in `frontend/test-results/` — a separate dir
+  Playwright never clears, so sequential surface runs keep earlier
+  matrices (#7263).
 
 ### QA mode surface filter (HARD GATE for unattended UI gates)
 

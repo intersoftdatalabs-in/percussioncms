@@ -32,11 +32,11 @@ Repo-relative (forward slashes for docs; use OS path APIs in code/scripts):
 |------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | Config                       | `modules/perc-qa-automation/frontend/playwright.config.js`                                                                                        |
 | Specs                        | `modules/perc-qa-automation/frontend/tests/`                                                                                                      |
-| Default failure output       | `modules/perc-qa-automation/frontend/test-results/`                                                                                               |
+| Default failure output       | `modules/perc-qa-automation/frontend/playwright-output/`                                                                                           |
 | HTML report (when enabled)   | `modules/perc-qa-automation/frontend/playwright-report/`                                                                                          |
 | Manual screenshot convention | `modules/perc-qa-automation/frontend/tests/screenshots/` (see [modules/perc-qa-automation/AGENTS.md](../../modules/perc-qa-automation/AGENTS.md)) |
 
-These output dirs are **gitignored** (see `modules/perc-qa-automation/.gitignore`). **Never commit** `test-results/`, `playwright-report/`, or screenshot dumps.
+These output dirs are **gitignored** (see `modules/perc-qa-automation/.gitignore`). **Never commit** `test-results/`, `playwright-output/`, `playwright-report/`, or screenshot dumps.
 
 ---
 
@@ -44,9 +44,14 @@ These output dirs are **gitignored** (see `modules/perc-qa-automation/.gitignore
 
 Collect from the **frontend cwd** after a failed `npx playwright test` / `npm test` run.
 
-### 2.1 Primary — `test-results/` (default `outputDir`)
+### 2.1 Primary — `playwright-output/` (configured `outputDir`)
 
-Playwright’s default `outputDir` is `test-results` next to the config (no `outputDir` override in `playwright.config.js` today).
+Playwright's `outputDir` is `playwright-output` next to the config
+(`outputDir` override in `playwright.config.js`). It is deliberately
+separate from the `test-results/` evidence dir: the matrix specs write
+evidence JSONs into `test-results/`, and Playwright clears `outputDir`
+at the start of every invocation — sharing the directory wiped matrix
+evidence on sequential runs (#7263).
 
 Typical contents per failed test (names vary by project/title hash):
 
@@ -55,7 +60,7 @@ Typical contents per failed test (names vary by project/title hash):
 | `error-context.md`          | Often on failure                                | Compact, text-friendly; paste into PR/issue comments      |
 | `trace.zip`                 | When trace was retained (CLI or config)         | Best offline debug; open with `npx playwright show-trace` |
 | `test-failed-*.png` / video | When screenshot/video on failure is enabled     | Visual proof of UI state                                  |
-| Per-test subfolders         | Always under `test-results/` for failed retries | Scope the zip to the failing folder(s)                    |
+| Per-test subfolders         | Always under `playwright-output/` for failed retries | Scope the zip to the failing folder(s)                    |
 
 **Minimum attach for night-issue:** the failing test’s `error-context.md` (if present) plus the terminal excerpt (spec path, assertion, last request URL).
 
@@ -105,7 +110,7 @@ REM Windows cmd — from modules\perc-qa-automation\frontend
 npx playwright test tests\login.spec.js --trace=retain-on-failure --screenshot=only-on-failure --reporter=line,html
 ```
 
-Then collect `test-results/` (and `playwright-report/` if generated). Env for QA mode remains `TEST_CMS_URL` + admin creds (see #2064 / workbench QA section) — not part of this slice.
+Then collect `playwright-output/` (and `playwright-report/` if generated). Env for QA mode remains `TEST_CMS_URL` + admin creds (see #2064 / workbench QA section) — not part of this slice.
 
 ---
 
@@ -145,7 +150,7 @@ Full CI artifact upload (Actions `upload-artifact`, retention policies) is **#19
 
 Do **not**:
 
-- Commit `test-results/` or `playwright-report/` to the feature branch.
+- Commit `test-results/`, `playwright-output/`, or `playwright-report/` to the feature branch.
 - Open a release or invent Actions workflows for this slice.
 - Upload secrets (`.env`, generated passwords, tokens). Redact admin passwords from logs.
 
@@ -168,7 +173,7 @@ Use this shape (fill in placeholders; do not commit secrets):
 <one-paragraph: what failed, assertion or timeout>
 
 ### Local paths (portable relative)
-- `modules/perc-qa-automation/frontend/test-results/<failing-folder>/`
+- `modules/perc-qa-automation/frontend/playwright-output/<failing-folder>/`
 - `modules/perc-qa-automation/frontend/playwright-report/` (if present)
 
 ### Attached
@@ -202,11 +207,11 @@ gh issue comment <ISSUE_NUMBER> --body-file path/to/comment.md
 
 ```bash
 # From modules/perc-qa-automation/frontend — Unix / Git Bash
-# Replace FAIL_DIR with the subdirectory under test-results/ for the failure
+# Replace FAIL_DIR with the subdirectory under playwright-output/ for the failure
 mkdir -p ../../../tmp
-zip_args=("test-results/${FAIL_DIR}")
-if [ -f "test-results/${FAIL_DIR}/error-context.md" ]; then
-  zip_args+=("test-results/${FAIL_DIR}/error-context.md")
+zip_args=("playwright-output/${FAIL_DIR}")
+if [ -f "playwright-output/${FAIL_DIR}/error-context.md" ]; then
+  zip_args+=("playwright-output/${FAIL_DIR}/error-context.md")
 fi
 zip -r ../../../tmp/playwright-fail.zip "${zip_args[@]}"
 ```
@@ -214,7 +219,7 @@ zip -r ../../../tmp/playwright-fail.zip "${zip_args[@]}"
 ```powershell
 # From modules\perc-qa-automation\frontend — Windows PowerShell
 # Prefer Compress-Archive; paths via Join-Path
-$failDir = "test-results\<FAIL_DIR>"
+$failDir = "playwright-output\<FAIL_DIR>"
 $out = Join-Path (Resolve-Path ..\..\..\tmp) "playwright-fail.zip"
 if (-not (Test-Path ..\..\..\tmp)) { New-Item -ItemType Directory -Path ..\..\..\tmp | Out-Null }
 Compress-Archive -Path $failDir -DestinationPath $out -Force
@@ -235,7 +240,7 @@ If `gh gist create` fails (auth, size), fall back to the **paths-only** row in t
 
 ```bash
 cd modules/perc-qa-automation/frontend
-npx playwright show-trace test-results/<failing-folder>/trace.zip
+npx playwright show-trace playwright-output/<failing-folder>/trace.zip
 ```
 
 ### 5.3 Success path
@@ -253,7 +258,7 @@ Playwright: green (spec …). No failure artifacts.
 On **Playwright failure** before closing the session:
 
 - [ ] CWD was `modules/perc-qa-automation/frontend`
-- [ ] Listed relative paths under `test-results/` (and report/screenshots if any)
+- [ ] Listed relative paths under `playwright-output/` (and report/screenshots if any)
 - [ ] Posted PR/issue comment using §5.1 template
 - [ ] Pasted `error-context.md` or equivalent text excerpt
 - [ ] If zip/gist used: size under soft limits; **secret** gist when host paths appear

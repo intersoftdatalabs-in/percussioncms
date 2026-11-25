@@ -41,7 +41,13 @@ module.exports = defineConfig({
   retries: 0,
   // Failure artifacts (paths for agents / operators). Full attach runbook:
   // docs/developer-module/playwright-failure-artifacts.md (#2066).
-  outputDir: "test-results",
+  // NOTE (#7263): this MUST stay outside test-results/. The matrix specs
+  // write evidence JSONs into test-results/ (e.g.
+  // content-create-matrix.json) and Playwright clears outputDir at the
+  // start of every invocation — sharing the directory silently wiped the
+  // creation-matrix evidence whenever a later spec ran. test-results/ is
+  // the evidence dir; this outputDir is failure artifacts only.
+  outputDir: "playwright-output",
   reporter: [
     ["list"],
     ["html", { open: "never", outputFolder: "playwright-report" }],
