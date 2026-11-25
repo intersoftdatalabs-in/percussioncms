@@ -41,6 +41,7 @@ import com.percussion.util.PSProperties;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -1024,7 +1025,7 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
   private static final String WIDGET_DIALOG_GEN_PROPS = "widgetDialogGenerator.properties";
   private static final String SRC_DIR_PROP_NAME = "srcDir";
   private static final String WIDGET_ID_PROP_NAME = "widgetId";
-  private static final String DEFAULT_SRC_DIR = "C:\\widgetDialogFiles";
+  private static final String DEFAULT_SRC_DIR = defaultSrcDir();
 
   private static final String WIDGET_DIALOGS_SRC_PATH =
       "/system/qaprojects/autotests/cubictests/src/main/java/com/percussion/qa/framework/widgets/dialogs";
@@ -1035,6 +1036,19 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
 
   /** String of characters not allowed in a method name. */
   private static final String INVALID_METHOD_NAME_CHARS = "~`!@#$%^&*()-+=[{]}|\\;:\'\",<.>/?";
+
+  /**
+   * Portable fallback output directory for generated dialog sources. Resolves under the platform
+   * temp directory ({@code java.io.tmpdir}) instead of a Windows-only drive-letter literal, so the
+   * generator fallback works on Linux/macOS cells as well as Windows (issue #7258).
+   */
+  private static String defaultSrcDir() {
+    String tmp = System.getProperty("java.io.tmpdir");
+    if (tmp == null || tmp.isBlank()) {
+      tmp = System.getProperty("user.home", ".");
+    }
+    return Paths.get(tmp, "widgetDialogFiles").toString();
+  }
 
   private static Set<String> ms_supportedCtrls = new HashSet<String>();
 
