@@ -267,6 +267,18 @@ def _jittered(base: float) -> float:
     return base * (1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER))
 
 
+def _is_rate_limit_text(stdout: str | None, stderr: str | None) -> bool:
+    """True when engine streams carry a rate-limit signature.
+
+    Translate-shell surfaces Google soft-429s as an ``[ERROR]`` banner on
+    stderr while still exiting rc=0 with empty stdout, so the check must
+    cover both streams (not just non-zero exits).
+    """
+    lowered = ((stderr or '') + (stdout or '')).lower()
+    return ('429' in lowered or 'rate limit' in lowered
+            or 'too many requests' in lowered)
+
+
 def _retry_after_failure(result, attempt: int, delay: float) -> tuple[float, float]:
     """Return (sleep_s, next_delay) or raise when retries are exhausted.
 
@@ -278,8 +290,7 @@ def _retry_after_failure(result, attempt: int, delay: float) -> tuple[float, flo
             f'translate-shell failed (rc={result.returncode}): '
             f'stdout={result.stdout!r} stderr={result.stderr!r}',
         )
-    lowered = (result.stderr + result.stdout).lower()
-    if '429' in lowered or 'rate limit' in lowered or 'too many requests' in lowered:
+    if _is_rate_limit_text(result.stdout, result.stderr):
         sleep_s = _jittered(min(BACKOFF_MAX_SEC, delay))
         print(
             f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
@@ -325,6 +336,13 @@ def invoke_translate(text: str, target: str, *,
             out = _normalize_engine_output(result.stdout, result.stderr)
             if out:
                 return out
+            if _is_rate_limit_text(result.stdout, result.stderr):
+                # Google soft-429: rc=0 with empty stdout but a rate-limit
+                # banner on stderr (issue #7217). Retry with the same
+                # backoff budget as non-zero exits instead of failing fast.
+                sleep_s, delay = _retry_after_failure(result, attempt, delay)
+                time.sleep(sleep_s)
+                continue
             raise RuntimeError(
                 f'translate-shell returned empty translation '
                 f'(rc={result.returncode}): stdout={result.stdout!r} '
