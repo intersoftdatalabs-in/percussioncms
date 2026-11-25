@@ -115,6 +115,12 @@ type outside `ObjectStore` (or kept one under source control), apply the
 same rename there. Details: [Classic `sys_tinymce` control retired and
 renamed](id:developer-widget-editor).
 
+Restarting (or re-running upgrade over) an install that never had the legacy
+`rx_resources/tinymce` tree is safe: the pre-upgrade backup step skips when
+the directory is absent instead of failing the install (#7264). Installs that
+still carry the legacy tree keep the existing
+`rx_resources/tinymce_811Upgrade_BAK` backup behavior.
+
 ## Retired product widgets
 
 - **Legacy Calendar widget (`percCalendar`) removed.** The FullCalendar
