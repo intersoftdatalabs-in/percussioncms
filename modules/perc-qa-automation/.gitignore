@@ -12,6 +12,9 @@ node_modules/
 
 # Playwright test results
 test-results/
+# Playwright failure artifacts (outputDir; kept separate from the
+# test-results/ evidence dir so sequential runs never wipe matrix JSONs)
+playwright-output/
 playwright-report/
 
 # Screenshots

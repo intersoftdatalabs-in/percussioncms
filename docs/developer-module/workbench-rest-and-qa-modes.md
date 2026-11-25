@@ -225,7 +225,7 @@ python docker/scripts/perc-devctl.py qa-health
 #    # or: npm run test:surface -- --path tests/login.spec.js
 #    # or: npx playwright test tests/login.spec.js --grep "Admin"
 #    # or: npm run test:surface -- --tag golden
-#    Failure artifacts: modules/perc-qa-automation/frontend/test-results/ (+ playwright-report/)
+#    Failure artifacts: modules/perc-qa-automation/frontend/playwright-output/ (+ playwright-report/)
 #    Attach conventions: docs/developer-module/playwright-failure-artifacts.md (#2066)
 
 # 4) DOWN — destroy the cell; frees the published host port; no multi-GB orphans by default
@@ -278,7 +278,7 @@ Env aliases: `SURFACE_PATH` / `SURFACE_PATHS`, `SURFACE_GREP`, `SURFACE_TAG`, `S
 Arg builder (unit-tested, no live CMS): `frontend/tests/helpers/surface-filter.js` + `npm run test:unit`.  
 Details: [perc-qa-automation/README.md](../../modules/perc-qa-automation/README.md) → **Surface filter**.
 
-**Failure artifacts:** `modules/perc-qa-automation/frontend/test-results/` and `frontend/playwright-report/`. Attach conventions: [playwright-failure-artifacts.md](./playwright-failure-artifacts.md) (#2066) when present.
+**Failure artifacts:** `modules/perc-qa-automation/frontend/playwright-output/` and `frontend/playwright-report/`. Attach conventions: [playwright-failure-artifacts.md](./playwright-failure-artifacts.md) (#2066) when present.
 
 **Related slices:** Playwright env `TEST_CMS_URL` without host install → #1928 / #2064; golden smoke → #2065; optional CI job → #1930 (workflow + section below).
 
@@ -289,7 +289,7 @@ Root / module `AGENTS.md` and night-issue workflow rules encode this process (hu
 1. **Do not blanket-skip Playwright** for a user-visible surface solely because `agent_safe_only` is true **when** the H2 QA path is available: `perc-devctl qa-up` → **`qa-health`** → `TEST_CMS_URL` → **surface-filtered** Playwright → `qa-down`. After hot-deploy, **`qa-health` again**. Never HTTP-poll login while `server.log` shows `Failed startup of context`.
 2. Prefer **path / grep / tag** surface filters (`npm run test:surface` or native CLI). Do not run the full suite as the default overnight gate.
 3. List-only checks (`--list` / `npm run test:surface:list`) verify the filter without a live CMS; live runs need `TEST_CMS_URL` from `qa-up` (freeport contract — never hardcode `:9993` alone).
-4. Collect failure artifacts under `frontend/test-results/` (+ HTML report); attach per #2066 when that doc is present.
+4. Collect failure artifacts under `frontend/playwright-output/` (+ HTML report); attach per #2066 when that doc is present.
 5. **Still skip** work that needs host install only, secrets, or multi-RDBMS matrix unless the issue explicitly opts into those.
 
 **Rule files (source of truth for agents):**

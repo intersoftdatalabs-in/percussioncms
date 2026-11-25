@@ -113,7 +113,7 @@ python docker\scripts\perc-devctl.py qa-down
 | Specs (extended) | baseline + `folder-recycle-smoke.spec.js` (`@folder-recycle`) + `profile-shell.spec.js` (`@profile`) |
 | npm (extended) | `npm run test:golden-extended` / `npm run test:golden-extended:list` |
 | Inventory helper | `frontend/tests/helpers/golden-unattended-smoke-set.js` (#2490 / #2498) |
-| Failure artifacts | `modules/perc-qa-automation/frontend/test-results/` |
+| Failure artifacts | `modules/perc-qa-automation/frontend/playwright-output/` |
 | HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
 | Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
 | Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
@@ -1878,7 +1878,7 @@ test("admin can open explorer", { tag: ["@smoke", "@explorer"] }, async ({ page 
 
 Until a tag is present, prefer **path** and **title --grep**.
 
-**Failure artifacts** (after a live run): under `frontend/test-results/` (screenshots,
+**Failure artifacts** (after a live run): under `frontend/playwright-output/` (screenshots,
 traces, error context) and `frontend/playwright-report/` (HTML). How agents attach
 these to PRs/issues: [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md)
 (#2066) when present; otherwise upload paths as PR comment attachments or gist links.
@@ -2019,7 +2019,7 @@ On a failed Playwright run, collect outputs under **`frontend/`** (always run te
 
 |           Directory           |                                             Role                                              |
 |-------------------------------|-----------------------------------------------------------------------------------------------|
-| `frontend/test-results/`      | Default Playwright `outputDir` (`error-context.md`, traces, failure screenshots when enabled) |
+| `frontend/playwright-output/` | Playwright `outputDir` (`error-context.md`, traces, failure screenshots when enabled). Kept separate from `test-results/` so sequential runs never wipe matrix evidence (#7263) |
 | `frontend/playwright-report/` | HTML report when `--reporter=…,html` is used                                                  |
 | `frontend/tests/screenshots/` | Optional manual failure screenshots (module convention)                                       |
 
