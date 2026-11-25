@@ -318,7 +318,6 @@
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
-        <swagger.ui.version>5.32.15</swagger.ui.version>
         <swagger.version>2.2.55</swagger.version>
         <!-- Stay on Tika 3.x. Tika 4.0 (Dependabot #4474) is not a drop-in:
              parsers-standard-package is a POM not a JAR (TIKA-4712), TikaConfig
@@ -474,6 +473,10 @@
                  in <properties>). Do NOT re-add a TinyMCE WebJar. -->
             <!-- No org.webjars.npm:codemirror entry: CodeMirror is npm-managed
                  (modules/perc-common-ui-bundle/package.json, issue #5626). -->
+            <!-- No org.webjars:swagger-ui entry: the pin was dead (no module
+                 declared it) and was removed in #7167. The CXF-bundled
+                 swagger-ui stays Maven-tracked; the /openapi viewer loads
+                 swagger-ui-dist from CDN (see #7170). Do NOT re-add. -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -826,11 +829,6 @@
                 <groupId>org.jboss</groupId>
                 <artifactId>jandex</artifactId>
                 <version>3.3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.webjars</groupId>
-                <artifactId>swagger-ui</artifactId>
-                <version>${swagger.ui.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
