@@ -66,45 +66,101 @@ export function isEditorFieldRequired(
 /**
  * Map a content-type control / field name onto a React editor widget.
  * Control names come from {@code GET /services/contenttypes/{type}}.
+ *
+ * Precedence is fixed (community > keyword > image > file > datetime >
+ * date > html > number > yesno > table > link > longtext > text) and each
+ * family helper below decides one step, so no helper branches on another
+ * family's signals. Pure refactor of the former 41-branch classifier (#7247);
+ * behavior is pinned by {@code controlKinds.test.ts}.
  */
 export function classifyEditorControl(
   schema: ContentTypeFieldSummary | undefined,
   fieldName: string,
 ): EditorWidgetKind {
-  const control = norm(schema?.control);
-  const name = norm(fieldName || schema?.name);
-  const dataType = norm(schema?.dataType);
-  const sibling = /_(filename|ext|type|mime|size|width|height|alt)$/.test(name);
+  const signals = controlSignals(schema, fieldName);
+  return (
+    communityKind(signals) ??
+    keywordKind(signals) ??
+    imageKind(signals) ??
+    fileKind(signals) ??
+    dateTimeKind(signals) ??
+    dateKind(signals) ??
+    richTextKind(signals) ??
+    numberKind(signals) ??
+    yesNoKind(signals) ??
+    tableKind(signals) ??
+    linkKind(signals) ??
+    longTextKind(signals) ??
+    "text"
+  );
+}
 
-  if (
-    name === "sys_communityid" ||
-    name.includes("community") ||
-    control.includes("community")
-  ) {
+interface ControlSignals {
+  control: string;
+  name: string;
+  dataType: string;
+  sibling: boolean;
+}
+
+function controlSignals(
+  schema: ContentTypeFieldSummary | undefined,
+  fieldName: string,
+): ControlSignals {
+  const name = norm(fieldName || schema?.name);
+  return {
+    control: norm(schema?.control),
+    name,
+    dataType: norm(schema?.dataType),
+    sibling: /_(filename|ext|type|mime|size|width|height|alt)$/.test(name),
+  };
+}
+
+function communityKind({ control, name }: ControlSignals): EditorWidgetKind | null {
+  if (name === "sys_communityid" || name.includes("community") || control.includes("community")) {
     return "community";
   }
+  return null;
+}
+
+function keywordKind({ control, name }: ControlSignals): EditorWidgetKind | null {
   if (control.includes("keyword") || name.includes("keyword")) {
     return "keyword";
   }
+  return null;
+}
+
+function imageKind({ control, name, sibling }: ControlSignals): EditorWidgetKind | null {
+  if (sibling) {
+    return null;
+  }
   if (
-    !sibling &&
-    (control.includes("image") ||
-      control.includes("webimage") ||
-      name === "img" ||
-      name.includes("image"))
+    control.includes("image") ||
+    control.includes("webimage") ||
+    name === "img" ||
+    name.includes("image")
   ) {
     return "image";
   }
+  return null;
+}
+
+function fileKind({ control, name, sibling }: ControlSignals): EditorWidgetKind | null {
+  if (sibling) {
+    return null;
+  }
   if (
-    !sibling &&
-    (control === "sys_file" ||
-      control.includes("sys_file") ||
-      control.endsWith("_file") ||
-      name === "item_file_attachment" ||
-      (name.includes("file") && !name.includes("profile")))
+    control === "sys_file" ||
+    control.includes("sys_file") ||
+    control.endsWith("_file") ||
+    name === "item_file_attachment" ||
+    (name.includes("file") && !name.includes("profile"))
   ) {
     return "file";
   }
+  return null;
+}
+
+function dateTimeKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
   if (
     control.includes("datetime") ||
     dataType === "datetime" ||
@@ -112,6 +168,10 @@ export function classifyEditorControl(
   ) {
     return "datetime";
   }
+  return null;
+}
+
+function dateKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
   if (
     control.includes("calendar") ||
     control.includes("sys_date") ||
@@ -120,6 +180,12 @@ export function classifyEditorControl(
   ) {
     return "date";
   }
+  return null;
+}
+
+function richTextKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
+  // #6834 rename: the new emitted name maps to html; the legacy tinymce
+  // alias keeps working until the installer upgrade task migrates stored types.
   if (
     control === "sys_default_richtext_editor" ||
     control.includes("tinymce") ||
@@ -129,6 +195,10 @@ export function classifyEditorControl(
   ) {
     return "html";
   }
+  return null;
+}
+
+function numberKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
   // sys_EditBox stays a single-line input unless the catalog data type is maxtext
   // (CLOB / long text). sys_TextArea and other textarea controls are always long text.
   if (
@@ -139,22 +209,35 @@ export function classifyEditorControl(
   ) {
     return "number";
   }
+  return null;
+}
+
+function yesNoKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
   if (isYesNoControl(control, dataType)) {
     return "yesno";
   }
+  return null;
+}
+
+function tableKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
   if (isTableControl(control, dataType)) {
     return "table";
   }
+  return null;
+}
+
+function linkKind({ control, name, dataType }: ControlSignals): EditorWidgetKind | null {
   if (isLinkControl(control, name, dataType)) {
     return "link";
   }
-  if (
-    control.includes("textarea") ||
-    dataType === "maxtext"
-  ) {
+  return null;
+}
+
+function longTextKind({ control, dataType }: ControlSignals): EditorWidgetKind | null {
+  if (control.includes("textarea") || dataType === "maxtext") {
     return "longtext";
   }
-  return "text";
+  return null;
 }
 
 /** {@code sys_SingleCheckBox}. Group and tree checkboxes stay off this widget. */
