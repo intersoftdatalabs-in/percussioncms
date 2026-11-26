@@ -72,3 +72,10 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review (2026-11-26, static gate clean)
+
+The changes update test fixtures to use the already-supported rich-text control name; no actionable regressions were identified. Focused testing passed 83 tests, but the two host suites could not load because the local installation lacks @tiptap/core.
+
+
+Note: the remark about host suites not loading reflects the Codex sandbox (missing @tiptap/core there); in this checkout all four touched suites pass — controlKinds + overlayFields 83/83, AssemblyHost 170/170, EditorHost 343/343 — and the WebUI C1 clean install passes Vitest 10276/10276.
