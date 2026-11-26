@@ -110,7 +110,12 @@ approve
 
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
 
-### Codex review
+> Note: the Erlang static gate was run three times on this branch
+> (initial jQUI-tooltip diff, post-Bootstrap-redesign diff, final diff):
+> every pass reports 0 in-diff findings, 0 blocking bugs, and approve.
+> The output above is the final pass.
+
+### Codex review (first pass, pre-redesign)
 
 The autocomplete migration loses selected tags and validates list-editor selections before their values are inserted. It also adds an asset-resolution assertion for a deleted URL without generating its replacement.
 
@@ -124,29 +129,24 @@ Full review comments:
 
 - [P2] Reconcile the autocomplete URL assertion with generated assets — ~/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs/modules/perc-qa-automation/frontend/tests/classic-jquery-plugins-npm.spec.js:69-69
   This newly required URL cannot resolve after the patch: all vendored `jquery.autocomplete.js` copies are deleted, and neither `NPM_LIBRARY_MAPPINGS` nor `STANDALONE_NPM_COPIES` provides a replacement at that path. The asset-resolution test will therefore fail against a clean deployment, and `percTagListControl.xsl` still requests the missing script and stylesheet. Either generate the promised compatible assets or remove the obsolete descriptors and update the test to assert the actual jQuery UI URL.
-**Disposition of the three [P2] findings (all actioned on the branch before
-the PR opened):**
+**Disposition of the three [P2] findings (all actioned before the PR opened):**
+tag-select reads `ui.item.value`; list-editor mirrors assign the value
+before validating; autocomplete descriptors removed with 404s asserted.
 
-- P2 tag-select `ui.value` → fixed: `percTagListControl.js` now reads
-  `ui.item.value`; the vitest multi-value case asserts the joined
-  `"red, green, "` insertion end to end.
-- P2 validate-before-insert → fixed: all three `PercListEditorWidget.js`
-  mirrors assign `inputField.val(ui.item.value)` before
-  `updatePlusButton()`; the vitest list-editor case types a partial value
-  and asserts the full selection lands in the input.
-- P2 autocomplete-URL-without-asset → resolved as suggested (descriptors
-  removed): the tag-list XSL drops both autocomplete FileDescriptors and
-  keeps only `jquery-ui.min.js`; the Playwright suite asserts 404 for both
-  stable autocomplete URLs and the audit/build tests pin the absence.
+### Codex review (second pass, final diff)
 
-**Tooltip redesign after the Codex/Codex-adjacent review:** live-cell
-probing during QA proved `$.fn.tooltip` on classic pages is Bootstrap's,
-not jQuery UI's — Bootstrap 5.3 re-registers its jQuery plugins on
-`DOMContentLoaded`, after every synchronous script (including jQuery UI),
-so a jQUI-tooltip port could never take effect there. The two tooltip call
-sites therefore use the Bootstrap 5 native API (`new bootstrap.Tooltip`,
-npm-tracked) instead; the Playwright probe pins `$.fn.tooltip` as
-Bootstrap-owned so a future widget-shaped call fails loudly.
+The printThis upgrade changes relative URL resolution and breaks stylesheet loading in printed site summaries. The remaining migration changes did not reveal additional confirmed defects.
 
-No [P0]/[P1] findings. Codex review ran read-only
+Review comment:
+
+- [P2] Preserve document-relative URLs when upgrading printThis — ~/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs/WebUI/src/main/frontend/scripts/build-legacy-bundles.cjs:225-226
+  On the classic dashboard, `PercSiteSummaryDialog` still calls `$content.printThis()` without options, but print-this 2.0.0 injects a base URL pointing to the origin root. Consequently, copied relative stylesheets such as `../css/styles.css` resolve to `/css/styles.css` instead of `/Rhythmyx/cm/css/styles.css`, breaking the printed summary's styling. This is reproducible with the installed package. Pass the current document URL as the `base` option at the print call and cover relative stylesheet resolution in a regression test.
+**Disposition of the [P2] finding (actioned before the PR opened):**
+print-this v2 origin-root `<base>` confirmed against the dist source —
+`PercSiteSummaryDialog` now passes `{ base: document.baseURI }` in all three
+mirrors, and a jsdom regression test runs the real dist asserting the
+iframe `<base href>`, the preserved relative-URL resolution, and the print
+invocation.
+
+No [P0]/[P1] findings in either pass. Codex reviews ran read-only
 (`codex review --base origin/main`, no prompt argument) from this checkout.

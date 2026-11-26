@@ -329,6 +329,56 @@ describe("npm print-this 2.0.0 serves the site-summary print call (issue #7178)"
       "function",
     );
   });
+
+  it("writes the caller-supplied base URL into the print iframe (relative CSS keeps resolving)", async () => {
+    // v2 always appends a <base> tag, defaulting to the origin root — which
+    // would resolve the page's relative stylesheet links (../css/...) to
+    // /css/... and drop the printed styling. The call site passes
+    // { base: document.baseURI }; the dist must honor the string form.
+    vi.useFakeTimers();
+    let printed = false;
+    const realQCS = document.queryCommandSupported;
+    try {
+      // jsdom lacks queryCommandSupported; force the contentWindow.print()
+      // path the real browsers take here.
+      document.queryCommandSupported = () => false;
+      document.body.innerHTML =
+        `<link rel="stylesheet" href="../css/styles.css" />` +
+        `<div id="summary"><p>summary</p></div>`;
+      const base = "http://example.com/Rhythmyx/cm/app/design.jsp";
+      window.jQuery("#summary").printThis({ base });
+      // The dist defers iframe fill + print across two 333ms timers.
+      await vi.advanceTimersByTimeAsync(400);
+      const frame = document.querySelector("iframe[id^='printThis-']");
+      expect(frame, "print iframe was not created").toBeTruthy();
+      const headHtml = frame.contentDocument.head.innerHTML;
+      expect(headHtml).toContain(`<base href="${base}">`);
+      // The relative stylesheet link now resolves against the page, as v1 did.
+      const resolved = new URL("../css/styles.css", base).href;
+      expect(resolved).toBe("http://example.com/Rhythmyx/cm/css/styles.css");
+      frame.contentWindow.print = () => {
+        printed = true;
+      };
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(printed, "print was not invoked").toBe(true);
+    } finally {
+      if (realQCS === undefined) delete document.queryCommandSupported;
+      else document.queryCommandSupported = realQCS;
+      vi.useRealTimers();
+    }
+  });
+
+  it("pins the base option at the PercSiteSummaryDialog call sites", () => {
+    for (const rel of [
+      "app/js/legacy/plugins/PercSiteSummaryDialog.js",
+      "plugins/PercSiteSummaryDialog.js",
+    ]) {
+      const src = readFileSync(join(WEBAPP_CM, rel), "utf8");
+      expect(src, `${rel} must pass the page base URL to printThis`).toContain(
+        "printThis({ base: document.baseURI })",
+      );
+    }
+  });
 });
 
 describe("ported call-site sources use only the replacement APIs (issue #7178)", () => {

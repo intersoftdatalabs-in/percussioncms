@@ -207,7 +207,12 @@
     /** event listener for printing the site summary dialog */
     function onPrintDialog (event) {
         event.preventDefault();
-        $content.printThis();
+        // print-this 2.0.0 base (issue #7178): the npm dist always appends a
+        // <base> tag to the print iframe, defaulting to the origin root — which
+        // would resolve the page's relative stylesheet links (../css/...) to
+        // /css/... and drop the printed styling. Passing the document base URL
+        // keeps the v1 resolution (relative to the hosting page).
+        $content.printThis({ base: document.baseURI });
     }
 
     /** event listener for toggling the site summary sections */
