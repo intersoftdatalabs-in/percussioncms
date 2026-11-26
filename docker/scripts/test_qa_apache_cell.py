@@ -182,14 +182,19 @@ class PortResolutionTests(unittest.TestCase):
 
 class RunArgvTests(unittest.TestCase):
     def test_argv_shape(self):
+        # Expectations derive from the same Path objects (never from
+        # "/"-joined literals) so the test holds on Windows hosts too.
+        conf_file = Path("/repo/docker/apache/qa-apache-vhost.conf")
+        site_dir = Path("/repo/tmp/qa-fixture-published/site")
+        cert_dir = Path("/repo/docker/logs/qa-apache-certs")
         argv = qac.build_apache_run_argv(
             container="perc-matrix-apache-h2",
             network="perc-matrix-net",
             http_port=18080,
             https_port=18443,
-            conf_file=Path("/repo/docker/apache/qa-apache-vhost.conf"),
-            site_dir=Path("/repo/tmp/qa-fixture-published/site"),
-            cert_dir=Path("/repo/docker/logs/qa-apache-certs"),
+            conf_file=conf_file,
+            site_dir=site_dir,
+            cert_dir=cert_dir,
             dts_backend="perc-matrix-dts-h2",
             hostname="qa-published.percussion.local",
         )
@@ -201,18 +206,15 @@ class RunArgvTests(unittest.TestCase):
         ])
         self.assertIn("18080:80", text)
         self.assertIn("18443:443", text)
-        # Read-only bind mounts: conf, docroot, certs.
-        # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7323,
-        # precedent #6570) — Linux-cell-internal mount paths in test
-        # assertion literals, never host path joins.
+        # Read-only bind mounts: conf, docroot, certs. Host sides derive
+        # from the Path objects above (Windows-safe); container sides stay
+        # POSIX literals (Linux cell — correct, cf. qa_apache_cell.py).
         self.assertIn(
-            "/repo/docker/apache/qa-apache-vhost.conf:"
-            "/usr/local/apache2/conf/qa-cell.conf:ro",
+            f"{conf_file}:{qac.APACHE_CONF_CONTAINER_PATH}:ro",
             text,
         )
         self.assertIn(
-            "/repo/tmp/qa-fixture-published/site:"
-            "/usr/local/apache2/htdocs/site:ro",
+            f"{site_dir}:{qac.APACHE_DOCROOT_CONTAINER_PATH}:ro",
             text,
         )
         self.assertIn("/repo/docker/logs/qa-apache-certs:/certs:ro", text)
@@ -237,13 +239,15 @@ class MkcertTests(unittest.TestCase):
         _clear_apache_env()
 
     def test_issue_argv_sans(self):
+        cert_file = Path("/c/apache-cert.pem")
+        key_file = Path("/c/apache-key.pem")
         argv = qac.mkcert_issue_argv(
-            Path("/c/apache-cert.pem"), Path("/c/apache-key.pem"),
+            cert_file, key_file,
             "qa-published.percussion.local",
         )
         self.assertEqual(argv[:5], [
-            "mkcert", "-cert-file", "/c/apache-cert.pem",
-            "-key-file", "/c/apache-key.pem",
+            "mkcert", "-cert-file", str(cert_file),
+            "-key-file", str(key_file),
         ])
         for san in (
             "qa-published.percussion.local", "127.0.0.1", "localhost", "::1"
@@ -344,9 +348,10 @@ class ProbeHelperTests(unittest.TestCase):
 
 class BannerTests(unittest.TestCase):
     def test_banner_lines(self):
+        ca_pem = Path("/repo/docker/logs/qa-apache-certs/rootCA.pem")
         lines = qac.apache_banner_lines(
             18080, 18443, "qa-published.percussion.local",
-            Path("/repo/docker/logs/qa-apache-certs/rootCA.pem"),
+            ca_pem,
             "perc-matrix-apache-h2",
         )
         text = "\n".join(lines)
@@ -355,7 +360,7 @@ class BannerTests(unittest.TestCase):
         self.assertIn("QA_APACHE_HTTPS_PORT=18443", text)
         self.assertIn("APACHE_HTTPS_URL=https://127.0.0.1:18443", text)
         self.assertIn("APACHE_HOSTNAME=qa-published.percussion.local", text)
-        self.assertIn("APACHE_CA_PEM=/repo/docker/logs/qa-apache-certs/rootCA.pem", text)
+        self.assertIn(f"APACHE_CA_PEM={ca_pem}", text)
 
 
 class VhostConfParityTests(unittest.TestCase):
