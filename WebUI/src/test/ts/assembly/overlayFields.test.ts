@@ -107,7 +107,7 @@ describe("scalarOverlayFields", () => {
       [
         { name: "sys_title", label: "Title", control: "sys_EditBox" },
         { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "description", label: "Body", control: "sys_default_richtext_editor" },
         { name: "notes", label: "Notes", control: "sys_TextArea" },
         { name: "photo", label: "Photo", control: "sys_file" },
       ],
@@ -132,7 +132,7 @@ describe("scalarOverlayFields", () => {
         fields: [...payload.fields, { name: "body", value: "<p>Old</p>" }],
       },
       [
-        { name: "body", label: "Body", control: "sys_tinymce", readOnly: true },
+        { name: "body", label: "Body", control: "sys_default_richtext_editor", readOnly: true },
         { name: "displaytitle", control: "sys_EditBox" },
       ],
     );
@@ -165,7 +165,7 @@ describe("scalarOverlayFields", () => {
         },
         { name: "photo", control: "sys_file" },
         { name: "displaytitle", control: "sys_EditBox" },
-        { name: "description", control: "sys_tinymce" },
+        { name: "description", control: "sys_default_richtext_editor" },
       ],
     );
     expect(rows.find((r) => r.name === "pagelink")?.kind).toBe("link");
@@ -433,7 +433,7 @@ describe("applyFieldOverlay", () => {
       ),
     };
     const fields = scalarOverlayFields(htmlPayload, [
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
     ]);
     const hits = applyFieldOverlay(root, fields, "42");
     expect(hits).toHaveLength(1);
@@ -462,7 +462,7 @@ describe("applyFieldOverlay", () => {
       ),
     };
     const fields = scalarOverlayFields(htmlPayload, [
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
     ]);
     applyFieldOverlay(root, fields, "42");
     const edited = root.querySelector(
@@ -486,7 +486,7 @@ describe("applyFieldOverlay", () => {
       ),
     };
     const fields = scalarOverlayFields(htmlPayload, [
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
     ]);
     const first = repaintFieldOverlay(root, fields, "42");
     expect(first.preserved).toBe(false);
@@ -518,7 +518,7 @@ describe("applyFieldOverlay", () => {
       ),
     };
     const fields = scalarOverlayFields(htmlPayload, [
-      { name: "description", control: "sys_tinymce" },
+      { name: "description", control: "sys_default_richtext_editor" },
     ]);
     const hits = applyFieldOverlay(root, fields, "42");
     expect(hits).toHaveLength(1);
@@ -534,14 +534,14 @@ describe("applyFieldOverlay", () => {
       fields: [{ name: "description", value: "<p>About the site</p>" }],
     };
     const editable = scalarOverlayFields(htmlPayload, [
-      { name: "description", control: "sys_tinymce" },
+      { name: "description", control: "sys_default_richtext_editor" },
     ]);
     applyFieldOverlay(root, editable, "42");
     expect(
       root.querySelector('[data-testid="assembly-inline-field-description"]'),
     ).toBeTruthy();
     const readOnly = scalarOverlayFields(htmlPayload, [
-      { name: "description", control: "sys_tinymce", readOnly: true },
+      { name: "description", control: "sys_default_richtext_editor", readOnly: true },
     ]);
     expect(applyFieldOverlay(root, readOnly, "42")).toEqual([]);
     expect(
@@ -654,7 +654,7 @@ describe("applyFieldOverlay", () => {
       fields: [{ name: "description", value: "<p>About the site</p>" }],
     };
     const fields = scalarOverlayFields(htmlPayload, [
-      { name: "description", control: "sys_tinymce" },
+      { name: "description", control: "sys_default_richtext_editor" },
     ]);
     expect(applyFieldOverlay(root, fields, "42")).toEqual([]);
   });
@@ -933,7 +933,7 @@ describe("blankRequiredHtmlFieldNames", () => {
         {
           name: "description",
           label: "Body",
-          control: "sys_tinymce",
+          control: "sys_default_richtext_editor",
           required: true,
         },
       ],

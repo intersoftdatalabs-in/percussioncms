@@ -43,3 +43,39 @@ Review comment:
 
 - [P1] Supply server metadata for the renamed rich-text control — ~/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs/projects/sitemanage/src/main/java/com/percussion/widgetbuilder/utils/xform/PSContentTypeFileTransformer.java:71-71
   On an existing installation that still provides `sys_tinymce` metadata, creating a widget with a `RICH_TEXT` field now fails: `addTextCleanupExtension()` passes this new name to `PSSystemControlManager`, which finds no matching `ControlMeta`, then dereferences null via `ctrlMeta.getDependencies()`. Neither the React mapping nor `htmlControls` participates in that lookup. The test fake masks this by returning the same metadata for every name. Supply the renamed server metadata, or remove this metadata dependency while preserving cleanup behavior, before emitting the new name.
+
+---
+
+## Re-review 2026-11-26 — leftover-ref triage slice (branch fix/issue-6834-leftover-ref-triage)
+
+## Summary
+
+Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (machine_only_mode)
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 4 analyzed
+- Persona: erlang 0.1.1
+- Persona source: ~/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+_No issues._
+
+### Codex review (2026-11-26, static gate clean)
+
+The changes update test fixtures to use the already-supported rich-text control name; no actionable regressions were identified. Focused testing passed 83 tests, but the two host suites could not load because the local installation lacks @tiptap/core.
+
+
+Note: the remark about host suites not loading reflects the Codex sandbox (missing @tiptap/core there); in this checkout all four touched suites pass — controlKinds + overlayFields 83/83, AssemblyHost 170/170, EditorHost 343/343 — and the WebUI C1 clean install passes Vitest 10276/10276.
