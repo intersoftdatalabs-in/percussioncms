@@ -157,13 +157,6 @@
                               <PSXDisplayText>Text:</PSXDisplayText>
                            </Label>
                            <PSXControlRef id="10010" name="sys_default_richtext_editor">
-                              <PSXParam name="config_src_url">
-                                 <DataLocator>
-                                    <PSXTextLiteral id="0">
-                                       <text>../sys_resources/tinymce/config/simple_config.json</text>
-                                    </PSXTextLiteral>
-                                 </DataLocator>
-                              </PSXParam>
                               <PSXParam name="height">
                                  <DataLocator>
                                     <PSXTextLiteral id="0">

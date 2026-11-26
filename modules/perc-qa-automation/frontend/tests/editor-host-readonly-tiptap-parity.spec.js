@@ -64,7 +64,7 @@ const TYPE = {
     name: "percRichText",
     fields: [
       { name: "sys_title", label: "Title", control: "sys_EditBox" },
-      { name: "text", label: "Body", control: "sys_tinymce" },
+      { name: "text", label: "Body", control: "sys_default_richtext_editor" },
     ],
   },
 };

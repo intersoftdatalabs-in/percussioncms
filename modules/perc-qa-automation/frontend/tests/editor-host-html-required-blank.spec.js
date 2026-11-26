@@ -158,7 +158,7 @@ test.describe("React Content Editor blank required HTML", () => {
                 {
                   name: "text",
                   label: "Body",
-                  control: "sys_tinymce",
+                  control: "sys_default_richtext_editor",
                   required: true,
                 },
               ],

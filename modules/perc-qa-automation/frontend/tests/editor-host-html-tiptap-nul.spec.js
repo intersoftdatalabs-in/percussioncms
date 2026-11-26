@@ -53,7 +53,7 @@ const NUL_VALUE = `<p>bad${NUL}value</p>`;
 const TYPE = {
   ContentTypeDetail: {
     name: "percRichText",
-    fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+    fields: [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }],
   },
 };
 

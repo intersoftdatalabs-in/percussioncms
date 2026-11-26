@@ -155,7 +155,7 @@ async function installAssemblyRoutes(page, options) {
           {
             name: "description",
             label: "Body",
-            control: "sys_tinymce",
+            control: "sys_default_richtext_editor",
             required: true,
           },
         ],

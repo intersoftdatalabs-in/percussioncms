@@ -165,7 +165,7 @@ async function installAssemblyRoutes(page, options) {
             control: "sys_TextArea",
             readOnly: options.readOnlyNotes === true,
           },
-          { name: "description", label: "Body", control: "sys_tinymce" },
+          { name: "description", label: "Body", control: "sys_default_richtext_editor" },
           { name: "pagelink", label: "Page link", control: "sys_PageLink" },
         ],
       }),
