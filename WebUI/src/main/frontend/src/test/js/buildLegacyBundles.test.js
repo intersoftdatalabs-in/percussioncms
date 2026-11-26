@@ -2277,6 +2277,121 @@ describe("classic-UI blockUI + cookie from npm (issue #7177)", () => {
 });
 
 /**
+ * Packed intermediates carry jquery-migrate ahead of $.isFunction callers
+ * (issue #7293).
+ *
+ * The npm `block-ui` 2.70.1 dist executes `$.isFunction(...)` at IIFE load
+ * time and `jquery.cookie` 1.4.1 calls it on every read/write; jQuery 4
+ * removed `$.isFunction`, so both depend on jquery-migrate. The debug
+ * classic pages load migrate as a separate tag (common_js.jsp line 4), but
+ * the packed bundles (shared-common.js / shared-common-minuet.js, shipped
+ * inside every `*packed.min.js` page bundle such as the dashboard) had no
+ * migrate entry — the first packed build after the #7177 npm swap threw
+ * `TypeError: $.isFunction is not a function` at the blockUI position and
+ * every later concatenation (jeditable, jquery-validation, cookie, ...)
+ * never executed, so the dashboard lost `$.fn.validate` with zero failed
+ * requests and zero spec-visible JS errors. These tests pin:
+ *
+ *   1. Both shared intermediates list jquery-migrate.min.js immediately
+ *      after jquery.min.js and before the blockUI/cookie/validation rows.
+ *   2. The migrate bundle path resolves into node_modules (npm-served, not
+ *      a vendored file).
+ *   3. The production-order concatenation carries the migrate bytes before
+ *      the blockUI `$.isFunction` load-time call.
+ */
+describe("packed bundles carry jquery-migrate ahead of $.isFunction callers (issue #7293)", () => {
+  const MIGRATE = "jslib/profiles/3x/jquery/jquery-migrate.min.js";
+  const JQUERY = "jslib/profiles/3x/jquery/jquery.min.js";
+  const BLOCK_UI =
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js";
+  const COOKIE =
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js";
+  const VALIDATE =
+    "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js";
+  const INTERMEDIATES = [
+    { configFile: "common-bundles.json", bundle: "shared-common.js" },
+    {
+      configFile: "common-minuet-bundles.json",
+      bundle: "shared-common-minuet.js",
+    },
+  ];
+
+  const readBundleFiles = (configFile, bundle) => {
+    const config = JSON.parse(
+      fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, configFile), "utf8"),
+    );
+    const found = (config.bundles || []).find((b) => b.name === bundle);
+    expect(found, `${bundle} missing from ${configFile}`).toBeDefined();
+    return found.files || found.sources || [];
+  };
+
+  it("lists jquery-migrate right after jquery and before blockUI/cookie/validation", () => {
+    for (const { configFile, bundle } of INTERMEDIATES) {
+      const files = readBundleFiles(configFile, bundle);
+      for (const entry of [JQUERY, MIGRATE, BLOCK_UI, COOKIE, VALIDATE]) {
+        expect(
+          files.includes(entry),
+          `${bundle} (${configFile}) is missing ${entry}`,
+        ).toBe(true);
+      }
+      const pos = (entry) => files.indexOf(entry);
+      expect(
+        pos(MIGRATE),
+        `${bundle}: migrate must follow jquery at once`,
+      ).toBe(pos(JQUERY) + 1);
+      for (const later of [BLOCK_UI, COOKIE, VALIDATE]) {
+        expect(
+          pos(MIGRATE) < pos(later),
+          `${bundle}: migrate must precede ${later}`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("resolves the migrate bundle path into node_modules", () => {
+    const resolved = resolvePath(MIGRATE);
+    expect(resolved.split(path.sep).join("/")).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+  });
+
+  it("concatenates migrate bytes before the blockUI $.isFunction load-time call", () => {
+    const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
+    const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+    if (!fs.existsSync(path.join(NODE_MODULES, "block-ui/jquery.blockUI.js"))) {
+      // Hermetic CI without frontend node_modules: order is pinned above.
+      return;
+    }
+    for (const { configFile, bundle } of INTERMEDIATES) {
+      const files = readBundleFiles(configFile, bundle);
+      // Mirror the production concatenation (parts.join("\n")) for the
+      // jquery -> migrate -> blockUI prefix only; the full bundle is
+      // megabytes and the order pin is decided by this prefix.
+      const prefix = files.slice(0, files.indexOf(BLOCK_UI) + 1);
+      const chunks = prefix.map((file) => {
+        const fullPath = resolvePath(file);
+        expect(fs.existsSync(fullPath), fullPath).toBe(true);
+        return fs.readFileSync(fullPath, "utf8");
+      });
+      const concatenated = chunks.join("\n");
+      const migrateMarker = concatenated.indexOf("jQuery.migrate");
+      expect(
+        migrateMarker,
+        `${bundle}: concatenated prefix carries no jquery-migrate bytes`,
+      ).toBeGreaterThan(-1);
+      const isFunctionCall = concatenated.indexOf("$.isFunction(");
+      expect(
+        isFunctionCall,
+        `${bundle}: concatenated prefix carries no blockUI $.isFunction call`,
+      ).toBeGreaterThan(-1);
+      expect(
+        migrateMarker < isFunctionCall,
+        `${bundle}: migrate bytes must precede the blockUI $.isFunction call`,
+      ).toBe(true);
+    }
+  });
+});
+
+/**
  * jQuery BBQ 1.1 retirement (issue #5663).
  *
  * The dead-upstream `jquery.bbq.js` copy (2010, no npm package) is gone from
