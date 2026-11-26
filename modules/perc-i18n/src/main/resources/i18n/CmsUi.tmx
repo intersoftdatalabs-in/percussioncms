@@ -19061,8 +19061,8 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="nl"><seg>Aangepast</seg></tuv>
       <tuv xml:lang="pt"><seg>Personalizado</seg></tuv>
       <tuv xml:lang="te"><seg>కస్టమ్</seg></tuv>
-      <tuv xml:lang="zh-cn"><seg>风俗</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>風俗</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>自定义</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>自訂</seg></tuv>
     <tuv xml:lang="ru"><seg>Обычай</seg></tuv><tuv xml:lang="he"><seg>מִנְהָג</seg></tuv><tuv xml:lang="uk"><seg>Custom</seg></tuv><tuv xml:lang="lou"><seg>Pèsonalizé</seg></tuv><tuv xml:lang="pl"><seg>Zwyczaj</seg></tuv><tuv xml:lang="tr"><seg>Gelenek</seg></tuv><tuv xml:lang="nb"><seg>Skikk</seg></tuv><tuv xml:lang="sv"><seg>Beställnings</seg></tuv></tu>
     <tu tuid="perc.ui.dashboard@Deprecated">
       <tuv xml:lang="en-us"><seg>Deprecated (Pending Removal)</seg></tuv>
@@ -20260,8 +20260,8 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="nl"><seg>Aangepast</seg></tuv>
       <tuv xml:lang="pt"><seg>Personalizado</seg></tuv>
       <tuv xml:lang="te"><seg>కస్టమ్</seg></tuv>
-      <tuv xml:lang="zh-cn"><seg>风俗</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>風俗</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>自定义</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>自訂</seg></tuv>
     <tuv xml:lang="ru"><seg>Обычай</seg></tuv><tuv xml:lang="he"><seg>מִנְהָג</seg></tuv><tuv xml:lang="uk"><seg>Custom</seg></tuv><tuv xml:lang="lou"><seg>Pèsonalizé</seg></tuv><tuv xml:lang="pl"><seg>Zwyczaj</seg></tuv><tuv xml:lang="tr"><seg>Gelenek</seg></tuv><tuv xml:lang="nb"><seg>Skikk</seg></tuv><tuv xml:lang="sv"><seg>Beställnings</seg></tuv></tu>
     <tu tuid="perc.ui.template.layout@Rich Media">
       <tuv xml:lang="en-us"><seg>Rich Media</seg></tuv>
