@@ -144,7 +144,7 @@
     var self = $(this);
     if (self.validate().form()) {
       var email = $("#perc-registration-email-field").val();
-      var redirectUrl = $("input[name='perc_password_reset_page']").val();
+      var redirectUrl = $("input[name='perc_password_reset_page']").val(); // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7275, precedent #7257/#6777) — reset-page input name string, not credential material.
       $.PercMembershipService.resetPwRequest(
         email,
         redirectUrl,
@@ -177,7 +177,7 @@
     var self = $(this);
     if (self.validate().form()) {
       var email = $("#perc-registration-email-field").val();
-      var password = $("#perc-registration-password-field").val();
+      var password = $("#perc-registration-password-field").val(); // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7275, precedent #7257/#6777) — client-side registration form field read, no secret in source.
       var resetKey = self.data("key");
       $.PercMembershipService.resetPassword(
         email,
