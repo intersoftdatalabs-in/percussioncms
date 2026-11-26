@@ -717,6 +717,20 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
       sysContent.includes("jquery-perc-retiredjs/timepicker.js"),
       "sys_CalendarSimple lost its live timepicker.js descriptor",
     ).toBe(true);
+    // The retired stub used to supply $.datepicker on single-field editor
+    // hosts (which load only jQuery + migrate); the npm-tracked jQuery UI
+    // dist takes its place and must precede the fork that extends it.
+    const uiIdx = sysContent.indexOf(
+      "jquery/libraries/jquery-ui/jquery-ui.min.js",
+    );
+    const forkIdx = sysContent.indexOf("jquery-perc-retiredjs/timepicker.js");
+    expect(uiIdx, "sys_CalendarSimple lost its jQuery UI descriptor").toBeGreaterThanOrEqual(
+      0,
+    );
+    expect(
+      uiIdx < forkIdx,
+      "jQuery UI descriptor must precede the timepicker fork it feeds",
+    ).toBe(true);
   });
 
   it("retains the Milesich timepicker under the recorded fork decision (issue #7179)", () => {
