@@ -1624,9 +1624,12 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
  *   3. No legacy fn* instance call (fnGetData/fnUpdate/fnDraw/fnDestroy/
  *      fnAddData/fnGetNodes/fnDeleteRow/fnRender/.dataTable(/oApi._fn) in
  *      any shipped classic call-site source (canonical + legacy twin).
- *   4. Keep-vendored disposition with rationale: jquery-layout (Dalman UI
- *      Layout 1.6.3, live via common_js.jsp + bundles; npm `jquery-layout`
- *      is a different library by scravy — no upstream).
+ *   4. Retired-vendored disposition with rationale: jquery-layout (Dalman UI
+ *      Layout 1.6.3; npm `jquery-layout` is a different library by scravy
+ *      — no upstream) was never instantiated in-product, so issue #7175
+ *      deleted the pair from all three trees with the common_js.jsp tags,
+ *      bundle entries, and testing-page references dropped (pinned in the
+ *      #7175 retired-layout test below) — not keep-vendored.
  *      jquery-dropdown left this list in issue #7176: the author's own
  *      scoped package `@claviska/jquery-dropdown` 2.0.3 is the same
  *      upstream lineage, so the pair is npm-served at the same stable
@@ -1682,17 +1685,20 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
   // author's scoped `@claviska/jquery-dropdown` 2.0.3 is the same upstream
   // lineage, so the pair is npm-served at the same stable URLs (pinned in
   // the #7176 block below), not keep-vendored.
-  const KEPT = [
-    {
-      dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
-      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
-      refRe: /jquery-layout\/jquery\.layout_and_plugins\.js/,
-    },
-    {
-      dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
-      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
-      refRe: /jquery-layout\/jquery\.layout_customresizer\.js/,
-    },
+  // NOTE (issue #7175): jquery-layout was removed from KEPT — the last
+  // entry. Dalman UI Layout 1.6.3 is dead upstream (npm `jquery-layout`
+  // is unrelated) and was never instantiated in-product, so the pair was
+  // retired outright (RETIRED_7175 below), not keep-vendored. KEPT is now
+  // empty; the retired-layout test pins absence + unreferenced instead.
+  const KEPT = [];
+
+  // Issue #7175 retired layout pair (Dalman UI Layout 1.6.3, parent audit
+  // #5627): dead upstream, zero in-repo instantiations, layout-default.css
+  // unreferenced — deleted from all three trees with the common_js.jsp
+  // tags, bundle entries, and testing-page references dropped.
+  const RETIRED_7175 = [
+    "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
   ];
 
   // The vendor mirror roots at vendor/js/legacy and the war mirror at
@@ -1849,7 +1855,11 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     }
   });
 
-  it("keeps vendored layout with live references intact", () => {
+  it("retires vendored layout with references dropped (issue #7175)", () => {
+    // No keep-vendored survivors: every former KEPT entry must still exist
+    // (vacuous now) and, critically, the #7175 retired pair must have no
+    // npm mapping, no standalone copy, no bundle line, no vendored file in
+    // any tree, and no tag left in either common_js.jsp twin.
     for (const { dest } of KEPT) {
       const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
         (k) => k === dest,
@@ -1862,10 +1872,49 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
         ).toBe(true);
       }
     }
-    for (const { dest, refs, refRe } of KEPT) {
-      for (const ref of refs) {
+    expect(KEPT, "keep-vendored list should be empty after #7175").toEqual(
+      [],
+    );
+    for (const dest of RETIRED_7175) {
+      const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
+        (k) => k === dest,
+      );
+      expect(mapped, `unexpected npm mapping for retired ${dest}`).toEqual([]);
+      const standalone = STANDALONE_NPM_COPIES.filter((e) => e.dest === dest);
+      expect(
+        standalone,
+        `unexpected standalone copy for retired ${dest}`,
+      ).toEqual([]);
+      const bundleSources = [];
+      for (const configFile of [
+        "common-bundles.json",
+        "common-minuet-bundles.json",
+      ]) {
+        const config = JSON.parse(
+          fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, configFile), "utf8"),
+        );
+        for (const bundle of config.bundles ?? config) {
+          bundleSources.push(...(bundle.sources ?? bundle.files ?? []));
+        }
+      }
+      expect(
+        bundleSources.filter((s) => s === dest),
+        `bundle still lists retired ${dest}`,
+      ).toEqual([]);
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `retired file still present: ${inTree(root, dest)}`,
+        ).toBe(false);
+      }
+      for (const ref of [
+        "app/includes/common_js.jsp",
+        "pages/app/includes/common_js.jsp",
+      ]) {
         const text = fs.readFileSync(path.join(WAR_DIR, ref), "utf8");
-        expect(text, `${dest} unreferenced from ${ref}`).toMatch(refRe);
+        expect(text, `retired ${dest} still loaded by ${ref}`).not.toMatch(
+          /jquery-layout\/jquery\.layout/,
+        );
       }
     }
   });

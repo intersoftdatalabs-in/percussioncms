@@ -20,8 +20,6 @@
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js"></script>
