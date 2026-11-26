@@ -35,9 +35,9 @@
  *
  * | path | version | license | consumer | npm | migration |
  * |------|---------|---------|----------|-----|-----------|
- * | jquery-layout/jquery.layout_and_plugins.js | 1.6.3 (2018, Dalman) | MIT/GPL | common_js.jsp + shared-common.js | none (name taken) | #7175 |
- * | jquery-layout/jquery.layout_customresizer.js | unstated (no banner; Percussion glue) | UNSTATED | same as layout | none | #7175 |
- * | jquery-layout/layout-default.css | 1.6.3-era | MIT/GPL | none found (possibly dynamic) | none | #7175 |
+ * | jquery-layout/jquery.layout_and_plugins.js | 1.6.3 (2018, Dalman) | MIT/GPL | REMOVED #7175 (zero callers; dead upstream) | none (name taken) |
+ * | jquery-layout/jquery.layout_customresizer.js | unstated (no banner; Percussion glue) | UNSTATED | REMOVED #7175 (same) | none |
+ * | jquery-layout/layout-default.css | 1.6.3-era | MIT/GPL | REMOVED #7175 (zero refs) | none |
  * | jquery-dropdown/jquery.dropdown.js + .css | MIGRATED #7176: npm @claviska/jquery-dropdown 2.0.3 | MIT (dist banner + pkg) | same stable URLs, npm-backed | @claviska/jquery-dropdown | #7176 DONE |
  * | retiredjs/jquery.blockUI.js | MIGRATED #7177: npm block-ui 2.70.1 (malsup lineage) | MIT/GPL (dist banner + pkg) | same stable URLs, npm-backed | block-ui | #7177 DONE |
  * | retiredjs/jquery.cookie.js | MIGRATED #7177: npm jquery.cookie 1.4.1 (Klaus Hartl lineage) | MIT (dist banner + pkg) | same stable URLs, npm-backed | jquery.cookie | #7177 DONE |
@@ -87,6 +87,22 @@ const WEBAPP_CM = path.join(
 );
 const MINIFY_DIR = path.join(FRONTEND_ROOT, "..", "resources", "minify");
 const WAR_ROOT = path.join(FRONTEND_ROOT, "..", "..", "..", "war");
+// Packaged content-editor control descriptors (perc-packages): control XSLs
+// declare cm/jslib FileDescriptors that render into live editor pages, so
+// retired-vendored audits must cover them too (issue #7175 Codex review).
+const PACKAGES_ROOT = path.join(
+  FRONTEND_ROOT,
+  "..",
+  "..",
+  "..",
+  "..",
+  "modules",
+  "perc-packages",
+  "src",
+  "main",
+  "resources",
+  "Packages",
+);
 
 function readHead(abs, bytes = 4096) {
   const fd = fs.openSync(abs, "r");
@@ -108,10 +124,14 @@ const JSLIB = "jslib/profiles/3x";
  * forces a conscious test update alongside the migration.
  */
 const THIRD_PARTY = [
-  [`${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js`, /jquery\.layout 1\.6\.3/, /Dual licensed/, 7175],
-  // No banner: Percussion resize glue over $.layout (provenance confirmed in #7175).
-  [`${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_customresizer.js`, /resizeJQuery/, null, 7175],
-  [`${JSLIB}/jquery/plugins/jquery-layout/layout-default.css`, /Fabrizio Balliano/, /Dual licensed/, 7175],
+  // #7175 rows retired: jquery-layout (Dalman UI Layout 1.6.3) deleted from
+  // all three trees (see RETIRED_7175 below). Dead upstream (npm
+  // `jquery-layout` is an unrelated scravy engine), zero in-repo
+  // instantiations ($("body").layout only in a broken manual testing page
+  // whose jQuery 1.3.2 deps are long gone), layout-default.css had zero
+  // references, and the ui-layout-* classes left in markup are inert
+  // without the plugin (the CSS only styled plugin-generated
+  // resizers/togglers/masks that never existed).
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js`, /Jorn Zaef|Jörn Zaef/, /MIT and GPL/, 7178],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js`, /Dylan Verheul/, /MIT and GPL/, 7178],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js`, /John Resig/, /MIT and GPL/, 7178],
@@ -160,6 +180,33 @@ const RETIRED_7180 = [
   },
 ];
 
+/** Issue #7175 retired layout cluster: deleted from all three trees, refs dropped.
+ *
+ * Dalman UI Layout 1.6.3 is dead upstream (layout.jquery-dev.com unmaintained
+ * since ~2018; the npm name `jquery-layout` is an unrelated scravy engine, so
+ * no npm swap exists). The plugin was never instantiated in-product: no
+ * `.layout(` / `$.layout` / `resizeAll` / `resizeJQuery` callers outside the
+ * vendored files (the single `$("body").layout({})` lived in the broken
+ * manual testing page `layout_view.html`, whose jQuery 1.3.2 deps are long
+ * gone). `layout-default.css` had zero references and only styled
+ * plugin-generated resizers/togglers/masks, so the bare `ui-layout-*`
+ * classes left in classic markup are inert. Retired outright (#7180/#7181
+ * precedent): no first-party shim, because there are zero callers to shim.
+ */
+const RETIRED_7175 = [
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js`,
+    needles: ["jquery-layout/jquery.layout_and_plugins", "$.layout", "resizeJQuery"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-layout/jquery.layout_customresizer.js`,
+    needles: ["jquery-layout/jquery.layout_customresizer", "resizeJQuery"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-layout/layout-default.css`,
+    needles: ["jquery-layout/layout-default", "layout-default.css"],
+  },
+];
 /** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
 const RETIRED_7181 = [
   {
@@ -211,8 +258,6 @@ const DIRECT_LOADS = [
   "jquery-perc-retiredjs/jquery.caret.js",
   "jquery-dropdown/jquery.dropdown.js",
   "jquery-perc-retiredjs/jquery.text-overflow.js",
-  "jquery-layout/jquery.layout_and_plugins.js",
-  "jquery-layout/jquery.layout_customresizer.js",
   "jquery-perc-retiredjs/jquery.metadata.js",
   "jquery-perc-retiredjs/jquery.deparam.js",
   "jquery-perc-retiredjs/jquery.cookie.js",
@@ -369,6 +414,60 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     expect(fs.readFileSync(copies[0]).equals(fs.readFileSync(copies[2]))).toBe(
       true,
     );
+  });
+
+  it("retired #7175 layout cluster stays deleted and unreferenced (dead upstream, zero callers)", () => {
+    // Dalman UI Layout 1.6.3: dead upstream, never instantiated in-product
+    // (see RETIRED_7175). The vendored files are deleted and no reference
+    // to them (or the $.layout plugin API) may remain outside the deleted
+    // copies. Unlike #7180 there is no first-party shim: zero callers
+    // means nothing to shim. (Bare ui-layout-* classes left in classic
+    // markup and in the orphan droppable_layout.css are inert: no .layout()
+    // instantiation exists to generate panes, resizers, or togglers.)
+    for (const { rel, needles } of RETIRED_7175) {
+      for (const tree of [WEBAPP_CM, WAR_ROOT]) {
+        const relNoJslib = rel.replace(/^jslib\//, "");
+        const candidates =
+          tree === WEBAPP_CM
+            ? [
+                path.join(tree, rel),
+                path.join(tree, "vendor/js/legacy", relNoJslib),
+              ]
+            : [path.join(tree, rel)];
+        for (const abs of candidates) {
+          expect(fs.existsSync(abs), `retired file resurrected: ${abs}`).toBe(
+            false,
+          );
+        }
+      }
+    }
+    // The reference walk covers the packaged control descriptors too:
+    // control XSLs emit their FileDescriptors into live editor pages.
+    const roots = [WEBAPP_CM, MINIFY_DIR, PACKAGES_ROOT];
+    const skipDir = (p) =>
+      p.split(path.sep).includes("jslib") ||
+      p.split(path.sep).includes("vendor");
+    for (const { rel, needles } of RETIRED_7175) {
+      const base = path.basename(rel);
+      const hits = [];
+      for (const root of roots) {
+        const walk = (dir) => {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              if (!skipDir(full)) walk(full);
+            } else if (/\.(jsp|html|xls|xsl|js|json|css)$/.test(entry.name)) {
+              const content = fs.readFileSync(full, "utf8");
+              for (const needle of needles) {
+                if (content.includes(needle)) hits.push(`${full} :: ${needle}`);
+              }
+            }
+          }
+        };
+        walk(root);
+      }
+      expect(hits, `retired ${base} still referenced`).toEqual([]);
+    }
   });
 
   it("marks first-party shims with the Intersoft header (no migration)", () => {

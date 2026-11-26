@@ -34,8 +34,9 @@
  * datatables.net 3.x line removed the legacy fn* instance API, so the core
  * swap needs a call-site rewrite with live grid parity — deferred). The
  * claviska dropdown pair in KEPT_SERVED below is npm-served since #7176
- * (@claviska/jquery-dropdown 2.0.3 at the same stable URLs); only layout
- * remains keep-vendored.</p>
+ * (@claviska/jquery-dropdown 2.0.3 at the same stable URLs); the Dalman UI
+ * Layout 1.6.3 pair left this file in #7175 (dead upstream, zero callers —
+ * retired outright, pinned 404 in RETIRED_404 below).</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -44,10 +45,17 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const KEPT_SERVED = [
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
-  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
-  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+];
+
+// Retired outright in #7175 (parent audit #5627): Dalman UI Layout 1.6.3 is
+// dead upstream (npm `jquery-layout` is unrelated) and was never
+// instantiated in-product, so the vendored pair is deleted from all three
+// trees — these stable URLs must now 404 like the pruned DT styling.
+const RETIRED_404 = [
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
 ];
 
 const PRUNED_404 = [
@@ -147,7 +155,7 @@ test.describe("DataTables prune + keep-vendored (issue #6002)", () => {
         const resp = await page.request.get(`${BASE_URL}${asset}`);
         expect(resp.status(), `expected 200 for ${asset}`).toBe(200);
       }
-      for (const asset of PRUNED_404) {
+      for (const asset of PRUNED_404.concat(RETIRED_404)) {
         const resp = await page.request.get(`${BASE_URL}${asset}`);
         expect(
           resp.status(),

@@ -21,8 +21,6 @@
         "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
         "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js",
-        "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
-        "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js",
         "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js",
         "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js",
