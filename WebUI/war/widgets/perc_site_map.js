@@ -2132,7 +2132,7 @@
                 var parentArray = this.getSectionParentChain(sectionId);
                 var ppath = "";
                 $.each(parentArray,function(){
-                    ppath += "/" + $("#"+this).find(".perc-site-map-sectiontitle").attr("title");
+                    ppath += "/" + $("#"+this).find(".perc-site-map-sectiontitle").attr("title"); // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7321, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270/#7271) — slash joins CMS logical section-path titles, not an OS path.
                 });
                 return ppath;
             },
