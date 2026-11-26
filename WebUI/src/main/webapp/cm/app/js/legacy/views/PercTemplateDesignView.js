@@ -965,7 +965,7 @@
       ) {
         // Update the export link in the corresponding menu entry
         var exportLink = $.perc_paths.TEMPLATE_EXPORT;
-        exportLink += "/" + data.templateId + "/" + data.templateName + ".xml";
+        exportLink += "/" + data.templateId + "/" + data.templateName + ".xml"; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7270, same as #5897/#5898/#5910/#5924/#5927/#6701) — slash joins URL segments, not an OS path.
         var exportMenuEntry = $(".perc-dropdown-option-Exporttemplate");
         exportMenuEntry
           .attr("href", exportLink)
@@ -1065,7 +1065,7 @@
                 $.PercNavigationManager.getSiteName(),
                 function (status, result) {
                   if (status) {
-                    actionUrl = actionUrl + "/" + result.SiteProperties.id;
+                    actionUrl = actionUrl + "/" + result.SiteProperties.id; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7270, same as #5897/#5898/#5910/#5924/#5927/#6701) — slash joins URL segments, not an OS path.
                     var checkValue = $("#perc-import-template-frame")
                       .contents()
                       .find(".perc-template-import-field")
