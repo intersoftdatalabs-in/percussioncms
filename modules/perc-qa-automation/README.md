@@ -756,6 +756,53 @@ edits) **and** the matching `(name, label, kind, marker)` row to
 `WIDGET_FIXTURES` in `qa_publish_fixture.py` (the fixture drift-guard test
 fails until both lists agree).
 
+### Apache httpd frontend cell (#7323, unblocks #7233 / #7164)
+
+`qa-up --with-apache` (implies `--with-dts`) adds a stock `httpd:2.4`
+sidecar on the cell network that terminates ports 80/443, serves the
+published fixture static tree directly, and reverse-proxies every DTS
+dynamic service context to the Tomcat cell — the documented DTS
+frontend pattern. Cell topology:
+
+| Item | Value |
+|------|--------|
+| Sidecar | `perc-matrix-apache-h2[-suffix]` on `perc-matrix-net` (stock `httpd:2.4`, no image build) |
+| Vhost conf | `docker/apache/qa-apache-vhost.conf` (mounted read-only; backend/hostname via container env) |
+| Hostname | `qa-published.percussion.local` (`QA_APACHE_HOSTNAME` to override; `ServerAlias` also covers `localhost`/`127.0.0.1`) |
+| Ports | container 80/443 → host freeport-mapped (preferred 80/443 when free; `QA_APACHE_HTTP_PORT` / `QA_APACHE_HTTPS_PORT` to pin) |
+| TLS | throwaway mkcert test CA + server cert (SANs: hostname, `127.0.0.1`, `localhost`, `::1`) in `docker/logs/qa-apache-certs[-suffix]/` (gitignored); needs a `mkcert` binary on the QA host (`MKCERT_BIN` env wins over `PATH`; `mkcert -install` is deliberately NOT run) |
+| Surface spec | `frontend/tests/apache-frontend-smoke.spec.js` (tags `@apache` `@apache-frontend`) |
+
+```bash
+# From repo root — full frontend cell (CMS + DTS + fixture + Apache):
+python docker/scripts/perc-devctl.py qa-up --with-apache
+# → APACHE_URL=http://127.0.0.1:<http-port>
+# → APACHE_HTTPS_URL=https://127.0.0.1:<https-port>
+# → APACHE_HOSTNAME=qa-published.percussion.local
+# → APACHE_CA_PEM=<certs-dir>/rootCA.pem
+python docker/scripts/perc-devctl.py qa-health --with-apache
+# → RESULT:OK carries APACHE_HTTP / APACHE_HTTPS / APACHE_PROXY tokens
+
+cd modules/perc-qa-automation/frontend
+# Green path over HTTPS through the vhost (zero console errors):
+APACHE_HTTPS_URL=<printed> APACHE_HTTP_URL=<printed> \
+  npm run test:surface -- --path tests/apache-frontend-smoke.spec.js
+# No Apache sidecar (skip contract proven, exit 0):
+  npm run test:surface -- --path tests/apache-frontend-smoke.spec.js
+python ../../docker/scripts/perc-devctl.py qa-down
+```
+
+Trust steps: `qa-health` verifies the genuine mkcert chain with
+`curl --cacert $APACHE_CA_PEM` (no blind TLS bypass in the gate);
+Playwright browser profiles allow the untrusted test-CA chain via
+`ignoreHTTPSErrors` (same precedent as the shipped DTS HTTPS flow —
+throwaway profiles cannot consume host CA installs deterministically).
+For `curl` from a shell: `curl --cacert $APACHE_CA_PEM
+https://127.0.0.1:<https-port>/`. For hostname-URL access
+(`https://qa-published.percussion.local:<port>/`), map the name to
+`127.0.0.1` in the host `/etc/hosts`; the IP-based banner URLs need no
+host edits (IP SANs on the cert).
+
 ### DTS dynamic interaction matrix (#6241 / parent #6238)
 
 US3 operator proof that every DTS-backed service answers its round-trip:
