@@ -135,6 +135,15 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
 - Dev-mode DTS discovery (`DEV_PERCUSSION_DTS_INSTALL` →
   `DEV_PERCUSSION_DTS_URL`) is unchanged.
 
+### Container safety — no privileged / host-namespace cells (HARD GATE — 2026-11-26 host VT takeover)
+
+Background: a privileged systemd PID-1 cell (`--privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw`) fought host systemd/logind for VT control (host journal: `sddm-helper: Failed to take control of "/dev/tty1"` loop, greeter death) and locked up the machine. Green evidence from such runs is invalid and unmergeable (PR #7327 closed on those grounds).
+
+- Never `--privileged`, `--cgroupns=host`, `--pid=host`, `-v /sys/fs/cgroup...`, `-v /dev...`, `--device=...` in any agent cell or probe. No VT-affecting commands (`chvt`, `openvt`, writes to `/dev/tty*` or `/dev/console`).
+- systemd-as-PID-1 cells ONLY via the checked-in unprivileged helper argv (private cgroupns + `SYS_ADMIN` + tmpfs `/run`); never hand-rolled `docker run ... /sbin/init` or `/lib/systemd/systemd`, not even for "quick probes".
+- First live boot of any new cell topology runs observed in the foreground (not backgrounded); check `docker ps` and host sanity right after.
+- If host UI/VTs degrade during cell work: `qa-down` + `docker stop` the cell at once, report, do not retry startups. Evidence from privileged/host-namespace runs is invalid for PRs (host rewrites to `failed`).
+
 ### QA cell health after start / hot-deploy (HARD)
 
 After `qa-up` **and** after every jar copy or Jetty restart, run:
