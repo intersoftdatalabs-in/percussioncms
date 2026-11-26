@@ -29,6 +29,11 @@
  * mins (jQuery 4.x + Migrate 4.x + UI 1.14.x, Dependabot-tracked in
  * {@code WebUI/src/main/frontend/package.json}), and the deleted vendored
  * versioned files must no longer resolve.</p>
+ *
+ * <p>Failure tracking is scoped to the {@code /cm/jslib/} surface this issue
+ * owns (issue #7294): the dashboard gadget tray probes never-shipped
+ * {@code cm/gadgets/container/*} paths — pre-existing cell noise unrelated
+ * to the trio, same scoping as the {@code #5663} plugins spec.</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -55,15 +60,28 @@ test.describe("Classic-UI jQuery trio from npm (issue #5660)", () => {
       test.setTimeout(120_000);
       const pageErrors = [];
       const failedRequests = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      // Scope failure tracking to the jslib surface this issue owns
+      // (issue #7294). The dashboard gadget tray also probes never-shipped
+      // cm/gadgets/container/* paths (rpc.js, cookies.js, util.js,
+      // gadgets.js, serverbaseduserprefstore.js, gadgets.css) plus a
+      // PercNewBlogDialog.css MIME refusal — pre-existing cell noise,
+      // unrelated to the trio (same scoping as the #5663 plugins spec).
+      page.on("pageerror", (err) => {
+        const stack = String((err && err.stack) || err);
+        if (stack.includes("/cm/jslib/")) {
+          pageErrors.push(stack);
+        }
+      });
       page.on("console", (msg) => {
-        if (msg.type() === "error") {
+        if (msg.type() === "error" && msg.text().includes("/cm/jslib/")) {
           pageErrors.push(msg.text());
         }
       });
-      page.on("requestfailed", (req) =>
-        failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`),
-      );
+      page.on("requestfailed", (req) => {
+        if (req.url().includes("/cm/jslib/")) {
+          failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
+        }
+      });
       page.on("response", (resp) => {
         if (resp.status() >= 400 && resp.url().includes("/cm/jslib/")) {
           failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
