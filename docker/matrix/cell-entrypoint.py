@@ -18,6 +18,9 @@ DEMO_SITES       optional; when unset, CMS+H2 silent installs pass ``--demo-site
                  Set ``DEMO_SITES=false`` to skip sample-site seed. Explicit
                  true/false always wins. DTS product never seeds demo sites.
 KEEP_ALIVE       true (default) → stream logs after start so the container stays up
+START (--no-start) true (default) → start the product after install; --no-start
+                 skips the direct launch so a service manager (systemd
+                 unit, GH-7324) owns the lifecycle
 
 Exit codes
 ----------
@@ -131,6 +134,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--keep-alive",
         action=argparse.BooleanOptionalAction,
         default=_env_bool("KEEP_ALIVE", True),
+    )
+    # GH-7324: install-only cells for the systemd service-lifecycle harness.
+    # The harness boots a systemd PID-1 cell, execs the entrypoint with
+    # --no-start --no-keep-alive (install via the normal path, no direct
+    # process launch), then installs the native units and drives lifecycle
+    # with real systemctl. Default True preserves matrix-cell behavior.
+    p.add_argument(
+        "--start",
+        action=argparse.BooleanOptionalAction,
+        default=_env_bool("MATRIX_CELL_START", True),
+        help=(
+            "Start the product after install (default). "
+            "--no-start skips the direct StartJetty/Tomcat launch so a "
+            "service manager (systemd unit) can own the lifecycle."
+        ),
     )
     p.add_argument(
         "--wait-db-seconds",
@@ -404,9 +422,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     if rc != EXIT_OK:
         return rc
 
-    rc = start_product(args.product, install_root, dry_run=args.dry_run)
-    if rc != EXIT_OK:
-        return rc
+    if args.start:
+        rc = start_product(args.product, install_root, dry_run=args.dry_run)
+        if rc != EXIT_OK:
+            return rc
+    else:
+        LOG.info("Skipping direct product start (--no-start): service manager owns lifecycle")
 
     print(
         f"RESULT:OK STEP:matrix-cell PRODUCT:{args.product} "

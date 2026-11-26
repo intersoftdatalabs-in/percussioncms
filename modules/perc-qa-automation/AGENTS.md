@@ -135,6 +135,24 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
 - Dev-mode DTS discovery (`DEV_PERCUSSION_DTS_INSTALL` →
   `DEV_PERCUSSION_DTS_URL`) is unchanged.
 
+### QA service-lifecycle cell — systemd units + systemctl (#7324)
+
+Container install testing installs the systemd services **in the
+container** and drives lifecycle with `systemctl` (no ad-hoc launches,
+no host systemd). From repo root:
+
+```bash
+python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms
+# --product dts | --cell-suffix <shard> | --keep (debug) | --dry-run
+```
+
+Flow: systemd PID-1 cell (`docker/matrix/Dockerfile.systemd`) → silent
+install via the normal path (`cell-entrypoint.py --no-start`) → native
+units (`install --systemd`) → `systemctl start/stop/restart/status` +
+`journalctl -u` assertions → uninstall → no-leftover check → cell
+removed. Unit tests: `python docker/scripts/test_qa_service_lifecycle.py`
+(no Docker). Live-host soak (#1989) stays ops-owned — out of scope.
+
 ### QA cell health after start / hot-deploy (HARD)
 
 After `qa-up` **and** after every jar copy or Jetty restart, run:

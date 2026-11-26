@@ -1,0 +1,40 @@
+# systemd-enabled matrix cell image (GH-7324): systemd runs as PID 1 so the
+# CMS/DTS service units install via the normal installer path
+# (jetty/service/install-jetty-service.sh, DTSProductionService.sh) and the
+# test instance lifecycle is driven by real systemctl / journalctl.
+#
+# Build context is docker/ (same as the matrix Dockerfile):
+#   docker build -t percussion-matrix-cell:local -f docker/matrix/Dockerfile docker/
+#   docker build -t percussion-matrix-systemd-cell:local -f docker/matrix/Dockerfile.systemd docker/
+#
+# Run contract (see docker/scripts/qa_service_lifecycle.py): unprivileged with a
+# private cgroup namespace and SYS_ADMIN so systemd can manage units without
+# exposing host /dev/tty* or host cgroups:
+#   docker run -d --cgroupns=private --cap-add=SYS_ADMIN \
+#     --tmpfs /run --tmpfs /run/lock --tmpfs /tmp <image>
+# The harness installs via `docker exec` after boot; the container stays up
+# under systemd until `docker stop` (STOPSIGNAL below) / harness teardown.
+FROM percussion-matrix-cell:local
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        systemd \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV container=docker
+
+RUN systemctl mask \
+        getty.target \
+        getty@.service \
+        console-getty.service \
+        serial-getty@.service \
+        systemd-vconsole-setup.service \
+        systemd-udevd.service \
+        systemd-udevd-kernel.socket \
+        systemd-udevd-control.socket \
+        systemd-logind.service \
+        dev-hugepages.mount \
+        sys-fs-fuse-connections.mount
+
+STOPSIGNAL SIGRTMIN+3
+ENTRYPOINT ["/bin/sh", "-c", "mount -o remount,rw /sys/fs/cgroup && exec /lib/systemd/systemd"]

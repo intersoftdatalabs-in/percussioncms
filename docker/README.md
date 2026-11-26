@@ -60,7 +60,34 @@ perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL
 perc-devctl.py qa-deploy-webui [--src DIR] [--container NAME]
 perc-devctl.py qa-deploy-war-jars [--container NAME] [--dest PATH] [--restart-jetty]
 perc-devctl.py qa-down [--container NAME]
+perc-devctl.py qa-service-lifecycle [--product cms|dts] [--cell-suffix S] [--timeout-seconds N] [--install-timeout-seconds N] [--skip-image-build] [--keep] [--dry-run]
 ```
+
+#### Service-lifecycle cell — systemd units + systemctl (GH-7324)
+
+`perc-devctl.py qa-service-lifecycle [--product cms|dts]` boots a
+**systemd-as-PID-1** QA cell (`docker/matrix/Dockerfile.systemd`:
+privileged, host cgroup mounted, tmpfs `/run` — in-container systemd
+only, never the host's), runs the silent installer via the normal path
+(`cell-entrypoint.py --no-start`), installs the native service units via
+the shipped installer scripts (`install-jetty-service.sh` /
+`DTSProductionService.sh` `install --systemd` — the GH-962 / #1988
+dual-ship path), then drives the test instance lifecycle with real
+`systemctl start/stop/restart/status` + `journalctl -u` assertions and
+finishes with uninstall + a no-leftover-units/links check before
+removing the cell. Host systemd is structurally untouched: every
+service-manager invocation is `docker exec <perc-matrix-*-systemd cell>`.
+
+```bash
+python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms
+```
+
+`--cell-suffix` isolates the cell name for parallel shards (#6704);
+`--keep` leaves the cell running for debugging (default removes it so no
+units/links linger). Pure builders + the full sequence against a fake
+docker runner live in `docker/scripts/qa_service_lifecycle.py`
+(`docker/scripts/test_qa_service_lifecycle.py`). This is the container
+counterpart of the live-host soak (#1989), which stays ops-owned.
 
 #### Rebuild-chain preflight (#2486 / #2532 / matrix wire-up #2531)
 
