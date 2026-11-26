@@ -2535,9 +2535,28 @@ def _qa_print_endpoint_banner(
     )
     if apache_host_port is None:
         return
-    # Apache frontend leg (issue #7323): the vhost terminates 80/443,
-    # serves the published fixture site, and proxies the DTS service
-    # contexts. CMS-only / DTS-only banners above stay byte-identical.
+    _qa_print_apache_banner(
+        apache_host_port=apache_host_port,
+        apache_https_host_port=apache_https_host_port,
+        apache_container=apache_container,
+        apache_ca_pem=apache_ca_pem,
+    )
+
+
+def _qa_print_apache_banner(
+    *,
+    apache_host_port: int,
+    apache_https_host_port: Optional[int],
+    apache_container: Optional[str],
+    apache_ca_pem: Optional[str],
+) -> None:
+    """Apache frontend leg of the qa-up endpoint banner (#7323).
+
+    The vhost terminates 80/443, serves the published fixture site, and
+    proxies the DTS service contexts. Split from
+    :func:`_qa_print_endpoint_banner` to hold that function's complexity
+    gate. CMS-only / DTS-only banners above stay byte-identical.
+    """
     import qa_apache_cell as qac
 
     hostname = qac.apache_hostname()
