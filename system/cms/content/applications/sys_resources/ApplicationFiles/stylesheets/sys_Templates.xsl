@@ -1748,8 +1748,15 @@ onchange    %Script;       #IMPLIED
       </psxctl:ParamList>
       <psxctl:AssociatedFileList>
 
-         <psxctl:FileDescriptor name="datepicker.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/datepicker.js</psxctl:FileLocation>
+         <!-- Issue #7179: the vendored @VERSION-stamped datepicker.js was
+            never built and is deleted. The npm-tracked jQuery UI dist
+            (#5660, served at this stable URL via the generated-webui
+            overlay) is declared FIRST: single-field editor hosts load only
+            jQuery + migrate, so without this the timepicker below would hit
+            an undefined $.datepicker at load. Must precede timepicker.js —
+            the fork extends $.datepicker at load time. -->
+         <psxctl:FileDescriptor name="jquery-ui.min.js" type="script" mimetype="text/javascript">
+            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="timepicker.js" type="script" mimetype="text/javascript">

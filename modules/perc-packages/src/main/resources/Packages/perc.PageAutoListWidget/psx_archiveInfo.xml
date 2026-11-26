@@ -960,23 +960,8 @@
 									<RequiredClasses />
 								</PSXDeployableObject>
 							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="cm/jslib/profiles/3x/libraries/perc-retiredjs/date.js">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="cm/jslib/profiles/3x/libraries/perc-retiredjs/date.js"
-										dependencyType="User" displayName="date.js" isAssociation="no"
-										isIncluded="no" objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							<!-- Issue #7179: Matt Kruse date.js user dependency
+							 removed with the deleted file (zero API callers). -->
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"

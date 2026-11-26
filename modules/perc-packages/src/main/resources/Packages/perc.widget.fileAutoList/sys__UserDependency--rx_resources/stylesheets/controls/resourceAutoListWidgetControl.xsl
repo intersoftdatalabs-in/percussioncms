@@ -90,12 +90,9 @@
 				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<!-- SimpleDateFormat JS -->
-			<psxctl:FileDescriptor name="date.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/libraries/perc-retiredjs/date.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
+			<!-- Issue #7179: Matt Kruse date.js deleted (zero API callers;
+			 the SimpleDateFormat comment above predates the surviving Tim Down
+			 simpledateformat.js twin, which these controls never loaded). -->
 			<psxctl:FileDescriptor
 				name="perc_extend_jQueryValidate.js" type="script"
 				mimetype="text/javascript">
