@@ -107,7 +107,7 @@ describe("mergeEditorRows", () => {
   it("uses content-type labels and injects schema-only rich controls", () => {
     const rows = mergeEditorRows(payload, [
       { name: "sys_title", label: "Title", control: "sys_EditBox" },
-      { name: "text", label: "Body", control: "sys_tinymce" },
+      { name: "text", label: "Body", control: "sys_default_richtext_editor" },
       { name: "img", label: "Image", control: "sys_webImageFX" },
       { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
       { name: "sys_communityid", label: "Community", control: "sys_DropDownSingle" },
@@ -122,7 +122,7 @@ describe("mergeEditorRows", () => {
   it("copies required from the catalog flag or occurrence", () => {
     const rows = mergeEditorRows(payload, [
       { name: "sys_title", label: "Title", required: true },
-      { name: "text", label: "Body", control: "sys_tinymce", occurrence: "required" },
+      { name: "text", label: "Body", control: "sys_default_richtext_editor", occurrence: "required" },
       {
         name: "sys_communityid",
         label: "Community",

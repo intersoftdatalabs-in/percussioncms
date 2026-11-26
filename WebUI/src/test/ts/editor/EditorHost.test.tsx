@@ -1336,7 +1336,7 @@ describe("EditorHost rich controls", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders TinyMCE / file / keyword / community widgets and uploads binary on save", async () => {
+  it("renders rich-text / file / keyword / community widgets and uploads binary on save", async () => {
     const checkout = vi.fn().mockResolvedValue(undefined);
     const storedRichText = {
       contentId: "42",
@@ -1373,7 +1373,7 @@ describe("EditorHost rich controls", () => {
     const loadType = vi.fn().mockResolvedValue({
       fields: [
         { name: "sys_title", label: "Title", control: "sys_EditBox" },
-        { name: "text", label: "Body", control: "sys_tinymce" },
+        { name: "text", label: "Body", control: "sys_default_richtext_editor" },
         { name: "img", label: "Image", control: "sys_webImageFX" },
         { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
         { name: "sys_communityid", label: "Community", control: "sys_DropDownSingle" },
@@ -3673,7 +3673,7 @@ describe("EditorHost HTML field save (#4680)", () => {
                 loadType={async () => ({
                   fields: [
                     { name: "sys_title", label: "Title", control: "sys_EditBox" },
-                    { name: "text", label: "Body", control: "sys_tinymce" },
+                    { name: "text", label: "Body", control: "sys_default_richtext_editor" },
                   ],
                 })}
               />
@@ -3720,7 +3720,7 @@ describe("EditorHost HTML field save (#4680)", () => {
                 loadType={async () => ({
                   fields: [
                     { name: "sys_title", label: "Title", control: "sys_EditBox" },
-                    { name: "text", label: "Body", control: "sys_tinymce" },
+                    { name: "text", label: "Body", control: "sys_default_richtext_editor" },
                   ],
                 })}
               />
@@ -3769,7 +3769,7 @@ describe("EditorHost HTML field save (#4680)", () => {
                 loadType={async () => ({
                   fields: [
                     { name: "sys_title", label: "Title", control: "sys_EditBox" },
-                    { name: "text", label: "Body", control: "sys_tinymce" },
+                    { name: "text", label: "Body", control: "sys_default_richtext_editor" },
                   ],
                 })}
               />
@@ -3809,7 +3809,7 @@ describe("EditorHost HTML field save (#4680)", () => {
                   fields: [{ name: "text", value: "<p>Hi</p>" }],
                 })}
                 loadType={async () => ({
-                  fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+                  fields: [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }],
                 })}
               />
             }
@@ -4617,7 +4617,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
             {
               name: "text",
               label: "Body",
-              control: "sys_tinymce",
+              control: "sys_default_richtext_editor",
               required: opts.required === true,
             },
           ],
@@ -5480,10 +5480,10 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
       : [{ name: "text", value: html }];
     const typeFields = opts.includeLongText
       ? [
-          { name: "text", label: "Body", control: "sys_tinymce" },
+          { name: "text", label: "Body", control: "sys_default_richtext_editor" },
           { name: "description", label: "Description", control: "sys_TextArea" },
         ]
-      : [{ name: "text", label: "Body", control: "sys_tinymce" }];
+      : [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }];
     return (
       <EditorHost
         checkout={vi.fn().mockResolvedValue(undefined)}
@@ -5732,7 +5732,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
         })}
         saveFields={opts.saveFields ?? vi.fn()}
         loadType={async () => ({
-          fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+          fields: [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }],
         })}
         confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
       />
@@ -9015,7 +9015,7 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
             {
               name: "text",
               label: "Body",
-              control: "sys_tinymce",
+              control: "sys_default_richtext_editor",
               required: true,
             },
           ],
@@ -9170,7 +9170,7 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
             {
               name: "text",
               label: "Body",
-              control: "sys_tinymce",
+              control: "sys_default_richtext_editor",
             },
           ],
         })}

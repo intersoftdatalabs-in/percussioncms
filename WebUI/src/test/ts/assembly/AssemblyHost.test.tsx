@@ -483,7 +483,7 @@ describe("AssemblyHost", () => {
   const htmlSchema = {
     fields: [
       { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
     ],
   };
 
@@ -592,7 +592,7 @@ describe("AssemblyHost", () => {
         {
           name: "description",
           label: "Body",
-          control: "sys_tinymce",
+          control: "sys_default_richtext_editor",
           readOnly: true,
         },
       ],
@@ -1172,7 +1172,7 @@ describe("AssemblyHost", () => {
   const linkSchema = {
     fields: [
       { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
       { name: "pagelink", label: "Page link", control: "sys_PageLink" },
     ],
   };
@@ -1289,7 +1289,7 @@ describe("AssemblyHost", () => {
     renderLinkHost(previewDoc, saveFields, vi.fn().mockResolvedValue(linkFields), {
       fields: [
         { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "description", label: "Body", control: "sys_default_richtext_editor" },
         {
           name: "pagelink",
           label: "Page link",
@@ -1890,7 +1890,7 @@ describe("AssemblyHost", () => {
     fields: [
       { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
       { name: "notes", label: "Notes", control: "sys_TextArea" },
-      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "description", label: "Body", control: "sys_default_richtext_editor" },
       { name: "pagelink", label: "Page link", control: "sys_PageLink" },
     ],
   };
@@ -2016,7 +2016,7 @@ describe("AssemblyHost", () => {
           readOnly: true,
         },
         { name: "notes", label: "Notes", control: "sys_TextArea" },
-        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "description", label: "Body", control: "sys_default_richtext_editor" },
         { name: "pagelink", label: "Page link", control: "sys_PageLink" },
       ],
     });
@@ -2180,7 +2180,7 @@ describe("AssemblyHost", () => {
       fields: [
         { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
         { name: "notes", label: "Notes", control: "sys_TextArea", readOnly: true },
-        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "description", label: "Body", control: "sys_default_richtext_editor" },
         { name: "pagelink", label: "Page link", control: "sys_PageLink" },
       ],
     });
