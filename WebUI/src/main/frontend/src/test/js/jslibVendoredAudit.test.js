@@ -87,6 +87,22 @@ const WEBAPP_CM = path.join(
 );
 const MINIFY_DIR = path.join(FRONTEND_ROOT, "..", "resources", "minify");
 const WAR_ROOT = path.join(FRONTEND_ROOT, "..", "..", "..", "war");
+// Packaged content-editor control descriptors (perc-packages): control XSLs
+// declare cm/jslib FileDescriptors that render into live editor pages, so
+// retired-vendored audits must cover them too (issue #7175 Codex review).
+const PACKAGES_ROOT = path.join(
+  FRONTEND_ROOT,
+  "..",
+  "..",
+  "..",
+  "..",
+  "modules",
+  "perc-packages",
+  "src",
+  "main",
+  "resources",
+  "Packages",
+);
 
 function readHead(abs, bytes = 4096) {
   const fd = fs.openSync(abs, "r");
@@ -425,7 +441,9 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
         }
       }
     }
-    const roots = [WEBAPP_CM, MINIFY_DIR];
+    // The reference walk covers the packaged control descriptors too:
+    // control XSLs emit their FileDescriptors into live editor pages.
+    const roots = [WEBAPP_CM, MINIFY_DIR, PACKAGES_ROOT];
     const skipDir = (p) =>
       p.split(path.sep).includes("jslib") ||
       p.split(path.sep).includes("vendor");
