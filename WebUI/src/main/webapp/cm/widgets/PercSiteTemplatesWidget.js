@@ -1239,7 +1239,7 @@
             "src",
             "/Rhythmyx/rx_resources/images/TemplateImages/" +
               $.PercNavigationManager.getSiteName() +
-              "/" +
+              "/" + // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7271, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270) — slash joins URL path segments, not an OS path.
               pageId +
               "-page.jpg?nocache=" +
               Math.random(),
@@ -1266,7 +1266,7 @@
               folderPath = data.PathItem.folderPaths;
             }
             data.PathItem.path =
-              folderPath.replace("//", "/") + "/" + data.PathItem.name;
+              folderPath.replace("//", "/") + "/" + data.PathItem.name; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7271, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270) — slash joins CMS logical folder-path segments, not an OS path.
             $.PercNavigationManager.handleOpenPage(data.PathItem, isEditMode);
           } else {
             $.perc_utils.alert_dialog({
@@ -1411,7 +1411,7 @@
             "src",
             "/Rhythmyx/rx_resources/images/TemplateImages/" +
               $.PercNavigationManager.getSiteName() +
-              "/" +
+              "/" + // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7271, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270) — slash joins URL path segments, not an OS path.
               firstPageId +
               "-page.jpg" +
               "?nocache=" +
@@ -1523,7 +1523,7 @@
               $.PercNavigationManager.getSiteName(),
               function (status, result) {
                 if (status) {
-                  actionUrl = actionUrl + "/" + result.SiteProperties.id;
+                  actionUrl = actionUrl + "/" + result.SiteProperties.id; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7271, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270) — slash joins URL segments, not an OS path.
                   var checkValue = $("#perc-import-template-frame")
                     .contents()
                     .find(".perc-template-import-field")
