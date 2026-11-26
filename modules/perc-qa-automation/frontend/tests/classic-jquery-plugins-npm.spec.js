@@ -197,6 +197,16 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
           typeof window.jQuery.fn.caret === "undefined" &&
           typeof window.jQuery.fn.textOverflow === "undefined" &&
           typeof window.jQuery.metadata === "undefined",
+        // Issue #7178 constraint: Bootstrap 5.3 re-registers its jQuery
+        // plugins on DOMContentLoaded, after every synchronous script
+        // (including jQuery UI), so $.fn.tooltip is Bootstrap's on classic
+        // pages. Tooltips must use the Bootstrap API (as the ported call
+        // sites do); a $.fn.tooltip widget call would silently no-op.
+        fnTooltipIsBootstrap:
+          typeof window.jQuery === "function" &&
+          /getOrCreateInstance/.test(
+            String(window.jQuery.fn.tooltip || ""),
+          ),
       }));
 
       expect(plugins.ajaxForm, "jquery-form missing on dashboard").toBe(true);
@@ -231,6 +241,10 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         plugins.bassistanceGone,
         "bassistance/caret/textOverflow/metadata namespace resurrected (#7178)",
       ).toBe(true);
+      expect(
+        plugins.fnTooltipIsBootstrap,
+        "expected Bootstrap-owned $.fn.tooltip (jQUI widget cannot survive DOMContentLoaded re-registration)",
+      ).toBe(true);
 
       expect(
         failedRequests,
@@ -253,32 +267,31 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         waitUntil: "networkidle",
       });
 
-      // Finder-style tooltip through the ported jQuery UI option shape
-      // (items/content/show-delay/position/open — see PercFinderView).
+      // Finder-style tooltip through the ported Bootstrap 5 option shape
+      // (new bootstrap.Tooltip with html title/delay/placement/offset/
+      // customClass — see PercFinderView).
       const tooltip = await page.evaluate(() => {
         const $ = window.jQuery;
         const anchor = $(
-          "<a style='float: right;' class='perc-7178-probe'><span>x</span></a>",
+          "<a style='float: right;' href='javascript:void(0);' class='perc-7178-probe'><span>x</span></a>",
         );
         $("body").append(anchor);
-        anchor.tooltip({
-          items: "a.perc-7178-probe",
-          content: () => "<p>probe tip</p>",
-          show: { delay: 50 },
-          position: {
-            my: "right top",
-            at: "right top",
-            offset: "-150 25",
-            collision: "flipfit",
-          },
-          open: function (event, ui) {
-            ui.tooltip.css("margin-right", "20px");
-          },
+        new window.bootstrap.Tooltip(anchor[0], {
+          html: true,
+          title: "<p class='perc-comment-tip'>probe tip</p>",
+          delay: { show: 50, hide: 100 },
+          placement: "left",
+          offset: [25, 150],
+          customClass: "perc-7178-probe-tip",
         });
-        anchor.find("span").trigger("mouseover");
+        anchor
+          .find("span")
+          .each((_, el) =>
+            el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })),
+          );
         return new Promise((resolve) => {
           setTimeout(() => {
-            const tip = $(".ui-tooltip");
+            const tip = $(".tooltip.show.perc-7178-probe-tip");
             resolve({
               bubbles: tip.length,
               text: tip.text(),
@@ -288,13 +301,8 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
           }, 500);
         });
       });
-      expect(tooltip.bubbles, "jQUI tooltip bubble never opened").toBe(1);
+      expect(tooltip.bubbles, "Bootstrap tooltip bubble never opened").toBe(1);
       expect(tooltip.text).toContain("probe tip");
-      expect(tooltip.margin, "open-callback margin tweak lost").toBe("20px");
-      // styles.css carries the retired tooltip.css bubble look.
-      expect(tooltip.background, "ui-tooltip parity style missing").toBe(
-        "rgb(238, 238, 238)",
-      );
 
       // List-editor-style autocomplete (source/minLength/search/select).
       const autocomplete = await page.evaluate(() => {

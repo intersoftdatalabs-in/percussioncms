@@ -1253,38 +1253,28 @@
             if (status === $.PercServiceUtils.STATUS_SUCCESS) {
               if (result.data && result.data.length > 0) {
                 var commentIcon = $(
-                  "<a style='float: right;' tooltip='" +
-                    result.data +
-                    "' class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>",
+                  "<a style='float: right;' href='javascript:void(0);'" +
+                    " class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>",
                 );
-                commentIcon.tooltip({
-                  // jQuery UI tooltip (issue #7178): the retired bassistance
-                  // tooltip plugin is gone; jQuery UI 1.14 (npm, loaded by
-                  // common_js.jsp) owns $.fn.tooltip now. items must match
-                  // the anchor (it carries tooltip=, not title=); content
-                  // replaces bodyHandler; show.delay replaces delay; the
-                  // left/top offsets survive as a position offset (now
-                  // element-anchored instead of cursor-anchored). The
-                  // margin tweak moves into open (ui.tooltip is the
-                  // jQuery UI-generated bubble, not the old #tooltip div).
-                  items: "a.perc-last-comment-menubar",
-                  content: function () {
-                    return (
-                      "<p style='padding:5px 20px 5px 20px;'>" +
-                      result.data +
-                      "</p>"
-                    );
-                  },
-                  show: { delay: 500 },
-                  position: {
-                    my: "right top",
-                    at: "right top",
-                    offset: "-150 25",
-                    collision: "flipfit",
-                  },
-                  open: function (event, ui) {
-                    ui.tooltip.css("margin-right", "20px");
-                  },
+                // Bootstrap 5 tooltip (issue #7178): the retired bassistance
+                // tooltip plugin is gone, and the jQuery UI tooltip widget
+                // cannot own $.fn.tooltip on classic pages — Bootstrap 5.3
+                // re-registers its own $.fn.tooltip on DOMContentLoaded,
+                // after every synchronous script (including jQuery UI).
+                // Bootstrap 5 (npm, loaded by common_js.jsp) is therefore
+                // the replacement. The comment text travels via the title
+                // option (never interpolated into markup); delay/placement
+                // carry the old delay/left/top tuning (element-anchored
+                // now). The bubble look lives in cm/css/styles.css
+                // (.perc-comment-tooltip); Bootstrap's default sanitizer
+                // stays on (safer than the old raw-HTML bodyHandler).
+                new bootstrap.Tooltip(commentIcon[0], {
+                  html: true,
+                  title: "<p class='perc-comment-tip'>" + result.data + "</p>",
+                  delay: { show: 500, hide: 100 },
+                  placement: "left",
+                  offset: [25, 150],
+                  customClass: "perc-comment-tooltip",
                 });
                 $("#perc-content-menu").append(commentIcon);
               } else {

@@ -6,7 +6,7 @@ Machine analysis found **9** finding(s), **0** blocking bug(s). LLM skipped (mac
 
 - Base: origin/main
 - Head: HEAD
-- Files: 44 analyzed
+- Files: 46 analyzed
 - In-diff: 0 finding(s); preexisting: 9
 - Persona: erlang 0.1.1
 - Persona source: ~/.local/share/mkd/agents/erlang
@@ -24,41 +24,41 @@ approve
 
 ### Issue 1 -- Severity: bug
 
-- File: WebUI/src/main/webapp/cm/app/js/legacy/views/PercFinderView.js:1759 (preexisting)
+- File: WebUI/src/main/webapp/cm/app/js/legacy/views/PercFinderView.js:1749 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 1759)
+- Description: Possible non-portable path construction (line 1749)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 2 -- Severity: bug
 
-- File: WebUI/src/main/webapp/cm/app/js/legacy/views/PercFinderView.js:1761 (preexisting)
+- File: WebUI/src/main/webapp/cm/app/js/legacy/views/PercFinderView.js:1751 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 1761)
+- Description: Possible non-portable path construction (line 1751)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 3 -- Severity: bug
 
-- File: WebUI/src/main/webapp/cm/views/PercFinderView.js:1759 (preexisting)
+- File: WebUI/src/main/webapp/cm/views/PercFinderView.js:1749 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 1759)
+- Description: Possible non-portable path construction (line 1749)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 4 -- Severity: bug
 
-- File: WebUI/src/main/webapp/cm/views/PercFinderView.js:1761 (preexisting)
+- File: WebUI/src/main/webapp/cm/views/PercFinderView.js:1751 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 1761)
+- Description: Possible non-portable path construction (line 1751)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
@@ -138,6 +138,15 @@ the PR opened):**
   removed): the tag-list XSL drops both autocomplete FileDescriptors and
   keeps only `jquery-ui.min.js`; the Playwright suite asserts 404 for both
   stable autocomplete URLs and the audit/build tests pin the absence.
+
+**Tooltip redesign after the Codex/Codex-adjacent review:** live-cell
+probing during QA proved `$.fn.tooltip` on classic pages is Bootstrap's,
+not jQuery UI's — Bootstrap 5.3 re-registers its jQuery plugins on
+`DOMContentLoaded`, after every synchronous script (including jQuery UI),
+so a jQUI-tooltip port could never take effect there. The two tooltip call
+sites therefore use the Bootstrap 5 native API (`new bootstrap.Tooltip`,
+npm-tracked) instead; the Playwright probe pins `$.fn.tooltip` as
+Bootstrap-owned so a future widget-shaped call fails loudly.
 
 No [P0]/[P1] findings. Codex review ran read-only
 (`codex review --base origin/main`, no prompt argument) from this checkout.

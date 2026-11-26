@@ -3632,19 +3632,34 @@ table.dataTable {
   border-spacing: 0;
 }
 
-/* jQuery UI tooltip parity (issue #7178): the retired bassistance
+/* Bootstrap tooltip parity (issue #7178): the retired bassistance
  * jquery.tooltip.css styled the plugin-generated #tooltip bubble. The
- * jQuery UI 1.14 tooltip (npm) generates .ui-tooltip bubbles instead and
- * the classic pages load no jQuery UI theme CSS, so the old bubble look
- * (border/background/padding/opacity) is carried here. Position and
- * z-index are managed by the widget + the open callback at each call site.
+ * finder/publish tooltips are Bootstrap 5 bubbles now (jQuery UI cannot own
+ * $.fn.tooltip on classic pages — Bootstrap re-registers it on
+ * DOMContentLoaded), and classic pages load no Bootstrap theme CSS, so the
+ * old bubble look (border/background/padding/opacity/z-index) is carried
+ * here, scoped to the two migrated call sites via customClass. Inner
+ * padding moved from inline style attributes (stripped by Bootstrap's
+ * default sanitizer) to these classes.
  */
-.ui-tooltip {
-  border: 1px solid #111;
+.perc-comment-tooltip {
+  margin-right: 20px;
+}
+.perc-comment-tooltip .tooltip-inner,
+.perc-publish-tooltip .tooltip-inner {
   background-color: #eee;
-  padding: 5px;
+  border: 1px solid #111;
+  padding: 5px 20px;
   opacity: 0.85;
   max-width: 400px;
+  text-align: left;
+}
+.perc-comment-tooltip .tooltip-inner p,
+.perc-publish-tooltip .tooltip-inner p {
+  margin: 0;
+}
+.perc-publish-tooltip {
+  z-index: 9999;
 }
 
 /* jQuery UI autocomplete menu parity (issue #7178): the retired

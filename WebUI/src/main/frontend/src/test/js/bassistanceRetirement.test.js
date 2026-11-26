@@ -118,12 +118,17 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 
-describe("jQuery UI owns tooltip/autocomplete after the bassistance retirement (issue #7178)", () => {
+describe("Bootstrap owns tooltip on classic pages; autocomplete is jQuery UI (issue #7178)", () => {
   it("exposes the widget namespaces and drops the bassistance ones", () => {
     expect(typeof $.ui).toBe("object");
     expect(typeof $.ui.tooltip).toBe("function");
     expect(typeof $.ui.autocomplete).toBe("function");
-    expect(typeof $.fn.tooltip).toBe("function");
+    // NOTE: $.fn.tooltip is Bootstrap's on classic pages, not jQuery UI's:
+    // Bootstrap 5.3 re-registers its jQuery plugins on DOMContentLoaded,
+    // after every synchronous script (including jQuery UI), so the widget
+    // bridge never survives there. Tooltips therefore use the Bootstrap 5
+    // API directly (proven live in Playwright); autocomplete has no
+    // Bootstrap counterpart and stays jQuery UI.
     expect(typeof $.fn.autocomplete).toBe("function");
     // Bassistance-only namespaces must not come back via any load.
     expect($.tooltip, "bassistance $.tooltip resurrected").toBeUndefined();
@@ -133,37 +138,61 @@ describe("jQuery UI owns tooltip/autocomplete after the bassistance retirement (
     expect($.metadata, "retired $.metadata resurrected").toBeUndefined();
   });
 
-  it("opens a finder-style tooltip with the ported option shape", async () => {
+  it("drives a finder-style tooltip through the ported Bootstrap option shape", async () => {
     vi.useFakeTimers();
     try {
+      // Minimal fake of the Bootstrap 5 Tooltip contract the call sites
+      // rely on: hover trigger, show-delay, HTML title, customClass on the
+      // bubble. The real Bootstrap behavior is proven live in Playwright.
+      const seen = [];
+      window.bootstrap = {
+        Tooltip: class {
+          constructor(el, opts) {
+            seen.push({ el, opts });
+            this._el = el;
+            this._opts = opts;
+            el.addEventListener("mouseover", () => {
+              setTimeout(() => {
+                const tip = document.createElement("div");
+                tip.className = `tooltip show ${opts.customClass || ""}`.trim();
+                tip.innerHTML = `<div class="tooltip-inner">${opts.title}</div>`;
+                document.body.appendChild(tip);
+              }, (opts.delay && opts.delay.show) || 0);
+            });
+          }
+        },
+      };
       document.body.innerHTML =
-        `<a style="float: right;" tooltip="some comment" class="perc-last-comment-menubar">` +
+        `<a style="float: right;" href="javascript:void(0);" class="perc-last-comment-menubar">` +
         `<span class="perc-font-icon icon-comment"></span></a>`;
-      const commentIcon = $(".perc-last-comment-menubar");
-      let opened = null;
-      commentIcon.tooltip({
-        items: "a.perc-last-comment-menubar",
-        content: () => "<p style='padding:5px 20px 5px 20px;'>some comment</p>",
-        show: { delay: 500 },
-        position: {
-          my: "right top",
-          at: "right top",
-          offset: "-150 25",
-          collision: "flipfit",
-        },
-        open: function (event, ui) {
-          opened = ui.tooltip;
-          ui.tooltip.css("margin-right", "20px");
-        },
+      const commentIcon = window.jQuery(".perc-last-comment-menubar");
+      // Verbatim shape of the PercFinderView call site.
+      new window.bootstrap.Tooltip(commentIcon[0], {
+        html: true,
+        title: "<p class='perc-comment-tip'>some comment</p>",
+        delay: { show: 500, hide: 100 },
+        placement: "left",
+        offset: [25, 150],
+        customClass: "perc-comment-tooltip",
       });
-      commentIcon.find("span").trigger("mouseover");
+      expect(seen.length, "Tooltip was not constructed").toBe(1);
+      expect(seen[0].opts).toMatchObject({
+        html: true,
+        placement: "left",
+        customClass: "perc-comment-tooltip",
+      });
+      expect(seen[0].opts.delay).toMatchObject({ show: 500 });
+      commentIcon
+        .find("span")
+        .each((_, el) =>
+          el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })),
+        );
       await vi.advanceTimersByTimeAsync(600);
-      const tip = $(".ui-tooltip");
-      expect(tip.length, "jQuery UI tooltip bubble never opened").toBe(1);
-      expect(tip.find(".ui-tooltip-content").html()).toContain("some comment");
-      expect(opened && opened.length).toBe(1);
-      expect(opened.css("margin-right")).toBe("20px");
+      const tip = window.jQuery(".tooltip.show.perc-comment-tooltip");
+      expect(tip.length, "Bootstrap tooltip bubble never opened").toBe(1);
+      expect(tip.find(".tooltip-inner").html()).toContain("some comment");
     } finally {
+      delete window.bootstrap;
       vi.useRealTimers();
     }
   });
@@ -321,27 +350,33 @@ describe("ported call-site sources use only the replacement APIs (issue #7178)",
   ];
   const read = (rel) => readFileSync(join(WEBAPP_CM, rel), "utf8");
 
-  it("tooltips use the jQuery UI widget shape, not bassistance options", () => {
+  it("tooltips use the Bootstrap 5 API, not bassistance or jQUI options", () => {
     for (const rel of [...FINDER, ...PUBLISH]) {
       const src = read(rel);
       for (const needle of [
-        "items:",
-        "content: function",
-        "show: { delay: 500 }",
-        ".tooltip({",
+        "new bootstrap.Tooltip(",
+        "customClass:",
+        'placement: "left"',
+        "delay: { show: 500, hide: 100 }",
+        "html: true",
       ]) {
         expect(src, `${rel} lost ${needle}`).toContain(needle);
       }
       for (const banned of [
+        ".tooltip({",
         "bodyHandler: function",
         "minChars:",
         ".result(function",
         '$("#tooltip")',
         "jquery.tooltip",
+        "items:",
+        "show: { delay:",
       ]) {
-        expect(src, `${rel} still uses bassistance ${banned}`).not.toContain(banned);
+        expect(src, `${rel} still uses bassistance/jQUI ${banned}`).not.toContain(banned);
       }
     }
+    expect(read(FINDER[0])).toContain('customClass: "perc-comment-tooltip"');
+    expect(read(PUBLISH[0])).toContain('customClass: "perc-publish-tooltip"');
   });
 
   it("autocompletes use the jQuery UI widget shape, not bassistance options", () => {
@@ -441,9 +476,12 @@ describe("ported call-site sources use only the replacement APIs (issue #7178)",
     expect(src).not.toContain("jquery.metadata");
   });
 
-  it("classic stylesheets carry the jQuery UI tooltip bubble parity rules", () => {
+  it("classic stylesheets carry the Bootstrap tooltip bubble parity rules", () => {
     const css = readFileSync(join(WEBAPP_CM, "css/styles.css"), "utf8");
-    expect(css).toContain(".ui-tooltip");
+    expect(css).toContain(".perc-comment-tooltip");
+    expect(css).toContain(".perc-publish-tooltip");
+    expect(css).toContain(".tooltip-inner");
     expect(css).toContain("background-color: #eee");
+    expect(css).toContain("z-index: 9999");
   });
 });
