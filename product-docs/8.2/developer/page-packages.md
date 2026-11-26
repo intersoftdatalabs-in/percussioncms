@@ -129,6 +129,28 @@ the output format (or on an install default such as mime type), there is no shar
 each variant keeps its own, and nothing is silently unified. Manifest-level slots stay
 shared across variants as before; they need no dedupe.
 
+### Ordered JEXL bindings contract
+
+JEXL remains the binding language (ADR-001), and binding **order is part of the
+template model**: every pipeline stage — legacy `<assembly-template>` parse
+(`Java code: PSPageXmlParser`), manifest compile
+(`Java code: PSPageXmlCompiler`), install emit
+(`Java code: PSPageXmlTemplateDefEmitter`), and manifest readback
+(`Java code: PSPageXmlManifestReadback`) — carries `<binding>` entries through
+in document order without sorting. Author bindings in evaluation order and keep
+that order stable across edits; a reorder is a model change even when the
+variable set is identical.
+
+The conformance rule is checked by
+`Java code: PSPageXmlBindingConformance`: one template must have no null
+entries, no blank (null/empty/whitespace-only) variable names, and no duplicate
+variable names (exact, case-sensitive — JEXL is case-sensitive, so `$Sys.Title`
+and `$sys.title` are distinct). Blank entries never survive the pipeline — the
+compiler and readback both skip blank variables — while a duplicate variable
+name compiles silently with later entries shadowing earlier ones. Blank
+*expressions* are fine: the compiler normalizes them to `""` and readback to
+`null`. An empty binding list is vacuously conformant.
+
 ## Assembler-model readback from the manifest
 
 Tooling reads a normalized assembler-model definition back through the modern
