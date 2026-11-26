@@ -173,12 +173,28 @@
             resultItems = options.results;
 
             // add autocomplete to input field
-            inputField.autocomplete(resultItems, {
-                minChars: 0,
-                max: resultItems.length,
-                width: ($.browser.msie) ? 336 : 334,
-                scrollHeight: 101
-            }).result(function(){
+            inputField.autocomplete({
+                // jQuery UI autocomplete (issue #7178): the retired bassistance
+                // autocomplete plugin is gone; jQuery UI 1.14 (npm, loaded by
+                // common_js.jsp) owns $.fn.autocomplete now. source replaces the
+                // data array; minLength: 0 preserves minChars: 0 (suggest on
+                // empty input via the focus handler); max showed the whole
+                // result list, which jQuery UI does by default. The menu
+                // width/scroll cap from width/scrollHeight move into open
+                // (jQuery UI auto-widths the menu to the input otherwise; the
+                // IE width branch is dead on modern browsers).
+                source: resultItems,
+                minLength: 0,
+                open: function(){
+                    inputField.autocomplete("widget").css({width: "334px", "max-height": "101px", "overflow-y": "auto"});
+                }
+            }).on("focus", function(){
+                inputField.autocomplete("search", "");
+            }).on("autocompleteselect", function(event, ui){
+                // jQuery UI fires autocompleteselect before inserting the value
+                // (the retired plugin's result fired after); assign first so the
+                // button validates the selection, not the partial text.
+                inputField.val(ui.item.value);
                 updatePlusButton();
             });
         }
@@ -269,7 +285,7 @@
                 resultItems = $.grep(resultItems, function(value) {
                     return value !== listItem;
                 });
-                inputField.setOptions({data: resultItems});
+                inputField.autocomplete("option", "source", resultItems);
             }
         }
 
@@ -370,7 +386,7 @@
                     // add back to result items
                     resultItems[resultItems.length] = listItem;
                     $.perc_utils.sortCaseInsensitive(resultItems);
-                    inputField.setOptions({data: resultItems});
+                    inputField.autocomplete("option", "source", resultItems);
                 }
 
                 renderListItems();

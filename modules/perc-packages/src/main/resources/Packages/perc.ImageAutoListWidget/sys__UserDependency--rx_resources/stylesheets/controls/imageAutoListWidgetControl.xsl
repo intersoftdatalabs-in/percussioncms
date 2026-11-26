@@ -77,11 +77,6 @@
 				<psxctl:FileLocation>/cm/plugins/perc_utils.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.metadata.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
 			<!-- First-party carousel (issue #7181): replaces retired jQuery Tools scrollable. -->
 			<psxctl:FileDescriptor
 				name="jquery.percscrollable.js" type="script"
@@ -110,12 +105,6 @@
 			<psxctl:FileDescriptor
 				name="perc_path_manager.js" type="script" mimetype="text/javascript">
 				<psxctl:FileLocation>/cm/plugins/perc_path_manager.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.text-overflow.js" type="script"
-				mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor

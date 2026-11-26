@@ -444,14 +444,28 @@
         var tootltiptext = I18N.message("perc.ui.publish.view@Publish Tip");
         var infoIcon = $("<a style=\"display:inline-block;float:right;\" title=\"" + tootltiptext + "\"><span id=\"perc-publish-button-help\" style=\"margin-top: 3px;background-color: #e6e6e9;color:#a1a1a1;\" class=\"perc-font-icon icon-info-sign\"></span></a>");
         infoIcon.tooltip({
-            delay: 500,
-            left:-25,
-            top:25,
-            bodyHandler: function(){
-                 return "<p style='padding:5px 20px 5px 20px;'>" + tootltiptext + "</p>";   
+            // jQuery UI tooltip (issue #7178): the retired bassistance tooltip
+            // plugin is gone; jQuery UI 1.14 (npm, loaded by common_js.jsp) owns
+            // $.fn.tooltip now. content replaces bodyHandler; show.delay replaces
+            // delay; the left/top offsets survive as a position offset (now
+            // element-anchored instead of cursor-anchored). The z-index tweak
+            // moves into open (ui.tooltip is the jQuery UI-generated bubble,
+            // not the old #tooltip div).
+            items: "a",
+            content: function(){
+                 return "<p style='padding:5px 20px 5px 20px;'>" + tootltiptext + "</p>";
+            },
+            show: { delay: 500 },
+            position: {
+                my: "right top",
+                at: "right top",
+                offset: "-25 25",
+                collision: "flipfit"
+            },
+            open: function(event, ui){
+                ui.tooltip.css("z-index",9999);
             }
         });
-        $("#tooltip").css("z-index",9999);
         $("#perc-publish-button").append(infoIcon);
     }
     

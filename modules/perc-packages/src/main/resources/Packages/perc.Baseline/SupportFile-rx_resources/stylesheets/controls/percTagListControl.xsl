@@ -34,15 +34,13 @@
 				<psxctl:FileLocation>/rx_resources/css/percTagListControl.css</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.autocomplete.css" type="css" mimetype="text/css">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.css</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.autocomplete.js" type="script"
-				mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js</psxctl:FileLocation>
+			<!-- jQuery UI (issue #7178): the tag-list autocomplete is a jQuery UI
+				widget now (retired bassistance autocomplete.js/css deleted);
+				the widget ships inside jquery-ui.min.js below, so no
+				autocomplete FileDescriptors remain. -->
+			<psxctl:FileDescriptor name="jquery-ui.js"
+				type="script" mimetype="text/javascript">
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor

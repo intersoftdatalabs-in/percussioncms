@@ -610,8 +610,16 @@
 
       // re-calculate the input value if key is a number, not backspace or arrow key
       if (evt.which !== 8 && evt.which !== 0) {
-        var start = $(field).caret().start;
-        var end = $(field).caret().end;
+        // Native caret (issue #7178): the retired jquery.caret.js plugin
+        // is gone; selectionStart/selectionEnd cover this text input.
+        var start =
+          typeof field.selectionStart === "number"
+            ? field.selectionStart
+            : field.value.length;
+        var end =
+          typeof field.selectionEnd === "number"
+            ? field.selectionEnd
+            : field.value.length;
         var t1 = field.value.slice(0, start);
         var t2 = field.value.slice(end);
         value = t1 + theChar + t2;

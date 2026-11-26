@@ -104,7 +104,6 @@
     <link type="text/css" href="../css/perc_template_layout.css" rel="stylesheet"/>
     <link type="text/css" href="../css/perc_mcol.css" rel="stylesheet"/>
     <link type="text/css" href="../css/perc_decoration.css" rel="stylesheet"/>
-    <link type="text/css" href="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.css" rel="stylesheet"/>
     <!-- Stuff needed for finder to work like Editor -->
     <link rel="stylesheet" type="text/css" href="../css/perc_newsitedialog.css"/>
     <link rel="stylesheet" type="text/css" href="../css/perc_new_page_button.css"/>

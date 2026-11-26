@@ -179,6 +179,23 @@ $.perc = {};
  * it should be filtered out.
  */
 (function($) {
+    // Native caret helpers (issue #7178): the retired caret plugin file
+    // is gone. Modern browsers expose selectionStart + setSelectionRange on
+    // text inputs, which covers every legacy caret call site. Falls back to
+    // end-of-field when the API is unavailable.
+    function percCaretStart(field) {
+        var len = (field.value || "").length;
+        return typeof field.selectionStart === "number" ? field.selectionStart : len;
+    }
+    function percCaretSet(field, pos) {
+        if (typeof field.setSelectionRange === "function") {
+            try {
+                field.setSelectionRange(pos, pos);
+            } catch (ignore) {
+                // non-text input types reject setSelectionRange; leave caret alone.
+            }
+        }
+    }
     $.perc_filterFieldText = function(tgt, filter, splitChar)
     {
         $(tgt).on('keypress.filterField', {'filter': filter}, function(evt){
@@ -190,7 +207,7 @@ $.perc = {};
             var theChar = String.fromCharCode(rawCode);
             if(typeof evt.data.filter == 'function')
                 filter = evt.data.filter;
-            var position = $(evt.target).caret().start;
+            var position = percCaretStart(evt.target);
             var theText = tgt.val();
 
             var fieldMaxLength = tgt.attr("maxlength");
@@ -225,11 +242,11 @@ $.perc = {};
 
                 var field = evt.target;
 
-                var start = $(field).caret().start;
+                var start = percCaretStart(field);
                 var newVal = filtered;
                 field.value = newVal.trim();
                 var cursorPos = start + 1;
-                $(field).caret({start: cursorPos, end: cursorPos});
+                percCaretSet(field, cursorPos);
                 evt.preventDefault();
             }
         });
@@ -523,18 +540,15 @@ $.perc = {};
      *  @param maxWidth {int} the max width in pixels
      */
     $.PercTextOverflow = function(element, maxWidth) {
-        if($.browser.msie || $.browser.safari) {
-            // use CSS attributes on IE and Safari on DIV with label
-            // because they support these CSS attributes
-            element
-                .css("white-space","nowrap")
-                .css("text-overflow","ellipsis")
-                .css("width",maxWidth)
-                .css("overflow","hidden");
-        } else {
-            // otherwise use textOverflow plugin
-            element.textOverflow("...",false);
-        }
+        // CSS-only truncation (issue #7178): the retired jquery.text-overflow.js
+        // plugin is gone. Every modern browser supports text-overflow: ellipsis
+        // natively (the plugin only polyfilled browsers without it), so the old
+        // plugin branch folds into the CSS branch the IE/Safari path already took.
+        element
+            .css("white-space","nowrap")
+            .css("text-overflow","ellipsis")
+            .css("width",maxWidth)
+            .css("overflow","hidden");
     };
 })(jQuery);
 

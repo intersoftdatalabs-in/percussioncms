@@ -333,12 +333,24 @@
                     resultItems = results;
 
                     // add autocomplete to input field
-                    inputField.autocomplete(resultItems, {
-                        minChars: 0,
-                        max: resultItems.length,
-                        width: ($.browser.msie) ? 336 : 334,
-                        scrollHeight: 101
-                    }).result(function(){
+                    inputField.autocomplete({
+                        // jQuery UI autocomplete (issue #7178): the retired
+                        // bassistance autocomplete plugin is gone; jQuery UI 1.14
+                        // (npm, loaded by common_js.jsp) owns $.fn.autocomplete now.
+                        // source replaces the data array; minLength: 0 preserves
+                        // minChars: 0 (suggest on empty input via the focus
+                        // handler); max showed the whole list, which jQuery UI does
+                        // by default. The menu width/scroll cap from
+                        // width/scrollHeight move into open (the IE width branch is
+                        // dead on modern browsers).
+                        source: resultItems,
+                        minLength: 0,
+                        open: function(){
+                            inputField.autocomplete("widget").css({width: "334px", "max-height": "101px", "overflow-y": "auto"});
+                        }
+                    }).on("focus", function(){
+                        inputField.autocomplete("search", "");
+                    }).on("autocompleteselect", function(){
                         // callback used after options load
                     });
                   }

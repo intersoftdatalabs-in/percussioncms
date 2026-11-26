@@ -3631,3 +3631,49 @@ table.dataTable {
   border-collapse: collapse;
   border-spacing: 0;
 }
+
+/* jQuery UI tooltip parity (issue #7178): the retired bassistance
+ * jquery.tooltip.css styled the plugin-generated #tooltip bubble. The
+ * jQuery UI 1.14 tooltip (npm) generates .ui-tooltip bubbles instead and
+ * the classic pages load no jQuery UI theme CSS, so the old bubble look
+ * (border/background/padding/opacity) is carried here. Position and
+ * z-index are managed by the widget + the open callback at each call site.
+ */
+.ui-tooltip {
+  border: 1px solid #111;
+  background-color: #eee;
+  padding: 5px;
+  opacity: 0.85;
+  max-width: 400px;
+}
+
+/* jQuery UI autocomplete menu parity (issue #7178): the retired
+ * bassistance jquery.autocomplete.css styled the .ac_results dropdown.
+ * The jQuery UI menu renders as ul.ui-autocomplete with li.ui-menu-item
+ * rows instead (unstyled without a jQuery UI theme, which classic pages
+ * do not load), so the old dropdown look (border/background/row padding/
+ * highlight) is carried here, scoped to autocomplete menus only so the
+ * multiselect filter menus keep their existing appearance.
+ */
+.ui-autocomplete {
+  padding: 0;
+  border: 1px solid black;
+  background-color: white;
+  list-style: none;
+  font-size: 12px;
+  line-height: 16px;
+  z-index: 99999;
+}
+.ui-autocomplete .ui-menu-item {
+  margin: 0;
+  padding: 2px 5px;
+  cursor: default;
+  display: block;
+  overflow: hidden;
+}
+.ui-autocomplete .ui-menu-item.ui-state-focus,
+.ui-autocomplete .ui-menu-item .ui-state-active {
+  background-color: #0a246a;
+  color: white;
+  margin: -1px;
+}

@@ -209,6 +209,21 @@ const NPM_LIBRARY_MAPPINGS = {
     "block-ui/jquery.blockUI.js",
   "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js":
     "jquery.cookie/jquery.cookie.js",
+  // Site-summary print dialog from npm (issue #7178, parent audit #5627).
+  // The vendored copy carried no license banner anywhere in the file
+  // (UNSTATED provenance); it is the jasonday printThis v1.x lineage
+  // (`$.fn.printThis.defaults` with debug/importCSS/printContainer/loadCSS/
+  // pageTitle/removeInline, hidden-iframe + contentWindow.print flow). The
+  // same-lineage Dependabot-tracked npm `print-this` 2.0.0 (MIT) serves the
+  // stable jslib URL via the generated-webui overlay (STANDALONE_NPM_COPIES)
+  // and bundle resolution below. The only in-repo call,
+  // PercSiteSummaryDialog `$content.printThis()` with no options, rides the
+  // v1-compatible default path (hidden iframe, importCSS, printContainer,
+  // contentWindow.print, iframe teardown); `$.isFunction` checks added in
+  // v2 run under the jquery-migrate script the classic pages load first
+  // (same risk class as the #7177 blockUI swap).
+  "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js":
+    "print-this/printThis.js",
 };
 
 // List of bundle config files to process
@@ -752,6 +767,15 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery.cookie/jquery.cookie.js",
     dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
+    required: true,
+  },
+  // printThis from npm (issue #7178). Dest path is the stable classic-UI
+  // jslib URL (perc_admin.packed.js keeps bundling it unchanged); source
+  // is the Dependabot-tracked `print-this` 2.0.0 (jasonday lineage, MIT)
+  // dist file. The vendored copy was deleted, so the entry is required.
+  {
+    src: "print-this/printThis.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js",
     required: true,
   },
 ];

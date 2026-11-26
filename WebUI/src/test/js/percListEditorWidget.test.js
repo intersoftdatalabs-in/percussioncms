@@ -71,14 +71,15 @@ function loadSource() {
   globalThis.$ = $;
   $.perc_utils = { sortCaseInsensitive: (arr) => arr.sort() };
   $.browser = { msie: false, version: "0" };
-  $.fn.autocomplete = function () {
-    return {
-      result: () => this,
-      flushCache: () => this,
-      setOptions: () => this,
-    };
-  };
-  $.fn.setOptions = function () {
+  // jQuery UI autocomplete shape (issue #7178): the widget under test
+  // inits with an options object and calls string methods
+  // ("option"/"search"/"widget"); everything chains via the real .on().
+  // The bassistance .result/.setOptions surface is gone.
+  $.fn.autocomplete = function (options) {
+    if (typeof options === "string") {
+      if (options === "widget") return $();
+      return this;
+    }
     return this;
   };
   globalThis.I18N = { message: (key) => `[${key}]` };

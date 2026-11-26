@@ -61,6 +61,7 @@
     "moment": "^2.31.0",
     "moment-jdateformatparser": "^1.2.1",
     "mousetrap": "^1.6.5",
+    "print-this": "2.0.0",
     "qrcode.react": "^4.2.0",
     "qtip2": "3.0.3",
     "react": "^19.3.1",

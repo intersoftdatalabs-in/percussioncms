@@ -29,10 +29,14 @@
  * npm-backed files (form 4.3.0, validation 1.22.x, jeditable 2.0.x,
  * superfish 1.7.10, timeago 1.6.7, multiselect 3.0.x, hoverintent 2.2.x,
  * claviska dropdown 2.0.3 (issue #7176), malsup blockUI 2.70.1 +
- * Klaus Hartl cookie 1.4.1 (issue #7177) —
+ * Klaus Hartl cookie 1.4.1 (issue #7177), jasonday printThis 2.0.0
+ * (issue #7178) —
  * Dependabot-tracked in {@code WebUI/src/main/frontend/package.json}), and
  * the deleted dead copies (FixedHeader, standalone print-this, collapser,
- * war/api/lib ba-bbq/slideto/wiggle) must no longer resolve.</p>
+ * war/api/lib ba-bbq/slideto/wiggle, retiredjs tooltip/autocomplete/
+ * metadata/text-overflow/caret (issue #7178)) must no longer resolve.
+ * Autocomplete widgets run from the already-loaded jQuery UI bundle, so no
+ * per-URL autocomplete file remains.</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -56,10 +60,13 @@ const NPM_SERVED = [
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
-  // blockUI + cookie are npm-served since #7177 (block-ui 2.70.1,
-  // jquery.cookie 1.4.1 at the same stable retiredjs URLs).
+  // printThis is npm-served since #7178 (print-this 2.0.0, jasonday
+  // lineage, same stable retiredjs URL). Autocomplete is NOT served: its
+  // stable URL 404s (see REMOVED_DEAD) — the widget ships inside the
+  // already-loaded jQuery UI bundle, so no per-URL file remains.
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js",
 ];
 
 const REMOVED_DEAD = [
@@ -73,6 +80,18 @@ const REMOVED_DEAD = [
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-validation/localization/messages_de.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.datepicker.js",
   "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-superfish/js/supersubs.js",
+  // Retired outright in #7178 (dead upstreams, no npm equivalent): the
+  // files are deleted and the tags/bundle entries dropped, so these stable
+  // URLs must 404. Autocomplete joins them: its widget ships inside the
+  // already-loaded jQuery UI bundle, so no per-URL file remains (the
+  // tag-list editor loads jquery-ui.min.js instead).
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.css",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js",
+  "/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.css",
 ];
 
 test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
@@ -161,6 +180,23 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         dataTable:
           typeof window.jQuery === "function" &&
           typeof window.jQuery.fn.DataTable === "function",
+        // Issue #7178: jQuery UI 1.14 owns $.fn.tooltip/$.fn.autocomplete
+        // now (bassistance files deleted); the plugin namespaces are gone.
+        uiTooltip:
+          typeof window.jQuery === "function" &&
+          typeof window.jQuery.ui === "object" &&
+          typeof window.jQuery.ui.tooltip === "function",
+        uiAutocomplete:
+          typeof window.jQuery === "function" &&
+          typeof window.jQuery.ui === "object" &&
+          typeof window.jQuery.ui.autocomplete === "function",
+        bassistanceGone:
+          typeof window.jQuery === "function" &&
+          typeof window.jQuery.tooltip === "undefined" &&
+          typeof window.jQuery.Autocompleter === "undefined" &&
+          typeof window.jQuery.fn.caret === "undefined" &&
+          typeof window.jQuery.fn.textOverflow === "undefined" &&
+          typeof window.jQuery.metadata === "undefined",
       }));
 
       expect(plugins.ajaxForm, "jquery-form missing on dashboard").toBe(true);
@@ -183,6 +219,18 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
       );
       expect(plugins.cookie, "cookie regressed (npm-served #7177)").toBe(true);
       expect(plugins.dataTable, "kept DataTables regressed").toBe(true);
+      expect(
+        plugins.uiTooltip,
+        "jQuery UI tooltip missing (bassistance retired #7178)",
+      ).toBe(true);
+      expect(
+        plugins.uiAutocomplete,
+        "jQuery UI autocomplete missing (bassistance retired #7178)",
+      ).toBe(true);
+      expect(
+        plugins.bassistanceGone,
+        "bassistance/caret/textOverflow/metadata namespace resurrected (#7178)",
+      ).toBe(true);
 
       expect(
         failedRequests,
@@ -192,6 +240,106 @@ test.describe("Classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         pluginErrorStacks,
         `plugin JS errors:\n${pluginErrorStacks.join("\n")}`,
       ).toEqual([]);
+    },
+  );
+
+  test(
+    "bassistance retirement: jQUI tooltip/autocomplete live, printThis served (#7178)",
+    { tag: ["@classic-ui", "@ui"] },
+    async ({ page }) => {
+      test.setTimeout(120_000);
+      await loginAsAdmin(page);
+      await page.goto(`${BASE_URL}/Rhythmyx/cm/app/dashboard.jsp`, {
+        waitUntil: "networkidle",
+      });
+
+      // Finder-style tooltip through the ported jQuery UI option shape
+      // (items/content/show-delay/position/open — see PercFinderView).
+      const tooltip = await page.evaluate(() => {
+        const $ = window.jQuery;
+        const anchor = $(
+          "<a style='float: right;' class='perc-7178-probe'><span>x</span></a>",
+        );
+        $("body").append(anchor);
+        anchor.tooltip({
+          items: "a.perc-7178-probe",
+          content: () => "<p>probe tip</p>",
+          show: { delay: 50 },
+          position: {
+            my: "right top",
+            at: "right top",
+            offset: "-150 25",
+            collision: "flipfit",
+          },
+          open: function (event, ui) {
+            ui.tooltip.css("margin-right", "20px");
+          },
+        });
+        anchor.find("span").trigger("mouseover");
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const tip = $(".ui-tooltip");
+            resolve({
+              bubbles: tip.length,
+              text: tip.text(),
+              margin: tip.css("margin-right"),
+              background: tip.css("background-color"),
+            });
+          }, 500);
+        });
+      });
+      expect(tooltip.bubbles, "jQUI tooltip bubble never opened").toBe(1);
+      expect(tooltip.text).toContain("probe tip");
+      expect(tooltip.margin, "open-callback margin tweak lost").toBe("20px");
+      // styles.css carries the retired tooltip.css bubble look.
+      expect(tooltip.background, "ui-tooltip parity style missing").toBe(
+        "rgb(238, 238, 238)",
+      );
+
+      // List-editor-style autocomplete (source/minLength/search/select).
+      const autocomplete = await page.evaluate(() => {
+        const $ = window.jQuery;
+        $("body").append('<input id="perc-7178-ac" type="text" />');
+        const input = $("#perc-7178-ac");
+        let selected = null;
+        input
+          .autocomplete({ source: ["Alpha", "Beta"], minLength: 0 })
+          .on("focus", () => input.autocomplete("search", ""))
+          .on("autocompleteselect", (event, ui) => {
+            input.val(ui.item.value);
+            selected = ui.item.value;
+          });
+        input.trigger("focus");
+        const items = $(".ui-autocomplete .ui-menu-item")
+          .map((_, li) => $(li).text())
+          .get();
+        const menuBackground = $(".ui-autocomplete").css("background-color");
+        $(".ui-autocomplete .ui-menu-item").first().trigger("click");
+        return { items, selected, value: input.val(), menuBackground };
+      });
+      expect(autocomplete.items).toEqual(["Alpha", "Beta"]);
+      expect(autocomplete.selected, "autocompleteselect did not fire").toBe(
+        "Alpha",
+      );
+      expect(autocomplete.value, "selection not inserted before select").toBe(
+        "Alpha",
+      );
+      // styles.css carries the retired autocomplete.css dropdown look.
+      expect(autocomplete.menuBackground).toBe("rgb(255, 255, 255)");
+
+      // printThis 2.0.0 served from the stable retiredjs URL still exposes
+      // the zero-options call shape PercSiteSummaryDialog uses.
+      await page.addScriptTag({
+        url: `${BASE_URL}/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js`,
+      });
+      const printThis = await page.evaluate(() => ({
+        fn: typeof window.jQuery.fn.printThis,
+        printContainer: window.jQuery.fn.printThis.defaults.printContainer,
+        importCSS: window.jQuery.fn.printThis.defaults.importCSS,
+      }));
+      expect(printThis.fn).toBe("function");
+      expect(printThis.printContainer).toBe(true);
+      expect(printThis.importCSS).toBe(true);
     },
   );
 

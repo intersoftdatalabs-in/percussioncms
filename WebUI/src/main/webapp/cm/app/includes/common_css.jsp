@@ -4,8 +4,6 @@
 <link type="text/css" href="../css/styles.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="../css/percFinder.css" />
 <link rel="stylesheet" type="text/css" href="../css/percDialog.css" />
-<link rel="stylesheet" type="text/css" href="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.css" />
-<link rel="stylesheet" type="text/css" href="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.css" />
 <link type="text/css" rel="stylesheet" href="../jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css" />
 <link type="text/css" rel="stylesheet" href="../jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css" />
 <link rel="stylesheet" type="text/css" href="../jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css"/>
