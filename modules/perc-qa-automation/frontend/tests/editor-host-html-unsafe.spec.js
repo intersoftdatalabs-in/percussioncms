@@ -176,7 +176,7 @@ test.describe("React Content Editor unsafe HTML", () => {
           body: JSON.stringify({
             ContentTypeDetail: {
               name: "percRichText",
-              fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+              fields: [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }],
             },
           }),
         }),

@@ -56,7 +56,7 @@ const TYPE = {
     name: "percRichText",
     fields: [
       { name: "sys_title", label: "Title", control: "sys_EditBox" },
-      { name: "text", label: "Body", control: "sys_tinymce" },
+      { name: "text", label: "Body", control: "sys_default_richtext_editor" },
       { name: "img", label: "Image", control: "sys_webImageFX" },
       { name: "item_file_attachment", label: "File", control: "sys_File" },
       { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },

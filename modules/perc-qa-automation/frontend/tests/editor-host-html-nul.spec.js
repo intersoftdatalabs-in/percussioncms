@@ -210,14 +210,14 @@ test.describe("React Content Editor HTML NUL", () => {
               name: "percRichText",
               fields: includeLongText
                 ? [
-                    { name: "text", label: "Body", control: "sys_tinymce" },
+                    { name: "text", label: "Body", control: "sys_default_richtext_editor" },
                     {
                       name: "description",
                       label: "Description",
                       control: "sys_TextArea",
                     },
                   ]
-                : [{ name: "text", label: "Body", control: "sys_tinymce" }],
+                : [{ name: "text", label: "Body", control: "sys_default_richtext_editor" }],
             },
           }),
         }),

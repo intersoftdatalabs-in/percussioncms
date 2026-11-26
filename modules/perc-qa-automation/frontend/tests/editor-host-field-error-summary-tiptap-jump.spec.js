@@ -72,7 +72,7 @@ const TYPE = {
       {
         name: "body",
         label: "Body",
-        control: "sys_tinymce",
+        control: "sys_default_richtext_editor",
         dataType: "text",
         required: true,
       },

@@ -160,7 +160,7 @@ async function installAssemblyRoutes(page, options) {
         fields: [
           { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
           { name: "notes", label: "Notes", control: "sys_TextArea" },
-          { name: "description", label: "Body", control: "sys_tinymce" },
+          { name: "description", label: "Body", control: "sys_default_richtext_editor" },
           { name: "pagelink", label: "Page link", control: "sys_PageLink" },
         ],
       }),
