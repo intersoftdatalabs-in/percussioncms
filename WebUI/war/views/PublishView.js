@@ -442,16 +442,24 @@
             showIncrementalPreview(showRelated);
         });
         var tootltiptext = I18N.message("perc.ui.publish.view@Publish Tip");
-        var infoIcon = $("<a style=\"display:inline-block;float:right;\" title=\"" + tootltiptext + "\"><span id=\"perc-publish-button-help\" style=\"margin-top: 3px;background-color: #e6e6e9;color:#a1a1a1;\" class=\"perc-font-icon icon-info-sign\"></span></a>");
-        infoIcon.tooltip({
-            delay: 500,
-            left:-25,
-            top:25,
-            bodyHandler: function(){
-                 return "<p style='padding:5px 20px 5px 20px;'>" + tootltiptext + "</p>";   
-            }
+        var infoIcon = $("<a style=\"display:inline-block;float:right;\" href=\"javascript:void(0);\"><span id=\"perc-publish-button-help\" style=\"margin-top: 3px;background-color: #e6e6e9;color:#a1a1a1;\" class=\"perc-font-icon icon-info-sign\"></span></a>");
+        // Bootstrap 5 tooltip (issue #7178): the retired bassistance tooltip
+        // plugin is gone, and the jQuery UI tooltip widget cannot own
+        // $.fn.tooltip on classic pages — Bootstrap 5.3 re-registers its own
+        // $.fn.tooltip on DOMContentLoaded, after every synchronous script
+        // (including jQuery UI). Bootstrap 5 (npm, loaded by common_js.jsp) is
+        // therefore the replacement. The tip text travels via the title option;
+        // delay/placement carry the old delay/left/top tuning. The bubble look
+        // and the old #tooltip z-index live in cm/css/styles.css
+        // (.perc-publish-tooltip); Bootstrap's default sanitizer stays on.
+        new bootstrap.Tooltip(infoIcon[0], {
+            html: true,
+            title: "<p class='perc-publish-tip'>" + tootltiptext + "</p>",
+            delay: { show: 500, hide: 100 },
+            placement: "left",
+            offset: [25, 25],
+            customClass: "perc-publish-tooltip"
         });
-        $("#tooltip").css("z-index",9999);
         $("#perc-publish-button").append(infoIcon);
     }
     

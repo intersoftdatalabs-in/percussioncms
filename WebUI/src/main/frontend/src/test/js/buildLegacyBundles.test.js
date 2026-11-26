@@ -2326,6 +2326,200 @@ describe("classic-UI blockUI + cookie from npm (issue #7177)", () => {
 });
 
 /**
+ * Bassistance-era form plugins: print-this from npm, four retired outright
+ * (issue #7178, parent audit #5627).
+ *
+ * The vendored tooltip/autocomplete/metadata/text-overflow/caret/printThis
+ * copies are deleted from all three trees. print-this 2.0.0 (jasonday
+ * lineage, MIT — the deleted copy carried no license banner) is served from
+ * the Dependabot-tracked npm dist at the same stable jslib URL
+ * (STANDALONE_NPM_COPIES + NPM_LIBRARY_MAPPINGS), still bundled into
+ * perc_admin.packed.js, which the PercSiteSummaryDialog zero-options
+ * `$content.printThis()` call rides. Tooltips/autocompletes move to the
+ * already-npm-tracked jQuery UI 1.14 dist (call sites ported to the widget
+ * API — pinned behaviorally in bassistanceRetirement.test.js); metadata's
+ * last live call was a no-op temp-object write, text-overflow folded into
+ * native CSS ellipsis, caret ported to selectionStart/setSelectionRange.
+ * These tests pin:
+ *
+ *   1. The print-this npm mapping + required standalone copy.
+ *   2. Served bytes identical to the npm 2.0.0 dist with the jasonday MIT
+ *      banner; vendored copies gone from all three trees.
+ *   3. The stable print-this URL still referenced from the perc_admin
+ *      bundle config; the tag-list editor declares jquery-ui.min.js while
+ *      the per-URL autocomplete descriptors are gone (404 by design).
+ *   4. The retired paths (tooltip/metadata/text-overflow/caret plus the
+ *      autocomplete pair) have no mapping, no standalone copy, no bundle
+ *      line, and no vendored file in any tree.
+ *   5. The MIT license chain for the npm-served print-this dist.
+ */
+describe("classic-UI print-this from npm, bassistance retirement (issue #7178)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const PACKAGES_DIR = path.join(
+    FRONTEND_ROOT,
+    "..",
+    "..",
+    "..",
+    "..",
+    "modules",
+    "perc-packages",
+    "src",
+    "main",
+    "resources",
+    "Packages",
+  );
+  const PRINT_THIS = {
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js",
+    src: "print-this/printThis.js",
+    versionRe: /printThis v2\.0\.0/,
+    licenseRe: /MIT licence/,
+  };
+  const RETIRED_7178 = [
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.css",
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js",
+    // Autocomplete joins the retired list: the widget ships inside the
+    // already-loaded jQuery UI bundle, so the stable per-URL files are
+    // deleted with no npm mapping (the tag-list editor loads
+    // jquery-ui.min.js instead).
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.css",
+  ];
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const WAR_JSLIB_MIRROR = path.join(WAR_MIRROR, "jslib");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+  const TREES = [WAR_DIR, VENDOR_MIRROR, WAR_JSLIB_MIRROR];
+  const inTree = (root, dest) =>
+    root === WAR_DIR
+      ? path.join(root, dest)
+      : path.join(root, dest.replace(/^jslib\//, ""));
+
+  it("pins print-this in NPM_LIBRARY_MAPPINGS + STANDALONE_NPM_COPIES", () => {
+    expect(
+      NPM_LIBRARY_MAPPINGS[PRINT_THIS.dest],
+      `no npm mapping for ${PRINT_THIS.dest}`,
+    ).toBe(PRINT_THIS.src);
+    const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === PRINT_THIS.dest);
+    expect(entry, `missing standalone copy for ${PRINT_THIS.dest}`).toBeDefined();
+    expect(entry.src).toBe(PRINT_THIS.src);
+    expect(entry.required).toBe(true);
+  });
+
+  it("serves print-this bytes identical to the npm dist, vendored copies gone", () => {
+    if (!fs.existsSync(path.join(NODE_MODULES, PRINT_THIS.src))) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    const generated = fs.readFileSync(path.join(OUTPUT_DIR, PRINT_THIS.dest));
+    const npmDist = fs.readFileSync(path.join(NODE_MODULES, PRINT_THIS.src));
+    expect(generated.equals(npmDist), `${PRINT_THIS.dest} differs from npm`).toBe(true);
+    expect(generated.toString("utf8", 0, 4096)).toMatch(PRINT_THIS.versionRe);
+    expect(generated.toString("utf8", 0, 4096)).toMatch(PRINT_THIS.licenseRe);
+    for (const root of TREES) {
+      expect(
+        fs.existsSync(inTree(root, PRINT_THIS.dest)),
+        `vendored print-this still present: ${inTree(root, PRINT_THIS.dest)}`,
+      ).toBe(false);
+    }
+  });
+
+  it("resolves the print-this bundle path into node_modules, not vendored files", () => {
+    const resolved = resolvePath(PRINT_THIS.dest);
+    const normalized = resolved.split(path.sep).join("/");
+    expect(normalized).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+  });
+
+  it("keeps the stable print-this URL referenced from the pack + jQUI on the tag control", () => {
+    const config = JSON.parse(
+      fs.readFileSync(
+        path.join(BUNDLE_CONFIG_DIR, "static-bundles.json"),
+        "utf8",
+      ),
+    );
+    expect(JSON.stringify(config)).toContain(
+      "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js",
+    );
+    // The tag-list editor runs its autocomplete from the jQuery UI bundle:
+    // no per-URL autocomplete descriptors remain, jquery-ui.min.js is
+    // declared instead.
+    const tagListXsl = fs.readFileSync(
+      path.join(
+        PACKAGES_DIR,
+        "perc.Baseline/SupportFile-rx_resources/stylesheets/controls/percTagListControl.xsl",
+      ),
+      "utf8",
+    );
+    expect(tagListXsl).not.toContain("jquery-perc-retiredjs/jquery.autocomplete");
+    expect(tagListXsl).toContain(
+      "jquery/libraries/jquery-ui/jquery-ui.min.js",
+    );
+  });
+
+  it("leaves no mapping, standalone copy, bundle line, or vendored file for the retired set", () => {
+    const bundleConfigs = ["common-bundles.json", "common-minuet-bundles.json"].map(
+      (f) => fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, f), "utf8"),
+    );
+    for (const dest of RETIRED_7178) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `unexpected npm mapping for retired ${dest}`,
+      ).toBeUndefined();
+      expect(
+        STANDALONE_NPM_COPIES.filter((e) => e.dest === dest),
+        `unexpected standalone copy for retired ${dest}`,
+      ).toEqual([]);
+      for (const config of bundleConfigs) {
+        expect(config, `bundle still lists retired ${dest}`).not.toContain(dest);
+      }
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `vendored file still present: ${inTree(root, dest)}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("pins the MIT license chain for the npm-served print-this dist (issue #7178)", () => {
+    // The deleted copy carried no license banner anywhere (UNSTATED
+    // provenance — the audit's weakest row with the cookie rewrite now
+    // migrated). The npm migration restores a pinned chain: the served
+    // dist banner, the npm package metadata (jasonday lineage), and the
+    // Dependabot-tracked dependency pin.
+    if (!fs.existsSync(path.join(NODE_MODULES, "print-this/package.json"))) {
+      // Hermetic CI without frontend node_modules: mapping pinned above.
+      return;
+    }
+    const printThisPkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "print-this/package.json"),
+        "utf8",
+      ),
+    );
+    expect(printThisPkg.name).toBe("print-this");
+    expect(printThisPkg.version).toBe("2.0.0");
+    expect(printThisPkg.license).toBe("MIT");
+    expect(`${printThisPkg.author}`, "print-this lost upstream attribution").toMatch(
+      /Jason Day/,
+    );
+    const frontendPkg = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    expect(
+      (frontendPkg.dependencies || {})["print-this"],
+      "print-this is not Dependabot-tracked in frontend/package.json",
+    ).toBe("2.0.0");
+  });
+});
+
+/**
  * Packed intermediates carry jquery-migrate ahead of $.isFunction callers
  * (issue #7293).
  *

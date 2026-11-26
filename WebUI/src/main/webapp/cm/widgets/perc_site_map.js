@@ -1498,11 +1498,6 @@
           });
           return;
         }
-        var oldSectionName = $(
-          "#" + sectionID + " div.perc-site-map-sectiontitle",
-        ).text();
-        var parentNodePath = self.getParentPath(sectionID);
-
         // update the title/label of the section
         $("#" + sectionID + " div.perc-site-map-sectiontitle")
           .text(self.truncateSectionTitle(data.SiteSection.title + ""))
@@ -1529,30 +1524,13 @@
         //Related to the fix for issue CM-1364, since we don't calculate the displaytitlepath in the client side,
         //we should keep the displayTitlePath property of the section links updated.
         //Update the displayTitlePath of the sections links that are affected by node title change.
-        if (oldSectionName !== data.SiteSection.title) {
-          // just if the display title change
-          $(".perc-site-map-sectionlink")
-            .parents(".perc-site-map-node")
-            .each(function () {
-              //Get all sections nodes
-              var displayTitlePath = getJsonObj(
-                $(this),
-                "data",
-              ).displayTitlePath;
-              if (typeof displayTitlePath != "undefined") {
-                //Replace the entire path to the node.
-                var oldPath = parentNodePath + "/" + oldSectionName;
-                var newPath = parentNodePath + "/" + data.SiteSection.title;
-                $(this).metadata({
-                  type: "attr",
-                  name: "data",
-                }).displayTitlePath = displayTitlePath.replace(
-                  oldPath,
-                  newPath,
-                );
-              }
-            });
-        }
+        //NOTE (issue #7178): the old block here parsed each node's data
+        //attribute and assigned the replaced path onto a throwaway
+        //metadata-result object — the retired metadata plugin file never
+        //wrote back to the DOM, and nothing ever read that temp object
+        //(all live reads go through getJsonObj/attr, per the #1097 note
+        //below). The block was a no-op, so it is removed outright instead
+        //of being ported.
 
         $.Perc_SectionServiceClient.clearCache("getChildren");
 

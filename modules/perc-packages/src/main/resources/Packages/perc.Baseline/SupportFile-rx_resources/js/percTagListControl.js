@@ -38,11 +38,41 @@
       window.percTagListSource !== undefined &&
       percTagListSource.length > 0
     ) {
-      $("#page_tags-display").autocomplete(percTagListSource, {
-        minChars: 1,
-        selectFirst: false,
-        multiple: true,
-        scrollHeight: 135,
+      // jQuery UI autocomplete (issue #7178): the retired bassistance
+      // autocomplete plugin is gone; jQuery UI 1.14 is declared on this
+      // control (jquery-ui.min.js FileDescriptor) and owns $.fn.autocomplete
+      // now. minChars: 1 becomes minLength: 1; selectFirst: false is the
+      // jQuery UI default (autoFocus: false); multiple: true becomes the
+      // split/extractLast multi-value pattern (helpers already present in
+      // this file); scrollHeight: 135 moves into open as a menu max-height.
+      $("#page_tags-display").autocomplete({
+        minLength: 1,
+        autoFocus: false,
+        source: function (request, response) {
+          response(
+            $.ui.autocomplete.filter(
+              percTagListSource,
+              extractLast(request.term),
+            ),
+          );
+        },
+        focus: function () {
+          // prevent value insertion on focus (multi-value pattern)
+          return false;
+        },
+        select: function (event, ui) {
+          var terms = split(this.value);
+          terms.pop();
+          terms.push(ui.item.value);
+          terms.push("");
+          this.value = terms.join(", ");
+          return false;
+        },
+        open: function () {
+          $("#page_tags-display")
+            .autocomplete("widget")
+            .css({ "max-height": "135px", "overflow-y": "auto" });
+        },
       });
     }
   });
@@ -70,17 +100,32 @@
           evt.preventDefault();
         } else if (theChar != filtered) {
           // the filter changed the char to something else, update the field
-          // and retain correct cursor caret positioning
+          // and retain correct cursor caret positioning.
+          // Native caret (issue #7178): the retired jquery.caret.js plugin
+          // is gone; selectionStart/selectionEnd + setSelectionRange cover
+          // this text input.
 
           var field = evt.target;
-          var start = $(field).caret().start;
-          var end = $(field).caret().end;
+          var start =
+            typeof field.selectionStart === "number"
+              ? field.selectionStart
+              : field.value.length;
+          var end =
+            typeof field.selectionEnd === "number"
+              ? field.selectionEnd
+              : field.value.length;
           var t1 = field.value.slice(0, start);
           var t2 = field.value.slice(end);
           var newVal = t1 + filtered + t2;
           field.value = newVal;
           var cursorPos = t1.length + 1;
-          $(field).caret({ start: cursorPos, end: cursorPos });
+          if (typeof field.setSelectionRange === "function") {
+            try {
+              field.setSelectionRange(cursorPos, cursorPos);
+            } catch (ignore) {
+              // non-text input types reject setSelectionRange; leave caret alone.
+            }
+          }
           evt.preventDefault();
         }
       });

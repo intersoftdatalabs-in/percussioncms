@@ -41,12 +41,12 @@
  * | jquery-dropdown/jquery.dropdown.js + .css | MIGRATED #7176: npm @claviska/jquery-dropdown 2.0.3 | MIT (dist banner + pkg) | same stable URLs, npm-backed | @claviska/jquery-dropdown | #7176 DONE |
  * | retiredjs/jquery.blockUI.js | MIGRATED #7177: npm block-ui 2.70.1 (malsup lineage) | MIT/GPL (dist banner + pkg) | same stable URLs, npm-backed | block-ui | #7177 DONE |
  * | retiredjs/jquery.cookie.js | MIGRATED #7177: npm jquery.cookie 1.4.1 (Klaus Hartl lineage) | MIT (dist banner + pkg) | same stable URLs, npm-backed | jquery.cookie | #7177 DONE |
- * | retiredjs/jquery.tooltip.js + .css | 2006-2008 Zaefferer | MIT/GPL | common_js.jsp + shared-common | none equivalent | #7178 |
- * | retiredjs/jquery.autocomplete.js + .css | 2007 bassistance | MIT/GPL | common_js.jsp + shared-common | none equivalent | #7178 |
- * | retiredjs/jquery.metadata.js | 2006-era Resig et al | MIT/GPL | shared-common.js | none | #7178 |
- * | retiredjs/jquery.text-overflow.js | v0.7.4 Bram Stein | BSD | common_js.jsp + shared-common.js | none | #7178 |
- * | retiredjs/jquery.caret.js | 2010 C.F. Wong | MIT | common_js.jsp + shared-common.js | none equivalent | #7178 |
- * | retiredjs/jquery.print-this.js | UNKNOWN (no banner anywhere) | UNSTATED | perc_admin pack + PercSiteSummaryDialog | none | #7178 |
+ * | retiredjs/jquery.tooltip.js + .css | REMOVED #7178 (dead upstream; jQuery UI 1.14 tooltip owns $.fn.tooltip, call sites ported) | none | #7178 |
+ * | retiredjs/jquery.autocomplete.js + .css | MIGRATED #7178: same-URL npm jQuery UI 1.14 (call sites ported to the widget API) | MIT (dist banner + pkg) | same stable URL, npm-backed | jquery-ui | #7178 DONE |
+ * | retiredjs/jquery.metadata.js | REMOVED #7178 (dead upstream; last live call was a no-op temp-object write) | none | #7178 |
+ * | retiredjs/jquery.text-overflow.js | REMOVED #7178 (dead upstream; native CSS ellipsis everywhere) | none | #7178 |
+ * | retiredjs/jquery.caret.js | REMOVED #7178 (dead upstream; native selectionStart/End port) | none | #7178 |
+ * | retiredjs/jquery.print-this.js | MIGRATED #7178: npm print-this 2.0.0 (jasonday lineage) | MIT (dist banner + pkg) | same stable URL, npm-backed | print-this | #7178 DONE |
  * | retiredjs/timepicker.js | 0.2.1 Milesich 2009 (copyright, no grant) | UNSTATED | common_js.jsp; Schedule/Finder/Page views | partial (different lineage) | #7179 |
  * | retiredjs/datepicker.js | UNKNOWN (@VERSION never built) | MIT (jQuery Fdn header) | NONE (dead) | n/a (UI npm #5660) | #7179 |
  * | libraries/perc-retiredjs/date.js | v1.02 Matt Kruse | MIT/GPL | NONE (dead; moment npm #5665) | n/a | #7179 |
@@ -132,12 +132,13 @@ const THIRD_PARTY = [
   // references, and the ui-layout-* classes left in markup are inert
   // without the plugin (the CSS only styled plugin-generated
   // resizers/togglers/masks that never existed).
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js`, /Jorn Zaef|Jörn Zaef/, /MIT and GPL/, 7178],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js`, /Dylan Verheul/, /MIT and GPL/, 7178],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js`, /John Resig/, /MIT and GPL/, 7178],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js`, /Bram Stein/, /BSD/, 7178],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js`, /C\. F\., Wong/, /MIT License/, 7178],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.print-this.js`, null, null, 7178],
+  // #7178 rows retired: tooltip/autocomplete/metadata/text-overflow/caret
+  // deleted from all three trees (see RETIRED_7178 below). Dead upstream
+  // (Zaefferer 2008, bassistance 2007, Resig 2006, Bram Stein 2011, Wong
+  // 2010); tooltips/autocompletes moved to the already-npm-tracked jQuery
+  // UI 1.14 dist (#5660; autocomplete has no per-URL file left), metadata's
+  // last live call was a no-op temp-object write, text-overflow folded into
+  // native CSS ellipsis, caret ported to selectionStart/setSelectionRange.
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/timepicker.js`, /jQuery UI Timepicker 0\.2\.1/, null, 7179],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/datepicker.js`, /@VERSION/, /MIT license/, 7179],
   [`${JSLIB}/libraries/perc-retiredjs/date.js`, /\$VERSION = 1\.02/, /Dual licensed/, 7179],
@@ -208,6 +209,49 @@ const RETIRED_7175 = [
   },
 ];
 /** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
+/** Issue #7178 retired bassistance-era form plugins (parent audit #5627).
+ *
+ * Dead upstream with no npm equivalent (Zaefferer tooltip 2008, bassistance
+ * autocomplete 2007, Resig metadata 2006, Bram Stein text-overflow 2011,
+ * Wong caret 2010): deleted from all three trees (cm/jslib,
+ * cm/vendor/js/legacy, WebUI/war) with the common_js.jsp tags,
+ * common_js/minuet bundle entries, common_css.jsp links, dashboard and
+ * testing-page tags, and perc-packages control FileDescriptors dropped.
+ * Replaced in kind: tooltips/autocompletes moved to the already-npm-tracked
+ * jQuery UI 1.14 dist (#5660, call sites ported to the widget API;
+ * autocomplete has no per-URL file left, the widget ships inside the
+ * already-loaded jQuery UI bundle); metadata's last live call
+ * (perc_site_map) was a no-op write to a temp object, removed;
+ * text-overflow folded into native CSS ellipsis (same $.PercTextOverflow
+ * API); caret ported to selectionStart/setSelectionRange. The sibling
+ * print-this is npm-served at the same stable URL instead (pinned in
+ * buildLegacyBundles.test.js), so only these six rows assert unreferenced
+ * here.
+ */
+const RETIRED_7178 = [
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js`,
+    needles: ["jquery-perc-retiredjs/jquery.tooltip"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js`,
+    needles: ["jquery-perc-retiredjs/jquery.metadata"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js`,
+    needles: ["jquery-perc-retiredjs/jquery.text-overflow"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js`,
+    needles: ["jquery-perc-retiredjs/jquery.caret"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js`,
+    needles: ["jquery-perc-retiredjs/jquery.autocomplete"],
+  },
+];
+
+/** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
 const RETIRED_7181 = [
   {
     rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jmodal.js`,
@@ -255,15 +299,13 @@ const DEAD = [
 /** Direct script loads in common_js.jsp that must survive until migration. */
 const DIRECT_LOADS = [
   "jquery-perc-retiredjs/jquery.blockUI.js",
-  "jquery-perc-retiredjs/jquery.caret.js",
   "jquery-dropdown/jquery.dropdown.js",
-  "jquery-perc-retiredjs/jquery.text-overflow.js",
-  "jquery-perc-retiredjs/jquery.metadata.js",
   "jquery-perc-retiredjs/jquery.deparam.js",
   "jquery-perc-retiredjs/jquery.cookie.js",
-  "jquery-perc-retiredjs/jquery.tooltip.js",
-  "jquery-perc-retiredjs/jquery.autocomplete.js",
   "jquery-perc-retiredjs/timepicker.js",
+  // jQuery UI owns $.fn.tooltip/$.fn.autocomplete now (issue #7178); the
+  // bassistance caret/text-overflow/metadata/tooltip/autocomplete tags are
+  // gone from all three common_js.jsp twins.
   // #7181 carousel shim (first-party replacement for tools.scrollable).
   "jquery-percutils/jquery.percscrollable.js",
 ];
@@ -448,6 +490,62 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
       p.split(path.sep).includes("jslib") ||
       p.split(path.sep).includes("vendor");
     for (const { rel, needles } of RETIRED_7175) {
+      const base = path.basename(rel);
+      const hits = [];
+      for (const root of roots) {
+        const walk = (dir) => {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              if (!skipDir(full)) walk(full);
+            } else if (/\.(jsp|html|xls|xsl|js|json|css)$/.test(entry.name)) {
+              const content = fs.readFileSync(full, "utf8");
+              for (const needle of needles) {
+                if (content.includes(needle)) hits.push(`${full} :: ${needle}`);
+              }
+            }
+          }
+        };
+        walk(root);
+      }
+      expect(hits, `retired ${base} still referenced`).toEqual([]);
+    }
+  });
+
+  it("retired #7178 bassistance-era form plugins stay deleted and unreferenced", () => {
+    // Dead upstream (2006-2011, no npm equivalent): the files are deleted
+    // and no reference to them (or their stable jslib URLs) may remain —
+    // the common_js.jsp tags, bundle entries, CSS links, and perc-packages
+    // control FileDescriptors are all dropped. Tooltips/autocompletes live
+    // on as the jQuery UI widgets (call sites ported; no per-URL
+    // autocomplete file remains); metadata's last live call was a no-op;
+    // text-overflow/caret are native now. The sibling print-this is
+    // npm-served at the same URL (pinned in buildLegacyBundles.test.js),
+    // so it is not in this list.
+    for (const { rel, needles } of RETIRED_7178) {
+      for (const tree of [WEBAPP_CM, WAR_ROOT]) {
+        const relNoJslib = rel.replace(/^jslib\//, "");
+        const candidates =
+          tree === WEBAPP_CM
+            ? [
+                path.join(tree, rel),
+                path.join(tree, "vendor/js/legacy", relNoJslib),
+              ]
+            : [path.join(tree, rel)];
+        for (const abs of candidates) {
+          expect(fs.existsSync(abs), `retired file resurrected: ${abs}`).toBe(
+            false,
+          );
+        }
+      }
+    }
+    // The reference walk covers the packaged control descriptors too:
+    // control XSLs emit their FileDescriptors into live editor pages.
+    const roots = [WEBAPP_CM, MINIFY_DIR, PACKAGES_ROOT];
+    const skipDir = (p) =>
+      p.split(path.sep).includes("jslib") ||
+      p.split(path.sep).includes("vendor");
+    for (const { rel, needles } of RETIRED_7178) {
       const base = path.basename(rel);
       const hits = [];
       for (const root of roots) {

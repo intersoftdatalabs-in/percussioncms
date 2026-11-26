@@ -58,11 +58,6 @@
 				<psxctl:FileLocation>/rx_resources/widgets/form/js/PercFormView.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery-caret.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="perc_utils.js"
 				type="script" mimetype="text/javascript">
 				<psxctl:FileLocation>/cm/plugins/perc_utils.js</psxctl:FileLocation>

@@ -6,7 +6,6 @@
 <script src="/cm/app/js/legacy/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js"></script>
 <script src="/cm/app/js/legacy/plugins/PercViewReadyManager.js"></script>
 <!-- First-party carousel (issue #7181): replaces retired jQuery Tools
@@ -16,15 +15,11 @@
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.bbq.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js"></script>

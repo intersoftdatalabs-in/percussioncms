@@ -33,11 +33,6 @@
 				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery-caret.js"
-				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
 			<!-- TipTap vanilla editor (issue #5901): prebuilt bundle + controller.
 			Ships inside this package under rx_resources — no CMS-served
 			TinyMCE script dependency on delivered sites. -->
