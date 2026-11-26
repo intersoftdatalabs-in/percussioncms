@@ -104,7 +104,7 @@ function skeleton(expanderClass) {
     </div>`;
 }
 
-function loadSource() {
+function bootstrapJquery() {
   let jq = jquery(globalThis.window);
   if (typeof jq !== "function") {
     jq = typeof jquery === "function" ? jquery : jquery.fn || jquery;
@@ -114,7 +114,9 @@ function loadSource() {
   $ = jq;
   globalThis.jQuery = $;
   globalThis.$ = $;
+}
 
+function stubPercussionServices() {
   $.perc_iframe_fix = () => {};
   $.PercDirtyController = {};
   $.perc_utils = { convertCXFArray: (value) => value };
@@ -129,6 +131,9 @@ function loadSource() {
       callback("OK", result);
     },
   };
+}
+
+function stubCookieHarness() {
   // In-memory cookie with npm jquery.cookie 1.4.1 semantics: a missing
   // key reads back as undefined (not null).
   $.cookie = (key, value) => {
@@ -136,6 +141,9 @@ function loadSource() {
     cookieStore[key] = String(value);
     return undefined;
   };
+}
+
+function stubJqueryPlugins() {
   $.perc_filterField = (field) => {
     filterFieldCalls.push(field);
   };
@@ -181,7 +189,9 @@ function loadSource() {
     if (callback) callback.call(this);
     return this;
   };
+}
 
+function evalViewSource() {
   globalThis.I18N = { message: (key) => `[${key}]` };
   // fixTemplateHeight is an implicit global from cm/views/header.js, called
   // once at the end of templateDesignView().
@@ -189,6 +199,14 @@ function loadSource() {
   $.Percussion = $.Percussion || {};
   (0, eval)(readFileSync(SRC_PATH, "utf8"));
   P = $.Percussion;
+}
+
+function loadSource() {
+  bootstrapJquery();
+  stubPercussionServices();
+  stubCookieHarness();
+  stubJqueryPlugins();
+  evalViewSource();
 }
 
 beforeEach(() => {
