@@ -81,6 +81,13 @@ import org.xml.sax.InputSource;
  * in-product {@code Спеціальні віджети:}); the latter also keeps the standard | custom
  * | user kind-chrome distinct, where the candidate {@code Користувацький} ("user's")
  * would collide with the sibling "user" kind.
+ *
+ * <p>Issue #7286 extends the pin to pl across all four {@code Custom} TUs, following the
+ * same stem-consistency invariant: the bare {@code Custom} uses the stem of the locale's
+ * in-product {@code perc.ui.widget.config.gadget@Custom Widgets} rendering — pl {@code
+ * Niestandardowe widżety:} / {@code Niestandardowy} (masculine singular adjective sense
+ * "customized", as proposed on the issue). This keeps the standard | custom | user
+ * kind-chrome distinct (siblings ship {@code Standard} / {@code Użytkownik}).
  */
 public class PSDeveloperCustomKindKeyTmxTest {
 
@@ -129,6 +136,15 @@ public class PSDeveloperCustomKindKeyTmxTest {
   private static final String EXPECTED_RU = "Пользовательский";
 
   private static final String EXPECTED_UK = "Спеціальний";
+
+  /**
+   * Issue #7286 (pl slice of the [7252-residual]): pl shipped the wrong-sense noun
+   * {@code Zwyczaj} ("custom/habit/tradition") in all four {@code Custom} TUs. Corrected
+   * target is the adjective-sense ("customized") masculine singular {@code Niestandardowy} —
+   * the stem of the locale's in-product {@code Custom Widgets} rendering (see class Javadoc
+   * for the stem-consistency invariant).
+   */
+  private static final String EXPECTED_PL = "Niestandardowy";
 
   /**
    * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
@@ -247,6 +263,22 @@ public class PSDeveloperCustomKindKeyTmxTest {
             + offenders);
   }
 
+  @Test
+  public void customKindKey_polishUsesAdjectiveSense() throws Exception {
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      if (!EXPECTED_PL.equals(segs.get("pl"))) {
+        offenders.add(tu.getKey() + " [pl]=" + segs.get("pl"));
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized Niestandardowy), not the noun (Zwyczaj): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -271,7 +303,8 @@ public class PSDeveloperCustomKindKeyTmxTest {
             "zh-cn", EXPECTED_ZH_CN,
             "zh-tw", EXPECTED_ZH_TW,
             "ru", EXPECTED_RU,
-            "uk", EXPECTED_UK);
+            "uk", EXPECTED_UK,
+            "pl", EXPECTED_PL);
     for (Map.Entry<String, String> want : expected.entrySet()) {
       String seg = segs.get(want.getKey());
       if (seg != null) {
@@ -283,7 +316,7 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284/#7285): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284/#7285/#7286): "
             + offenders);
   }
 
