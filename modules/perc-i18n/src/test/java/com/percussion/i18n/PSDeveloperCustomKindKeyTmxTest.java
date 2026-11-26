@@ -67,6 +67,20 @@ import org.xml.sax.InputSource;
  * transliteration, with the shared {@code hi + "Custom"} cache entry synced
  * TMX-leads-cache-follows. Remaining locales (zh-cn / zh-tw / ru / pl / tr / nb / he /
  * sv / uk) are left for per-group native-confirmation follow-ups.
+ *
+ * <p>Issues #7284 and #7285 extend the pin to zh-cn / zh-tw and ru / uk respectively
+ * across all four {@code Custom} TUs, each following the stem-consistency invariant every
+ * corrected locale already satisfies: the bare {@code Custom} uses the stem of that
+ * locale's {@code perc.ui.widget.config.gadget@Custom Widgets} rendering (es {@code
+ * Widgets personalizados} / {@code Personalizado}, fr {@code Widgets personnalisés} /
+ * {@code Personnalisé}, de {@code Benutzerdefinierte Widgets} / {@code
+ * Benutzerdefiniert}, it {@code Widget personalizzati} / {@code Personalizzato}, hi
+ * {@code कस्टम विजेट} / {@code कस्टम}, zh-cn {@code 自定义小部件} / {@code 自定义}).
+ * So ru ships {@code Пользовательский} (singular of the in-product {@code
+ * Пользовательские виджеты:}) and uk ships {@code Спеціальний} (singular of the
+ * in-product {@code Спеціальні віджети:}); the latter also keeps the standard | custom
+ * | user kind-chrome distinct, where the candidate {@code Користувацький} ("user's")
+ * would collide with the sibling "user" kind.
  */
 public class PSDeveloperCustomKindKeyTmxTest {
 
@@ -104,6 +118,17 @@ public class PSDeveloperCustomKindKeyTmxTest {
   private static final String EXPECTED_ZH_CN = "自定义";
 
   private static final String EXPECTED_ZH_TW = "自訂";
+
+  /**
+   * Issue #7285 (ru/uk slice of the [7252-residual]): ru shipped the wrong-sense noun
+   * {@code Обычай} ("custom/habit") and uk shipped untranslated {@code Custom} in all four
+   * {@code Custom} TUs. Corrected targets are the adjective-sense ("customized") singulars of
+   * each locale's in-product {@code Custom Widgets} rendering (see class Javadoc for the
+   * stem-consistency invariant): ru {@code Пользовательский}, uk {@code Спеціальний}.
+   */
+  private static final String EXPECTED_RU = "Пользовательский";
+
+  private static final String EXPECTED_UK = "Спеціальний";
 
   /**
    * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
@@ -198,6 +223,30 @@ public class PSDeveloperCustomKindKeyTmxTest {
             + offenders);
   }
 
+  @Test
+  public void customKindKey_russianUkrainianUseAdjectiveSense() throws Exception {
+    Map<String, String> expected = Map.of("ru", EXPECTED_RU, "uk", EXPECTED_UK);
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      for (Map.Entry<String, String> want : expected.entrySet()) {
+        if (!want.getValue().equals(segs.get(want.getKey()))) {
+          offenders.add(
+              tu.getKey()
+                  + " ["
+                  + want.getKey()
+                  + "]="
+                  + segs.get(want.getKey()));
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized), not the noun (custom/habit): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -220,7 +269,9 @@ public class PSDeveloperCustomKindKeyTmxTest {
             "it", EXPECTED_IT,
             "hi", EXPECTED_HI,
             "zh-cn", EXPECTED_ZH_CN,
-            "zh-tw", EXPECTED_ZH_TW);
+            "zh-tw", EXPECTED_ZH_TW,
+            "ru", EXPECTED_RU,
+            "uk", EXPECTED_UK);
     for (Map.Entry<String, String> want : expected.entrySet()) {
       String seg = segs.get(want.getKey());
       if (seg != null) {
@@ -232,7 +283,7 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284/#7285): "
             + offenders);
   }
 
