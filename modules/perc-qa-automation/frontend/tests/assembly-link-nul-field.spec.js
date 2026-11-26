@@ -71,103 +71,95 @@ function previewHtml(link, html = OLD_HTML) {
   </body></html>`;
 }
 
-/**
- * @param {import("@playwright/test").Page} page
- * @param {{ putStatus?: number, link?: { current: string }, html?: { current: string } }} options
- */
-async function installAssemblyRoutes(page, options) {
-  const linkState = options.link || { current: OLD_LINK };
-  const htmlState = options.html || { current: OLD_HTML };
-  const puts = [];
+function findRowValue(rows, name) {
+  const row = rows.find((item) => (item.name || item.Name) === name);
+  return row ? row.value ?? row.Value : undefined;
+}
+
+function applyPutBody(postData, linkState, htmlState) {
+  try {
+    const parsed = JSON.parse(postData || "{}");
+    const rows = parsed.fields || parsed.Fields || [];
+    const link = findRowValue(rows, "pagelink");
+    if (link !== undefined) {
+      linkState.current = String(link ?? linkState.current);
+    }
+    const description = findRowValue(rows, "description");
+    if (description !== undefined) {
+      htmlState.current = String(description ?? htmlState.current);
+    }
+  } catch {
+    // Keep the previous link when the body cannot be read.
+  }
+}
+
+async function fulfillJson(route, payload, status = 200) {
+  await route.fulfill({
+    status,
+    contentType: "application/json",
+    body: typeof payload === "string" ? payload : JSON.stringify(payload),
+  });
+}
+
+async function handleFieldsRequest(route, ctx) {
+  const { options, linkState, htmlState, puts } = ctx;
+  if (route.request().method() === "PUT") {
+    puts.push(route.request().postData() || "");
+    if (options.putStatus) {
+      await fulfillJson(route, { message: "rejected" }, options.putStatus);
+      return;
+    }
+    applyPutBody(route.request().postData(), linkState, htmlState);
+  }
+  await fulfillJson(route, fieldsBody(linkState.current, htmlState.current));
+}
+
+async function installStaticAssemblyRoutes(page) {
   await page.route("**/services/actions/find/templates/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        ActionMenuList: [
-          {
-            name: "rffPgGeneric",
-            label: "Generic Page",
-            url: "../assembler/render?sys_template=7",
-            sortRank: 0,
-            type: "MENUITEM",
-          },
-        ],
-      }),
+    await fulfillJson(route, {
+      ActionMenuList: [
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          type: "MENUITEM",
+        },
+      ],
     });
   });
   await page.route("**/services/assembly/preview-location**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
-        contentId: 42,
-        templateId: 7,
-        revision: 1,
-      }),
+    await fulfillJson(route, {
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
     });
   });
   await page.route("**/services/assembly/slot-relationships/canvas**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ ownerId: 42, templateId: 7, slots: [] }),
-    });
+    await fulfillJson(route, { ownerId: 42, templateId: 7, slots: [] });
   });
   await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+    await fulfillJson(route, "{}");
   });
   await page.route("**/rest/editor/items/**/checkout", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
-  });
-  await page.route("**/itemmanagement/item/fields/**", async (route) => {
-    if (route.request().method() === "PUT") {
-      puts.push(route.request().postData() || "");
-      if (options.putStatus) {
-        await route.fulfill({
-          status: options.putStatus,
-          contentType: "application/json",
-          body: JSON.stringify({ message: "rejected" }),
-        });
-        return;
-      }
-      try {
-        const parsed = JSON.parse(route.request().postData() || "{}");
-        const rows = parsed.fields || parsed.Fields || [];
-        const link = rows.find((row) => (row.name || row.Name) === "pagelink");
-        if (link) {
-          linkState.current = String(link.value ?? link.Value ?? linkState.current);
-        }
-        const description = rows.find((row) => (row.name || row.Name) === "description");
-        if (description) {
-          htmlState.current = String(description.value ?? description.Value ?? htmlState.current);
-        }
-      } catch {
-        // Keep the previous link when the body cannot be read.
-      }
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(fieldsBody(linkState.current, htmlState.current)),
-    });
+    await fulfillJson(route, "{}");
   });
   await page.route("**/services/contenttypes/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        name: "percPage",
-        fields: [
-          { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-          { name: "notes", label: "Notes", control: "sys_TextArea" },
-          { name: "description", label: "Body", control: "sys_default_richtext_editor" },
-          { name: "pagelink", label: "Page link", control: "sys_PageLink" },
-        ],
-      }),
+    await fulfillJson(route, {
+      name: "percPage",
+      fields: [
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+        { name: "description", label: "Body", control: "sys_default_richtext_editor" },
+        { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+      ],
     });
   });
+}
+
+async function installPreviewRoute(page, ctx) {
+  const { linkState, htmlState } = ctx;
   await page.route("**/assembler/render**", async (route) => {
     await route.fulfill({
       status: 200,
@@ -175,7 +167,23 @@ async function installAssemblyRoutes(page, options) {
       body: previewHtml(linkState.current, htmlState.current),
     });
   });
-  return puts;
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {{ putStatus?: number, link?: { current: string }, html?: { current: string } }} options
+ */
+async function installAssemblyRoutes(page, options) {
+  const ctx = {
+    options,
+    linkState: options.link || { current: OLD_LINK },
+    htmlState: options.html || { current: OLD_HTML },
+    puts: [],
+  };
+  await installStaticAssemblyRoutes(page);
+  await page.route("**/itemmanagement/item/fields/**", (route) => handleFieldsRequest(route, ctx));
+  await installPreviewRoute(page, ctx);
+  return ctx.puts;
 }
 
 function watchNoise(page) {
