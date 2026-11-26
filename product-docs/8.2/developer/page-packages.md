@@ -151,6 +151,30 @@ name compiles silently with later entries shadowing earlier ones. Blank
 *expressions* are fine: the compiler normalizes them to `""` and readback to
 `null`. An empty binding list is vacuously conformant.
 
+### Slot `slot_layout` / `slot_styles` contract
+
+Every manifest `slots[]` entry carries two maps (`Java code:
+PSComponentPackageManifest.SlotRef`): `layout` for structural hints and
+`styles` for presentational tokens. They feed the `$sys.slot.layout` /
+`$sys.slot.styles` assembly bindings (ADR-003): region holes become slots at
+manifest compile (`Java code: PSPageXmlCompiler`), with CSS class hints from
+the region container seeding the maps (`Java code: PSPageXmlParser` —
+`perc-vertical` / `perc-horizontal` to `layout.orientation`,
+`vspan_N` / `hspan_N` to layout span hints, the full class string to
+`styles.rootclass`).
+
+Authoring rules: `layout` keys must come from the known set — the reserved
+`schemaVersion` plus `orientation`, `columns`, `maxItems`, `emptyState`,
+`wrapperClassPolicy`, and the region-mapper span hints `vspan` / `hspan`. Any
+other layout key (including typos such as `orientaton`) is a defect. `styles`
+keys stay open — custom `CssPref` names (for example `summaryclass`) are
+preserved by the upgrade mapping — but every style *value* must be scalar
+(string, number, boolean); nested objects, lists, and nulls are defects. Null
+or empty maps are informational only: a slot that lost its layout in the
+region mapping is surfaced, not failed. The rule is checked by
+`Java code: PSSlotLayoutStylesConformance`, which reports defects in document
+order without sorting.
+
 ## Assembler-model readback from the manifest
 
 Tooling reads a normalized assembler-model definition back through the modern
