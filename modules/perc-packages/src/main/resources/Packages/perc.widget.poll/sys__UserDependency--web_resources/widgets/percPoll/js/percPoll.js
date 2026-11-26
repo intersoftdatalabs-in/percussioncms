@@ -138,9 +138,10 @@
           .width(l - t);
         var p = m.totalVotes > 0 ? Math.round((s / m.totalVotes) * 100) : 0;
         q.find(".perc-poll-result-percent").text(p + "%");
-        q.find(".perc-poll-result-count").text(
-          "(" + s + "/" + m.totalVotes + ")",
-        );
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7273,
+        // same as #5897/#5898/#5910/#5927/#6195/#7272) — "/" separates the vote-count
+        // display string "(votes/total)", not an OS filesystem path.
+        q.find(".perc-poll-result-count").text("(" + s + "/" + m.totalVotes + ")");
       });
       c.find(".perc-poll-total-votes span").text(" " + m.totalVotes);
       d.find(".perc-poll-backto-poll").on("click", function () {
