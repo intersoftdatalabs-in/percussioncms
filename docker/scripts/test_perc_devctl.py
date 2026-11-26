@@ -366,6 +366,27 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:qa-down", out)
         self.assertIn(f"QA_CONTAINER:{pdc.QA_CMS_CONTAINER}", out)
 
+    def test_qa_service_lifecycle_dry_run(self):
+        rc, out = self.runner.run(["qa-service-lifecycle", "--product", "cms"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-service-lifecycle", out)
+        self.assertIn("QA_CONTAINER:perc-matrix-cms-systemd", out)
+        self.assertIn("unit=PercussionCMS", out)
+
+    def test_qa_service_lifecycle_dry_run_dts_suffix(self):
+        rc, out = self.runner.run(
+            ["qa-service-lifecycle", "--product", "dts",
+             "--cell-suffix", "shard-a"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-service-lifecycle", out)
+        self.assertIn("QA_CONTAINER:perc-matrix-dts-systemd-shard-a", out)
+        self.assertIn("unit=PercussionProductionDTS", out)
+
+    def test_qa_service_lifecycle_dispatch_registered(self):
+        self.assertIn("qa-service-lifecycle", pdc._DISPATCH)
+        self.assertIs(pdc._DISPATCH["qa-service-lifecycle"],
+                      pdc.cmd_qa_service_lifecycle)
+
     def test_qa_rebuild_chain_dry_run(self):
         (self.repo_root / "projects" / "sitemanage").mkdir(parents=True, exist_ok=True)
         (self.repo_root / "WebUI").mkdir(parents=True, exist_ok=True)

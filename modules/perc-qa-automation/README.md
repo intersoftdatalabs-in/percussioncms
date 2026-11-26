@@ -219,6 +219,28 @@ Full context: `docker/README.md` → *Docker `Health.Status` (in-image
 HEALTHCHECK)* and `docs/developer-module/workbench-rest-and-qa-modes.md`
 § *H2 Docker one-shot*.
 
+#### Service-lifecycle cell — systemd units + systemctl (#7324)
+
+Container install testing installs the **systemd services in the
+container** and drives test-instance lifecycle with `systemctl`, not
+ad-hoc process launches. The harness (`perc-devctl qa-service-lifecycle`)
+boots a systemd-as-PID-1 cell (`docker/matrix/Dockerfile.systemd`),
+installs via the normal path, installs the native units
+(`install-jetty-service.sh` / `DTSProductionService.sh` `install
+--systemd`), asserts `systemctl start/stop/restart/status` + `journalctl
+-u` green, then uninstalls and proves no leftover units/links before
+removing the cell. No dependence on host systemd. The live-host soak
+(#1989) stays ops-owned and is explicitly out of scope.
+
+```bash
+# From repo root
+python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms
+# --product dts | --cell-suffix <shard> | --keep (debug) | --dry-run (plan only)
+```
+
+Unit tests (no Docker): `python docker/scripts/test_qa_service_lifecycle.py`.
+Full contract: `docker/README.md` → *Service-lifecycle cell*.
+
 ### Explorer Sites/Assets tree + detail-list (#3575 / parent #3102)
 
 H2 operator proof that **Sites** and **Assets** appear in `explorer-tree` on
