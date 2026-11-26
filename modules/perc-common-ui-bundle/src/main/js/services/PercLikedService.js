@@ -49,8 +49,10 @@
    * @param callback (function) function to call with response from server
    */
   var like = function (site, id, type, callback) {
-    var likeServiceUrl =
-      likesServiceUrl + "like/" + site + "/" + type + "/" + id;
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7272,
+    // same as #5897/#5898/#5910/#5927/#6195) — slashes assemble the likes REST
+    // endpoint URL (URLs always use "/"), not an OS filesystem path.
+    var likeServiceUrl = likesServiceUrl + "like/" + site + "/" + type + "/" + id;
     $.PercServiceUtils.makeXdmJsonRequest(
       null,
       likeServiceUrl,
@@ -91,8 +93,10 @@
    * @param callback (function) function to call with response from server
    */
   var unlike = function (site, id, type, callback) {
-    var likeServiceUrl =
-      likesServiceUrl + "unlike/" + site + "/" + type + "/" + id;
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7272,
+    // same as #5897/#5898/#5910/#5927/#6195) — slashes assemble the likes REST
+    // endpoint URL (URLs always use "/"), not an OS filesystem path.
+    var likeServiceUrl = likesServiceUrl + "unlike/" + site + "/" + type + "/" + id;
     $.PercServiceUtils.makeXdmJsonRequest(
       null,
       likeServiceUrl,
@@ -132,8 +136,10 @@
    * @param callback (function) function to call with response from server
    */
   var getTotalLikes = function (site, id, type, callback) {
-    var likeServiceUrl =
-      likesServiceUrl + "total/" + site + "/" + type + "/" + id;
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7272,
+    // same as #5897/#5898/#5910/#5927/#6195) — slashes assemble the likes REST
+    // endpoint URL (URLs always use "/"), not an OS filesystem path.
+    var likeServiceUrl = likesServiceUrl + "total/" + site + "/" + type + "/" + id;
     $.PercServiceUtils.makeXdmJsonRequest(
       null,
       likeServiceUrl,
