@@ -96,6 +96,16 @@ public class PSDeveloperCustomKindKeyTmxTest {
   private static final String EXPECTED_HI = "कस्टम";
 
   /**
+   * Issue #7284 (zh-cn/zh-tw slice of the [7252-residual]): the same wrong-sense noun
+   * rendering ({@code 风俗} / {@code 風俗}, "custom/habit") shipped for zh-cn / zh-tw in all
+   * four {@code Custom} TUs. Corrected targets are the standard adjective-sense ("customized")
+   * renderings: Simplified {@code 自定义}, Traditional {@code 自訂}.
+   */
+  private static final String EXPECTED_ZH_CN = "自定义";
+
+  private static final String EXPECTED_ZH_TW = "自訂";
+
+  /**
    * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
    * #7230). Each TU lives in its canonical TMX file.
    */
@@ -164,6 +174,30 @@ public class PSDeveloperCustomKindKeyTmxTest {
             + offenders);
   }
 
+  @Test
+  public void customKindKey_chineseUsesAdjectiveSense() throws Exception {
+    Map<String, String> expected = Map.of("zh-cn", EXPECTED_ZH_CN, "zh-tw", EXPECTED_ZH_TW);
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      for (Map.Entry<String, String> want : expected.entrySet()) {
+        if (!want.getValue().equals(segs.get(want.getKey()))) {
+          offenders.add(
+              tu.getKey()
+                  + " ["
+                  + want.getKey()
+                  + "]="
+                  + segs.get(want.getKey()));
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized), not the noun (custom/habit): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -184,7 +218,9 @@ public class PSDeveloperCustomKindKeyTmxTest {
             "fr", EXPECTED_FR,
             "de", EXPECTED_DE,
             "it", EXPECTED_IT,
-            "hi", EXPECTED_HI);
+            "hi", EXPECTED_HI,
+            "zh-cn", EXPECTED_ZH_CN,
+            "zh-tw", EXPECTED_ZH_TW);
     for (Map.Entry<String, String> want : expected.entrySet()) {
       String seg = segs.get(want.getKey());
       if (seg != null) {
@@ -196,7 +232,7 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284): "
             + offenders);
   }
 
