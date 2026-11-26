@@ -17,10 +17,10 @@
 
 /**
  * Contention predicates for the keyword editors in KeywordEditorPanel
- * (#6985 keyword-level, #6983 choice-level save reuse). Each editor handler
- * used to inline a 15+ disjunct boolean chain (cyclomatic 16-29); the
- * busy/inflight/confirm tail of every chain now lives here as a flat
- * predicate over a snapshot the component assembles.
+ * (#6985 keyword-level, #6983 choice-level save reuse, #6984 choice-level
+ * start reuse). Each editor handler used to inline a 15+ disjunct boolean
+ * chain (cyclomatic 16-29); the busy/inflight/confirm tail of every chain
+ * now lives here as a flat predicate over a snapshot the component assembles.
  *
  * The null/loading/editing head of each chain stays inline in the handler
  * so TypeScript keeps narrowing `id` and `serverKeyword` to non-null.
@@ -70,6 +70,48 @@ export interface KeywordEditStartContention {
 export function isKeywordEditStartContended(contention: KeywordEditStartContention): boolean {
   return (
     contention.writeBusy || contention.confirmOpen || contention.editOpen || contention.inflight
+  );
+}
+
+/** Start-guard tail of a choice-level edit starter (#6984). */
+export interface ChoiceEditStartContention {
+  /** choiceWriteBusy || busy, precomputed by the caller. */
+  writeBusy: boolean;
+  confirmOpen: boolean;
+  /** Any in-flight write the starter must yield to (aggregated by the caller). */
+  inflight: boolean;
+  /**
+   * Another inline editor is already open (per-handler peer aggregate:
+   * the label starter excludes its own open flag; value, description, and
+   * sequence block on all four choice edit-open flags).
+   */
+  peerEditOpen: boolean;
+  /** The keyword sequence editor owns its own row. */
+  keywordEditing: boolean;
+  /** The requested row index. */
+  index: number;
+  /** listedChoices.length at call time. */
+  choiceCount: number;
+}
+
+/**
+ * Shared start-guard check for the choice edit starters (#6984). Each
+ * startChoice*Edit handler used to inline a 20+ disjunct chain (cyclomatic
+ * 22-23); the busy/inflight/confirm/edit-open/index tail now lives here as
+ * a flat predicate over a snapshot the component assembles, while the
+ * identity/loading head (`!id || isNew || !detailReady`) stays inline.
+ * Every flag maps one-to-one to a disjunct of the original guard.
+ */
+export function isChoiceEditStartBlocked(start: ChoiceEditStartContention): boolean {
+  return (
+    start.writeBusy ||
+    start.confirmOpen ||
+    start.inflight ||
+    start.peerEditOpen ||
+    start.keywordEditing ||
+    !Number.isInteger(start.index) ||
+    start.index < 0 ||
+    start.index >= start.choiceCount
   );
 }
 

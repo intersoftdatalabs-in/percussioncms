@@ -17,11 +17,13 @@
 
 import { describe, expect, it } from "vitest";
 import type {
+  ChoiceEditStartContention,
   KeywordEditStartContention,
   KeywordWriteContention,
 } from "../../../main/ts/developer/keywordEditorGuards";
 import {
   anyFlagSet,
+  isChoiceEditStartBlocked,
   isKeywordEditStartContended,
   isKeywordWriteContended,
 } from "../../../main/ts/developer/keywordEditorGuards";
@@ -74,5 +76,37 @@ describe("anyFlagSet", () => {
     expect(anyFlagSet([false, false, false])).toBe(false);
     expect(anyFlagSet([false, true, false])).toBe(true);
     expect(anyFlagSet([true, true, true])).toBe(true);
+  });
+});
+
+const idleChoiceStart: ChoiceEditStartContention = {
+  writeBusy: false,
+  confirmOpen: false,
+  inflight: false,
+  peerEditOpen: false,
+  keywordEditing: false,
+  index: 0,
+  choiceCount: 3,
+};
+
+describe("isChoiceEditStartBlocked", () => {
+  it("stays open when idle with a valid index", () => {
+    expect(isChoiceEditStartBlocked(idleChoiceStart)).toBe(false);
+  });
+
+  it("blocks on write busy, open confirm, in-flight write, peer edit, or keyword editing", () => {
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, writeBusy: true })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, confirmOpen: true })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, inflight: true })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, peerEditOpen: true })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, keywordEditing: true })).toBe(true);
+  });
+
+  it("blocks on non-integer, negative, or out-of-range indexes", () => {
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, index: 1.5 })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, index: NaN })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, index: -1 })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, index: 3, choiceCount: 3 })).toBe(true);
+    expect(isChoiceEditStartBlocked({ ...idleChoiceStart, index: 2, choiceCount: 3 })).toBe(false);
   });
 });

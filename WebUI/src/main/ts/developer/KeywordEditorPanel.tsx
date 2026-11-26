@@ -53,6 +53,7 @@ import { KW_LABEL_MSG } from "./keywordLabelMessages";
 import { KW_SEQUENCE_MSG } from "./keywordSequenceMessages";
 import {
   anyFlagSet,
+  isChoiceEditStartBlocked,
   isKeywordEditStartContended,
   isKeywordWriteContended,
 } from "./keywordEditorGuards";
@@ -782,24 +783,21 @@ export function KeywordEditorPanel({
   }
 
   function startChoiceLabelEdit(index: number): void {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    // #6984: busy/inflight/confirm/edit-open/index tail via the shared
+    // predicate; the peer-edit aggregate excludes this editor's own flag.
     if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      valueEditOpen ||
-      descriptionEditOpen ||
-      sequenceEditOpen ||
-      keywordSequenceEditing ||
-      !Number.isInteger(index) ||
-      index < 0 ||
-      index >= listedChoices.length
+      isChoiceEditStartBlocked({
+        writeBusy: choiceWriteBusy || busy,
+        confirmOpen: confirmKind != null,
+        inflight: choiceStartInflight(),
+        peerEditOpen: anyFlagSet([valueEditOpen, descriptionEditOpen, sequenceEditOpen]),
+        keywordEditing: keywordSequenceEditing,
+        index,
+        choiceCount: listedChoices.length,
+      })
     ) {
       return;
     }
@@ -904,25 +902,21 @@ export function KeywordEditorPanel({
   }
 
   function startChoiceValueEdit(index: number): void {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    // #6984: busy/inflight/confirm/edit-open/index tail via the shared
+    // predicate; this starter blocks on all four choice edit-open flags.
     if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      labelEditOpen ||
-      valueEditOpen ||
-      descriptionEditOpen ||
-      sequenceEditOpen ||
-      keywordSequenceEditing ||
-      !Number.isInteger(index) ||
-      index < 0 ||
-      index >= listedChoices.length
+      isChoiceEditStartBlocked({
+        writeBusy: choiceWriteBusy || busy,
+        confirmOpen: confirmKind != null,
+        inflight: choiceStartInflight(),
+        peerEditOpen: anyFlagSet([labelEditOpen, valueEditOpen, descriptionEditOpen, sequenceEditOpen]),
+        keywordEditing: keywordSequenceEditing,
+        index,
+        choiceCount: listedChoices.length,
+      })
     ) {
       return;
     }
@@ -1047,6 +1041,22 @@ export function KeywordEditorPanel({
     ]);
   }
 
+  // #6984: the exact inflight disjunct set of the startChoice*Edit guards.
+  // Unlike choiceLevelInflight (save guards yield to add/remove too), a
+  // choice editor may still open while an add/remove is in flight — the
+  // add/remove busy flags already block via choiceWriteBusy.
+  function choiceStartInflight(): boolean {
+    return anyFlagSet([
+      labelInflight.current,
+      valueInflight.current,
+      descriptionInflight.current,
+      keywordDescriptionInflight.current,
+      keywordLabelInflight.current,
+      keywordSequenceInflight.current,
+      sequenceInflight.current,
+    ]);
+  }
+
   function choiceLevelBusy(): boolean {
     return anyFlagSet([addBusy, removeBusy, labelBusy, valueBusy, descriptionBusy, sequenceBusy]);
   }
@@ -1074,25 +1084,21 @@ export function KeywordEditorPanel({
   }
 
   function startChoiceDescriptionEdit(index: number): void {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    // #6984: busy/inflight/confirm/edit-open/index tail via the shared
+    // predicate; this starter blocks on all four choice edit-open flags.
     if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      labelEditOpen ||
-      valueEditOpen ||
-      descriptionEditOpen ||
-      sequenceEditOpen ||
-      keywordSequenceEditing ||
-      !Number.isInteger(index) ||
-      index < 0 ||
-      index >= listedChoices.length
+      isChoiceEditStartBlocked({
+        writeBusy: choiceWriteBusy || busy,
+        confirmOpen: confirmKind != null,
+        inflight: choiceStartInflight(),
+        peerEditOpen: anyFlagSet([labelEditOpen, valueEditOpen, descriptionEditOpen, sequenceEditOpen]),
+        keywordEditing: keywordSequenceEditing,
+        index,
+        choiceCount: listedChoices.length,
+      })
     ) {
       return;
     }
@@ -1192,25 +1198,21 @@ export function KeywordEditorPanel({
   }
 
   function startChoiceSequenceEdit(index: number): void {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    // #6984: busy/inflight/confirm/edit-open/index tail via the shared
+    // predicate; this starter blocks on all four choice edit-open flags.
     if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      labelInflight.current ||
-      valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      sequenceInflight.current ||
-      labelEditOpen ||
-      valueEditOpen ||
-      descriptionEditOpen ||
-      sequenceEditOpen ||
-      keywordSequenceEditing ||
-      !Number.isInteger(index) ||
-      index < 0 ||
-      index >= listedChoices.length
+      isChoiceEditStartBlocked({
+        writeBusy: choiceWriteBusy || busy,
+        confirmOpen: confirmKind != null,
+        inflight: choiceStartInflight(),
+        peerEditOpen: anyFlagSet([labelEditOpen, valueEditOpen, descriptionEditOpen, sequenceEditOpen]),
+        keywordEditing: keywordSequenceEditing,
+        index,
+        choiceCount: listedChoices.length,
+      })
     ) {
       return;
     }
