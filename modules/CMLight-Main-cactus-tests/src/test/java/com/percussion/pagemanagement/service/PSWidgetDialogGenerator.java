@@ -238,6 +238,8 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
     strBuffer.append("    @Override\n");
     strBuffer.append("    protected Widget createWidget()\n");
     strBuffer.append("    {\n");
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7277, same as #6730)
+    // — escaped quotes in a generated-code string literal, not a path separator.
     strBuffer.append("        return new Widget(\"content\", \"" + widgetDef.getId() + "\");\n");
     strBuffer.append("    }\n");
 
@@ -656,6 +658,8 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
       String value = isEnum ? variableName + ".getLabel()" : variableName;
       String variableType = isEnum ? methodName : getVariableType(type, control);
 
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7277, same as #6730)
+      // — escaped quotes in a generated-code string literal, not a path separator.
       String controlParam = (control != null) ? "\"" + control + "\"" : "null";
 
       strBuffer.append("    /**\n");
@@ -670,8 +674,10 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
                 + variableType
                 + ".getEnum((String) getField(\""
                 + name
+                // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
                 + "\", \""
                 + type
+                // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
                 + "\", "
                 + controlParam
                 + "));\n");
@@ -681,8 +687,10 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
                 + variableType
                 + ") getField(\""
                 + name
+                // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
                 + "\", \""
                 + type
+                // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
                 + "\", "
                 + controlParam
                 + ");\n");
@@ -699,10 +707,13 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
       strBuffer.append(
           "        setField(\""
               + name
+              // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
               + "\", "
               + value
+              // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
               + ", \""
               + type
+              // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (#7277, cf. #6730) — escaped quote, not a path sep.
               + "\", "
               + controlParam
               + ");\n");
@@ -954,6 +965,8 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
       enumValue = StringUtils.remove(enumValue, '(');
       enumValue = StringUtils.remove(enumValue, ')');
 
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7277, same as #6730)
+      // — escaped quotes in a generated-enum source literal, not a path separator.
       values += "        " + enumValue + "(\"" + dispValue + "\")";
     }
 
@@ -994,7 +1007,7 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
 
   /** Loads the widget dialog generator properties. */
   private void loadProperties() {
-    File propsFile = new File(PSServer.getRxConfigDir() + '/' + WIDGET_DIALOG_GEN_PROPS);
+    File propsFile = new File(PSServer.getRxConfigDir(), WIDGET_DIALOG_GEN_PROPS);
 
     try {
       PSProperties props = new PSProperties(propsFile.getAbsolutePath());
