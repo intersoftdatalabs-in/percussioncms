@@ -1748,10 +1748,10 @@ onchange    %Script;       #IMPLIED
       </psxctl:ParamList>
       <psxctl:AssociatedFileList>
 
-         <psxctl:FileDescriptor name="datepicker.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/datepicker.js</psxctl:FileLocation>
-            <psxctl:Timestamp/>
-         </psxctl:FileDescriptor>
+         <!-- Issue #7179: the vendored @VERSION-stamped datepicker.js was
+            never built and is deleted; the control's inline script drives
+            the npm-tracked jQuery UI datepicker (#5660) plus the retained
+            Milesich timepicker below. -->
          <psxctl:FileDescriptor name="timepicker.js" type="script" mimetype="text/javascript">
             <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/timepicker.js</psxctl:FileLocation>
             <psxctl:Timestamp/>

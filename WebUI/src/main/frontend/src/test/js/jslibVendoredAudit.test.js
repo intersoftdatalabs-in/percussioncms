@@ -47,9 +47,14 @@
  * | retiredjs/jquery.text-overflow.js | REMOVED #7178 (dead upstream; native CSS ellipsis everywhere) | none | #7178 |
  * | retiredjs/jquery.caret.js | REMOVED #7178 (dead upstream; native selectionStart/End port) | none | #7178 |
  * | retiredjs/jquery.print-this.js | MIGRATED #7178: npm print-this 2.0.0 (jasonday lineage) | MIT (dist banner + pkg) | same stable URL, npm-backed | print-this | #7178 DONE |
- * | retiredjs/timepicker.js | 0.2.1 Milesich 2009 (copyright, no grant) | UNSTATED | common_js.jsp; Schedule/Finder/Page views | partial (different lineage) | #7179 |
- * | retiredjs/datepicker.js | UNKNOWN (@VERSION never built) | MIT (jQuery Fdn header) | NONE (dead) | n/a (UI npm #5660) | #7179 |
- * | libraries/perc-retiredjs/date.js | v1.02 Matt Kruse | MIT/GPL | NONE (dead; moment npm #5665) | n/a | #7179 |
+ * | retiredjs/timepicker.js | RETAINED #7179 (fork decision recorded: Milesich
+ * 0.2.1, dead upstream, no same-lineage npm artifact; the only npm
+ * candidate jquery-ui-timepicker-addon 1.6.3 is an incompatible lineage —
+ * datetimepicker()/timepicker() methods + div.ui-timepicker-div class vs
+ * the Milesich datepicker({showTime}) options + #ui-timepicker-div id the
+ * live sys_CalendarSimple/Schedule/Finder/Page call sites rely on) | UNSTATED (copyright, no grant) | common_js.jsp; Schedule/Finder/Page views | none (same lineage) | #7179 |
+ * | retiredjs/datepicker.js | REMOVED #7179 (UNKNOWN @VERSION stub, never built; zero callers) | n/a (UI npm #5660) | #7179 |
+ * | libraries/perc-retiredjs/date.js | REMOVED #7179 (Matt Kruse v1.02; zero API callers, vestigial control descriptors dropped) | n/a (moment npm #5665) | #7179 |
  * | retiredjs/jquery.jsonp.js | 2012 Aubourg | MIT | REMOVED #7180 (zero callers; CORS $.ajax) | none |
  * | retiredjs/jquery.jfeed.js | 2007 Hovinne | MIT/GPL | REMOVED #7180 (native jfeed-shim) | none |
  * | retiredjs/jquery.xmldom-1.0.js + libraries duplicate | v1.0 2009 Out West | MIT/GPL | REMOVED #7180 (first-party percxmldom shim) | none |
@@ -139,9 +144,14 @@ const THIRD_PARTY = [
   // UI 1.14 dist (#5660; autocomplete has no per-URL file left), metadata's
   // last live call was a no-op temp-object write, text-overflow folded into
   // native CSS ellipsis, caret ported to selectionStart/setSelectionRange.
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/timepicker.js`, /jQuery UI Timepicker 0\.2\.1/, null, 7179],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/datepicker.js`, /@VERSION/, /MIT license/, 7179],
-  [`${JSLIB}/libraries/perc-retiredjs/date.js`, /\$VERSION = 1\.02/, /Dual licensed/, 7179],
+  // #7179: datepicker.js (never-built @VERSION stub) and Matt Kruse
+  // date.js (zero API callers; vestigial sys_CalendarSimple and
+  // widget-control FileDescriptors dropped) are deleted from all three
+  // trees (see RETIRED_7179 below). The Milesich timepicker stays vendored
+  // under the recorded fork decision (see RETAINED_TIMEPICKER_FORK below):
+  // dead upstream, no same-lineage npm artifact, and the only npm candidate
+  // (Trent Richardson jquery-ui-timepicker-addon 1.6.3) is an incompatible
+  // lineage, so it leaves this third-party list.
   // #7180 rows removed: jsonp / jfeed / both xmldom dupes were retired (see
   // RETIRED_7180 below). The full bundle now concatenates the native
   // ../../delivery/common/js/shims/jfeed-shim.js and the slim bundle is just
@@ -251,6 +261,56 @@ const RETIRED_7178 = [
   },
 ];
 
+/** Issue #7179 retired date cluster: deleted from all three trees, refs dropped.
+ *
+ * datepicker.js was a never-built jQuery UI stub (literal `@VERSION` stamp,
+ * MIT header but no usable version): zero callers, superseded by the
+ * npm-tracked jQuery UI 1.14 dist (#5660). Matt Kruse date.js v1.02 had
+ * zero API callers repo-wide (no Date.parseString/Date.isValid/format
+ * consumers outside its own copy); the FileDescriptors that declared it in
+ * sys_CalendarSimple-adjacent widget controls (percQueryControl, image/page
+ * auto-list, categoryList, fileAutoList, tagList, plus the PageAutoList
+ * psx_archiveInfo user dependency) were vestigial and are dropped. Neither
+ * file is replaced: there is nothing to shim with zero callers.
+ */
+const RETIRED_7179 = [
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/datepicker.js`,
+    needles: ["jquery-perc-retiredjs/datepicker"],
+  },
+  {
+    rel: `${JSLIB}/libraries/perc-retiredjs/date.js`,
+    needles: ["libraries/perc-retiredjs/date"],
+  },
+];
+
+/** Issue #7179 fork decision: the live Milesich timepicker stays vendored.
+ *
+ * jQuery UI Timepicker 0.2.1 (Martin Milesich, 2009, copyright-without-grant
+ * = UNSTATED provenance) extends the jQuery UI datepicker with the
+ * showTime/stepMinutes/stepHours/altTimeField/time24h options and renders
+ * into #ui-timepicker-div — the exact surface the live sys_CalendarSimple
+ * control, PercScheduleDialog, PercFinderView, and PercPageView rely on.
+ * Upstream is dead (milesich.com long gone) with no same-lineage npm
+ * artifact; the only npm candidate, Trent Richardson's
+ * jquery-ui-timepicker-addon 1.6.3 (MIT, 2016), is an incompatible lineage:
+ * it exposes datetimepicker()/timepicker() methods (no datepicker()
+ * showTime passthrough — the option would be silently ignored and the time
+ * UI would disappear) and renders div.ui-timepicker-div (a class) instead
+ * of the #ui-timepicker-div id the views' z-index handling targets, with
+ * differently-named step options and value formats. Serving the addon at
+ * the same stable URL would silently break the live schedule/calendar
+ * controls, so the file stays vendored at its stable URLs (common_js.jsp
+ * tags + common/minuet bundle entries unchanged) until those legacy
+ * controls are rewritten or retired. This pin fails loudly on any banner,
+ * license-marker, or consumer drift so the decision is revisited
+ * consciously.
+ */
+const RETAINED_TIMEPICKER_FORK = {
+  rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/timepicker.js`,
+  bannerRe: /jQuery UI Timepicker 0\.2\.1/,
+};
+
 /** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
 const RETIRED_7181 = [
   {
@@ -284,17 +344,6 @@ const RETAINED_SIMPLEDATEFORMAT = [
   `${JSLIB}/libraries/perc-retiredjs/simpledateformat.js`,
 ];
 
-/** Provably dead: zero references outside their own vendored copies. */
-const DEAD = [
-  {
-    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/datepicker.js`,
-    needle: "retiredjs/datepicker.js",
-  },
-  {
-    rel: `${JSLIB}/libraries/perc-retiredjs/date.js`,
-    needle: "perc-retiredjs/date.js",
-  },
-];
 
 /** Direct script loads in common_js.jsp that must survive until migration. */
 const DIRECT_LOADS = [
@@ -312,7 +361,10 @@ const DIRECT_LOADS = [
 
 describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
   it("pins every third-party row with version + license banners", () => {
-    expect(THIRD_PARTY.length).toBeGreaterThan(0);
+    // Slice #7179 drains the list: every audited third-party row is now
+    // migrated to npm, retained under a recorded decision (timepicker fork,
+    // simpledateformat), or retired. The loop below stays as the gate for
+    // any row a future slice adds back.
     for (const [rel, bannerRe, licenseRe] of THIRD_PARTY) {
       const abs = path.join(WEBAPP_CM, rel);
       expect(fs.existsSync(abs), `missing audited file: ${rel}`).toBe(true);
@@ -587,12 +639,37 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     expect(readHead(a)).toMatch(/Tim Down/);
   });
 
-  it("dead files stay unreferenced outside vendored copies", () => {
-    const roots = [WEBAPP_CM, MINIFY_DIR];
+  it("retired #7179 date cluster stays deleted and unreferenced", () => {
+    // The never-built datepicker.js stub and the caller-less Matt Kruse
+    // date.js are deleted from all three trees (cm/jslib,
+    // cm/vendor/js/legacy, WebUI/war); the vestigial sys_CalendarSimple
+    // datepicker.js descriptor and the widget-control date.js descriptors
+    // (+ PageAutoList psx_archiveInfo user dependency) are dropped. Neither
+    // file is replaced: zero callers means nothing to shim.
+    for (const { rel, needles } of RETIRED_7179) {
+      for (const tree of [WEBAPP_CM, WAR_ROOT]) {
+        const relNoJslib = rel.replace(/^jslib\//, "");
+        const candidates =
+          tree === WEBAPP_CM
+            ? [
+                path.join(tree, rel),
+                path.join(tree, "vendor/js/legacy", relNoJslib),
+              ]
+            : [path.join(tree, rel)];
+        for (const abs of candidates) {
+          expect(fs.existsSync(abs), `retired file resurrected: ${abs}`).toBe(
+            false,
+          );
+        }
+      }
+    }
+    // The reference walk covers the packaged control descriptors too:
+    // control XSLs emit their FileDescriptors into live editor pages.
+    const roots = [WEBAPP_CM, MINIFY_DIR, PACKAGES_ROOT];
     const skipDir = (p) =>
       p.split(path.sep).includes("jslib") ||
       p.split(path.sep).includes("vendor");
-    for (const { rel, needle } of DEAD) {
+    for (const { rel, needles } of RETIRED_7179) {
       const base = path.basename(rel);
       const hits = [];
       for (const root of roots) {
@@ -603,13 +680,102 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
               if (!skipDir(full)) walk(full);
             } else if (/\.(jsp|html|xls|xsl|js|json|css)$/.test(entry.name)) {
               const content = fs.readFileSync(full, "utf8");
-              if (content.includes(needle)) hits.push(full);
+              for (const needle of needles) {
+                if (content.includes(needle)) hits.push(`${full} :: ${needle}`);
+              }
             }
           }
         };
         walk(root);
       }
-      expect(hits, `dead file ${base} gained consumers`).toEqual([]);
+      expect(hits, `retired ${base} still referenced`).toEqual([]);
+    }
+    // sys_Templates.xsl lives outside the walked roots: the
+    // sys_CalendarSimple datepicker.js descriptor must be gone while the
+    // live timepicker.js descriptor (same AssociatedFileList) survives.
+    const sysTemplates = path.join(
+      FRONTEND_ROOT,
+      "..",
+      "..",
+      "..",
+      "..",
+      "system",
+      "cms",
+      "content",
+      "applications",
+      "sys_resources",
+      "ApplicationFiles",
+      "stylesheets",
+      "sys_Templates.xsl",
+    );
+    const sysContent = fs.readFileSync(sysTemplates, "utf8");
+    expect(
+      sysContent.includes("jquery-perc-retiredjs/datepicker"),
+      "sys_CalendarSimple still declares the retired datepicker.js",
+    ).toBe(false);
+    expect(
+      sysContent.includes("jquery-perc-retiredjs/timepicker.js"),
+      "sys_CalendarSimple lost its live timepicker.js descriptor",
+    ).toBe(true);
+  });
+
+  it("retains the Milesich timepicker under the recorded fork decision (issue #7179)", () => {
+    // Dead upstream, no same-lineage npm artifact; the only npm candidate
+    // (jquery-ui-timepicker-addon) is an incompatible lineage, so the file
+    // stays vendored at its stable URLs. This pin fails loudly on banner,
+    // provenance, or consumer drift so the decision is revisited
+    // consciously instead of rotting.
+    const { rel, bannerRe } = RETAINED_TIMEPICKER_FORK;
+    const vendorMirror = path.join(
+      WEBAPP_CM,
+      "vendor/js/legacy",
+      rel.replace(/^jslib\//, ""),
+    );
+    const copies = [
+      path.join(WEBAPP_CM, rel),
+      vendorMirror,
+      path.join(WAR_ROOT, rel),
+    ];
+    for (const abs of copies) {
+      expect(fs.existsSync(abs), `retained timepicker missing: ${abs}`).toBe(
+        true,
+      );
+    }
+    // cm/jslib and its vendor mirror are byte-identical; the war snapshot
+    // carries a pre-existing older cut of the same file (mirror drift owned
+    // by a follow-on per the #7181 record), so it is pinned by existence +
+    // banner only.
+    expect(fs.readFileSync(copies[0]).equals(fs.readFileSync(copies[1]))).toBe(
+      true,
+    );
+    for (const abs of copies) {
+      expect(readHead(abs), `retained timepicker lost its banner: ${abs}`).toMatch(
+        bannerRe,
+      );
+    }
+    // UNSTATED provenance pinned: no license grant may appear without a
+    // conscious migration-issue update (bare copyright lines are not a
+    // grant). The behavioral parity contract lives in
+    // timepickerForkParity.test.js.
+    expect(
+      readHead(copies[0]),
+      "retained timepicker gained an unrecorded license marker",
+    ).not.toMatch(/licen[sc]e|\bmit\b|gpl|apache|public domain/i);
+    // Live consumers must survive: direct common_js.jsp tags (both twins)
+    // and the common/minuet bundle entries.
+    for (const tree of ["app", "pages/app"]) {
+      const jsp = path.join(WEBAPP_CM, tree, "includes", "common_js.jsp");
+      expect(fs.readFileSync(jsp, "utf8")).toContain(
+        "jquery-perc-retiredjs/timepicker.js",
+      );
+    }
+    for (const bundle of [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+    ]) {
+      expect(fs.readFileSync(path.join(MINIFY_DIR, bundle), "utf8")).toContain(
+        "jquery-perc-retiredjs/timepicker.js",
+      );
     }
   });
 
