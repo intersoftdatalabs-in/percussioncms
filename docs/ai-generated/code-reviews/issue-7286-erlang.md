@@ -32,3 +32,7 @@ _No active issues._
 - `paths.hardcoded_sep` on `modules/perc-i18n/src/test/java/com/percussion/i18n/PSDeveloperCustomKindKeyTmxTest.java:491` -- *Justification*: : adjudicated intentional (issue #7230, same as #7138/#7116) — backslash is a JSON-escape in the test helper message, not an OS path; real paths use Paths.get joins (via in_source_mkd)
 
 </details>
+
+### Codex review
+
+The Polish translation correction is consistent across all four affected translation units and the shared cache, with regression assertions covering both. XML parsing and cache consistency checks passed; the Maven suite was not run.
