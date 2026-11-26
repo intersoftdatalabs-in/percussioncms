@@ -210,6 +210,13 @@ def qa_dts_container(suffix: object = None) -> str:
     return suffixed_cell_container_name(
         f"dts-{QA_DTS_DB}", resolve_cell_suffix(suffix)
     )
+
+
+def qa_apache_container(suffix: object = None) -> str:
+    """QA Apache frontend sidecar name for the current cell suffix (#7323)."""
+    import qa_apache_cell as qac
+
+    return qac.apache_container(suffix)
 # In-cell DTS Tomcat HTTPS listen port (``https.port`` in
 # ``conf/perc/perc-catalina.properties``) and the preferred host publish
 # for it. ``qa-up --with-dts`` publishes the mapping so host-side seeds
@@ -878,6 +885,18 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     pqu.add_argument(
+        "--with-apache",
+        action="store_true",
+        help=(
+            "Also bring up the QA Apache httpd frontend sidecar "
+            "(issue #7323; implies --with-dts). Terminates 80/443, "
+            "serves the published fixture site, and reverse-proxies the "
+            "DTS service contexts to the Tomcat cell. Prints APACHE_URL / "
+            "APACHE_HTTPS_URL / APACHE_HOSTNAME / APACHE_CA_PEM in the "
+            "endpoint banner. Default (flag absent) path is unchanged."
+        ),
+    )
+    pqu.add_argument(
         "--cell-suffix",
         default=None,
         help=(
@@ -1028,6 +1047,15 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "QA DTS cell too; spec 2402-qa-dts-publish, #6237)."
         ),
     )
+    pqrc.add_argument(
+        "--with-apache",
+        action="store_true",
+        help=(
+            "With --then-qa-up: pass --with-apache to qa-up (bring up "
+            "the QA Apache frontend sidecar too; implies --with-dts, "
+            "issue #7323)."
+        ),
+    )
     pqrc.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
@@ -1066,6 +1094,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "(spec 2402-qa-dts-publish, #6237). Without the flag, a "
             "running DTS cell is still gated (auto-detect); the flag "
             "fails fast when the DTS cell is absent."
+        ),
+    )
+    pqh.add_argument(
+        "--with-apache",
+        action="store_true",
+        help=(
+            "Require the QA Apache frontend probes alongside CMS "
+            "(issue #7323). Without the flag, a running Apache sidecar "
+            "is still gated (auto-detect); the flag fails fast when the "
+            "Apache cell is absent."
         ),
     )
     pqh.add_argument(
@@ -1165,7 +1203,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--staging-dir",
         default=None,
         help=(
-            "Host staging dir (default: <repo>/tmp/qa-fixture-published)."
+            "Host staging dir (default: <repo>/tmp/qa-fixture-published, "
+            "suffix-scoped per shard when PERC_QA_CELL_SUFFIX is set)."
         ),
     )
     pqpf.add_argument(
@@ -2386,6 +2425,10 @@ def _qa_print_endpoint_banner(
     dts_https_host_port: Optional[int] = None,
     container: Optional[str] = None,
     dts_container: Optional[str] = None,
+    apache_host_port: Optional[int] = None,
+    apache_https_host_port: Optional[int] = None,
+    apache_container: Optional[str] = None,
+    apache_ca_pem: Optional[str] = None,
 ) -> None:
     """Emit agent-parseable endpoint + credential guidance after qa-up.
 
@@ -2490,6 +2533,51 @@ def _qa_print_endpoint_banner(
     print(
         "DTS_LOG_FILES=comments.log feeds.log forms.log "
         "membership.log metadata.log polls.log"
+    )
+    if apache_host_port is None:
+        return
+    _qa_print_apache_banner(
+        apache_host_port=apache_host_port,
+        apache_https_host_port=apache_https_host_port,
+        apache_container=apache_container,
+        apache_ca_pem=apache_ca_pem,
+    )
+
+
+def _qa_print_apache_banner(
+    *,
+    apache_host_port: int,
+    apache_https_host_port: Optional[int],
+    apache_container: Optional[str],
+    apache_ca_pem: Optional[str],
+) -> None:
+    """Apache frontend leg of the qa-up endpoint banner (#7323).
+
+    The vhost terminates 80/443, serves the published fixture site, and
+    proxies the DTS service contexts. Split from
+    :func:`_qa_print_endpoint_banner` to hold that function's complexity
+    gate. CMS-only / DTS-only banners above stay byte-identical.
+    """
+    import qa_apache_cell as qac
+
+    hostname = qac.apache_hostname()
+    print(f"QA_APACHE_HOSTNAME={hostname}")
+    print(f"APACHE_URL={qac.apache_base_url(apache_host_port)}")
+    if apache_https_host_port is not None:
+        print(f"APACHE_HTTPS_URL={qac.apache_https_base_url(apache_https_host_port)}")
+        if apache_ca_pem:
+            print(
+                f"APACHE_CA_PEM={apache_ca_pem} "
+                "(mkcert test CA — curl --cacert for genuine chain verify; "
+                "see modules/perc-qa-automation docs for host trust steps)"
+            )
+    print(
+        f"APACHE_LOGS=docker logs {apache_container or qac.apache_container()} "
+        "(vhost access/error: docker exec <cell> tail "
+        # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7323,
+        # precedent #6570) — container-internal Apache log path in banner
+        # help text, never a host path join.
+        "/usr/local/apache2/logs/qa-cell-*-access.log)"
     )
 
 
@@ -2614,6 +2702,7 @@ class _QaUpContext(NamedTuple):
     container: str
     dts_cell: str
     host_port: int
+    apache_cell: str = ""
 
 
 def _qa_up_resolve_context(
@@ -2651,6 +2740,7 @@ def _qa_up_resolve_context(
         container=container,
         dts_cell=dts_cell,
         host_port=host_port,
+        apache_cell=qa_apache_container(cell_suffix),
     )
 
 
@@ -2828,6 +2918,207 @@ def _qa_up_start_dts_cell(ctx: _QaUpContext, with_dts: bool) -> tuple:
     return dts_host_port, dts_https_host_port, rc_dts, log_dts
 
 
+def _qa_up_apache_fixture_plan(ctx: _QaUpContext) -> argparse.Namespace:
+    """Synthetic ``qa-publish-fixture`` plan for the Apache leg (#7323).
+
+    Reuses the standard fixture staging (pull ``web_resources`` from the
+    CMS cell, stage + verify the site tree, merge into the DTS ROOT
+    webapp) so the Apache DocumentRoot bind-mount and the Tomcat origin
+    serve byte-identical bytes from one staging dir — zero drift.
+    """
+    import qa_publish_fixture as qpf
+
+    dts_port, _port_source = resolve_qa_dts_health_host_port(
+        ctx.repo_root, container=ctx.dts_cell
+    )
+    dts_base = qa_dts_base_url(dts_port)
+    staging = _qa_fixture_staging_dir(ctx.repo_root)
+    return argparse.Namespace(
+        container=ctx.dts_cell,
+        cms_container=ctx.container,
+        site_url=qpf.site_base_for(dts_base),
+        category_url=qpf.category_url_for(dts_base),
+        site_dir=staging / "site",
+        pull_dir=staging / ".cms-pull",
+        cms_install=QA_INSTALL_ROOT,
+        install_root=QA_INSTALL_ROOT,
+        context_dest=qpf.fixture_context_dir(
+            f"{QA_INSTALL_ROOT}/{qpf.DTS_TOMCAT_WEBAPPS_REL}"
+        ),
+        timeout_seconds=120,
+    )
+
+
+def _qa_up_start_apache_cell(ctx: _QaUpContext, with_apache: bool) -> tuple:
+    """Bring up the Apache httpd frontend sidecar beside CMS+DTS (#7323).
+
+    ``with_apache`` implies ``--with-dts`` (resolved by the caller): the
+    vhost reverse-proxies the DTS service contexts, so the Tomcat cell
+    must exist. Steps: pin host ports, mint the mkcert TLS identity,
+    deploy the fixture (DTS ROOT merge + host staging dir reuse as the
+    DocumentRoot), then ``docker run`` the stock ``httpd:2.4`` sidecar
+    and poll its HTTP origin until ready.
+
+    Returns ``(http_port, https_port, rc, log_file)`` where the ports
+    are ``None`` when ``with_apache`` is False and ``rc`` is non-zero
+    only when the Apache leg failed (detail already printed).
+    """
+    import qa_apache_cell as qac
+
+    if not with_apache:
+        return None, None, EXIT_OK, None
+    http_port = qac.ensure_qa_apache_http_host_port()
+    https_port = qac.ensure_qa_apache_https_host_port()
+    hostname = qac.apache_hostname()
+    cert_dir = qac.apache_cert_dir(ctx.repo_root, ctx.cell_suffix)
+    if ctx.dry_run:
+        # Plan-only: ports are pinned above (banner parity with the DTS
+        # leg); no certs minted, no fixture deployed, no docker run.
+        print(
+            "QA_DETAIL:qa-up-apache dry-run plan "
+            f"image={qac.APACHE_IMAGE} "
+            f"http={http_port} https={https_port} hostname={hostname} "
+            f"conf={qac.apache_conf_file(ctx.repo_root)} "
+            f"certs={cert_dir}"
+        )
+        return http_port, https_port, EXIT_OK, None
+    ok, detail = qac.ensure_apache_certs(hostname, cert_dir)
+    if not ok:
+        print(
+            f"RESULT:FAIL STEP:qa-up-apache DETAIL:certs_failed {detail}"
+        )
+        print(
+            "QA_DETAIL:qa-up --with-apache requires a mkcert TLS identity; "
+            "install mkcert on the QA host and re-run."
+        )
+        return None, None, EXIT_SUBPROCESS_FAILED, None
+    plan = _qa_up_apache_fixture_plan(ctx)
+    rc_fixture = _qa_publish_fixture_deploy(
+        plan, log_dir=ctx.log_dir, repo_root=ctx.repo_root
+    )
+    if rc_fixture != EXIT_OK:
+        print(
+            "RESULT:FAIL STEP:qa-up-apache DETAIL:fixture_deploy_failed "
+            f"SITE_DIR:{plan.site_dir}"
+        )
+        return None, None, rc_fixture, None
+    conf_file = qac.apache_conf_file(ctx.repo_root)
+    if not conf_file.is_file():
+        print(
+            "RESULT:FAIL STEP:qa-up-apache DETAIL:vhost_conf_missing "
+            f"MATCH:{conf_file}"
+        )
+        return None, None, EXIT_SUBPROCESS_FAILED, None
+    run_argv = qac.build_apache_run_argv(
+        container=ctx.apache_cell,
+        network=qac.APACHE_CELL_NETWORK,
+        http_port=http_port,
+        https_port=https_port,
+        conf_file=conf_file,
+        site_dir=plan.site_dir,
+        cert_dir=cert_dir,
+        dts_backend=ctx.dts_cell,
+        hostname=hostname,
+    )
+    # Scoped rm -f (suffix-aware, #6704): never touches another shard's
+    # sidecar; a missing container is a no-op skip.
+    _run_logged(
+        "qa-up-apache-rm",
+        _qa_destroy_argv(ctx.apache_cell),
+        log_dir=ctx.log_dir,
+        cwd=ctx.repo_root,
+        dry_run=ctx.dry_run,
+    )
+    rc, log_file = _run_logged(
+        "qa-up-apache",
+        run_argv,
+        log_dir=ctx.log_dir,
+        cwd=ctx.repo_root,
+        dry_run=ctx.dry_run,
+    )
+    if rc != EXIT_OK:
+        print(
+            "QA_DETAIL:apache sidecar docker run failed "
+            f"QA_APACHE_HTTP_PORT={http_port} "
+            f"QA_APACHE_HTTPS_PORT={https_port} LOG:{log_file}"
+        )
+        return None, None, rc, log_file
+    ready_url = f"{qac.apache_base_url(http_port)}/"
+    deadline = time.time() + min(ctx.probe_timeout, 180)
+    last_code = 0
+    while time.time() < deadline:
+        last_code = _curl_status(ready_url, timeout=5.0)
+        if last_code == 200:
+            break
+        time.sleep(5)
+    if last_code != 200:
+        print(
+            "RESULT:FAIL STEP:qa-up-apache DETAIL:sidecar_not_ready "
+            f"URL:{ready_url} HTTP:{last_code} LOG:{log_file}"
+        )
+        return None, None, EXIT_SUBPROCESS_FAILED, log_file
+    if not _qa_up_apache_service_parity(ctx, http_port):
+        return None, None, EXIT_SUBPROCESS_FAILED, log_file
+    for line in qac.apache_banner_lines(
+        http_port, https_port, hostname, cert_dir / qac.APACHE_CA_FILE,
+        ctx.apache_cell,
+    ):
+        print(line)
+    return http_port, https_port, EXIT_OK, log_file
+
+
+def _qa_up_apache_service_parity(ctx: _QaUpContext, http_port: int) -> bool:
+    """One-shot service-map parity after the sidecar is ready (#7323).
+
+    Compares the first-hop status of the service-map probe through the
+    vhost vs direct DTS (absolute codes shift with seeds — parity, never
+    a literal). Runs ONCE at boot (never in the health poll loop):
+    dynamic service paths trip the backend's own unseeded-path error
+    logging, so per-poll probing would spray the DTS logs. Prints
+    RESULT lines on mismatch; True when the map transits.
+    """
+    import qa_apache_cell as qac
+
+    dts_port, _port_source = resolve_qa_dts_health_host_port(
+        ctx.repo_root, container=ctx.dts_cell
+    )
+    dts_base = qa_dts_base_url(dts_port).rstrip("/")
+    vhost_base = qac.apache_base_url(http_port)
+    svc_vhost, _vhost_server = qac.http_get_status_and_server(
+        f"{vhost_base}{qac.APACHE_SERVICE_PROBE_PATH}", timeout=10.0
+    )
+    svc_direct, _direct_server = qac.http_get_status_and_server(
+        f"{dts_base}{qac.APACHE_SERVICE_PROBE_PATH}", timeout=10.0
+    )
+    print(
+        "QA_DETAIL:apache service parity "
+        f"vhost={svc_vhost} direct={svc_direct} "
+        f"path={qac.APACHE_SERVICE_PROBE_PATH}"
+    )
+    if svc_vhost == svc_direct and svc_vhost in (200, 302, 401, 403, 404):
+        print("RESULT:OK STEP:qa-up-apache-parity")
+        return True
+    print(
+        "RESULT:FAIL STEP:qa-up-apache DETAIL:service_parity_mismatch "
+        f"VHOST:{svc_vhost} DIRECT:{svc_direct} "
+        f"PATH:{qac.APACHE_SERVICE_PROBE_PATH} LOG:docker logs {ctx.apache_cell}"
+    )
+    return False
+
+
+def _qa_apache_ca_pem_str(
+    ctx: _QaUpContext, apache_https_host_port: Optional[int]
+) -> Optional[str]:
+    """Banner CA path for the Apache leg (None when leg absent, #7323)."""
+    if apache_https_host_port is None:
+        return None
+    import qa_apache_cell as qac
+
+    return str(
+        qac.apache_cert_dir(ctx.repo_root, ctx.cell_suffix) / qac.APACHE_CA_FILE
+    )
+
+
 def _qa_up_deploy_flags(
     args: argparse.Namespace, skip_image_build: bool
 ) -> tuple:
@@ -2860,6 +3151,9 @@ def _qa_up_finish_dry_run(
     dts_https_host_port: Optional[int],
     deploy_webui: bool,
     deploy_jars: bool,
+    *,
+    apache_host_port: Optional[int] = None,
+    apache_https_host_port: Optional[int] = None,
 ) -> int:
     """Dry-run finish: banner plus planned deploys (#6782)."""
     _qa_print_endpoint_banner(
@@ -2868,6 +3162,10 @@ def _qa_up_finish_dry_run(
         dts_https_host_port=dts_https_host_port,
         container=ctx.container,
         dts_container=ctx.dts_cell,
+        apache_host_port=apache_host_port,
+        apache_https_host_port=apache_https_host_port,
+        apache_container=ctx.apache_cell,
+        apache_ca_pem=_qa_apache_ca_pem_str(ctx, apache_https_host_port),
     )
     rc = EXIT_OK
     if deploy_webui:
@@ -2897,6 +3195,9 @@ def _qa_up_finish_live(
     dts_https_host_port: Optional[int],
     deploy_webui: bool,
     deploy_jars: bool,
+    *,
+    apache_host_port: Optional[int] = None,
+    apache_https_host_port: Optional[int] = None,
 ) -> int:
     """Live finish: password banner plus post-up deploys (#6782)."""
     pwd_lines = _qa_fetch_generated_password_env_lines(ctx.container)
@@ -2912,6 +3213,10 @@ def _qa_up_finish_live(
         dts_https_host_port=dts_https_host_port,
         container=ctx.container,
         dts_container=ctx.dts_cell,
+        apache_host_port=apache_host_port,
+        apache_https_host_port=apache_https_host_port,
+        apache_container=ctx.apache_cell,
+        apache_ca_pem=_qa_apache_ca_pem_str(ctx, apache_https_host_port),
     )
     rc = EXIT_OK
     if deploy_webui:
@@ -2980,11 +3285,25 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         return rc
 
     with_dts = bool(getattr(args, "with_dts", False))
+    with_apache = bool(getattr(args, "with_apache", False))
+    if with_apache and not with_dts:
+        # The vhost reverse-proxies the DTS service contexts, so the
+        # Tomcat cell must exist (#7323).
+        print(
+            "QA_DETAIL:with-apache implies with-dts (vhost proxy backend)"
+        )
+        with_dts = True
     dts_host_port, dts_https_host_port, rc_dts, _log_dts = (
         _qa_up_start_dts_cell(ctx, with_dts)
     )
     if rc_dts != EXIT_OK:
         return rc_dts
+
+    apache_host_port, apache_https_host_port, rc_apache, _log_apache = (
+        _qa_up_start_apache_cell(ctx, with_apache)
+    )
+    if rc_apache != EXIT_OK:
+        return rc_apache
 
     deploy_webui, deploy_jars = _qa_up_deploy_flags(args, ctx.skip_image_build)
 
@@ -2992,10 +3311,14 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         return _qa_up_finish_dry_run(
             ctx, args, paths, dts_host_port, dts_https_host_port,
             deploy_webui, deploy_jars,
+            apache_host_port=apache_host_port,
+            apache_https_host_port=apache_https_host_port,
         )
     return _qa_up_finish_live(
         ctx, args, paths, dts_host_port, dts_https_host_port,
         deploy_webui, deploy_jars,
+        apache_host_port=apache_host_port,
+        apache_https_host_port=apache_https_host_port,
     )
 
 
@@ -3020,6 +3343,9 @@ class _QaHealthContext(NamedTuple):
     port_source: str
     url: str
     with_dts_flag: bool
+    apache_cell: str = ""
+    with_apache_flag: bool = False
+    cell_suffix: str = ""
 
 
 class _QaHealthDts(NamedTuple):
@@ -3029,6 +3355,19 @@ class _QaHealthDts(NamedTuple):
     url: str
     host_port: int
     port_source: str
+
+
+class _QaHealthApache(NamedTuple):
+    """Apache frontend leg of a ``qa-health`` run (#7323)."""
+
+    expected: bool
+    url: str
+    https_url: str
+    http_port: int
+    https_port: int
+    port_source: str
+    ca_pem: str
+    container: str = ""
 
 
 class _QaHealthProbe(NamedTuple):
@@ -3042,6 +3381,10 @@ class _QaHealthProbe(NamedTuple):
     server_logs: str
     ready: bool
     detail: str
+    apache_code: int = 0
+    apache_https_code: int = 0
+    apache_proxy_code: int = 0
+    apache_ready: bool = True
 
 
 def _qa_health_resolve_context(
@@ -3068,6 +3411,7 @@ def _qa_health_resolve_context(
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "qa-health")
     with_dts_flag = bool(getattr(args, "with_dts", False))
+    with_apache_flag = bool(getattr(args, "with_apache", False))
     return _QaHealthContext(
         repo_root=repo_root,
         log_dir=log_dir,
@@ -3081,6 +3425,9 @@ def _qa_health_resolve_context(
         port_source=port_source,
         url=url,
         with_dts_flag=with_dts_flag,
+        apache_cell=qa_apache_container(cell_suffix),
+        with_apache_flag=with_apache_flag,
+        cell_suffix=cell_suffix,
     )
 
 
@@ -3122,6 +3469,11 @@ def _qa_health_finish_dry_run(ctx: _QaHealthContext) -> int:
                 f"dts_host_port={dts_host_port}\n"
                 f"dts_port_source={dts_port_source}\n"
                 f"dts_container={ctx.dts_cell}\n"
+            )
+        if ctx.with_apache_flag:
+            f.write(
+                "apache=required (--with-apache)\n"
+                f"apache_container={ctx.apache_cell}\n"
             )
     if ctx.with_dts_flag:
         print(
@@ -3184,7 +3536,115 @@ def _qa_health_resolve_dts(ctx: _QaHealthContext) -> Optional[_QaHealthDts]:
     )
 
 
-def _qa_health_probe(ctx: _QaHealthContext, dts: _QaHealthDts) -> _QaHealthProbe:
+def _qa_health_resolve_apache(
+    ctx: _QaHealthContext,
+) -> Optional[_QaHealthApache]:
+    """Resolve the Apache frontend leg (#7323; mirrors the DTS dual gate).
+
+    An explicitly requested (``--with-apache``) but absent sidecar fails
+    fast; a running sidecar without the flag is still gated
+    (auto-detect). Returns the leg, or ``None`` when the missing-cell
+    FAIL line was already printed.
+    """
+    import qa_apache_cell as qac
+
+    apache_present = _docker_container_present(ctx.apache_cell)
+    if ctx.with_apache_flag and not apache_present:
+        with ctx.log_file.open("w", encoding="utf-8") as f:
+            f.write("qa-health failed\n")
+            f.write(f"url={ctx.url}\n")
+            f.write(f"container={ctx.container}\n")
+            f.write(f"apache_container={ctx.apache_cell}\n")
+            f.write("detail=apache_container_missing\n")
+            f.write(
+                "hint: qa-health --with-apache requires the QA Apache "
+                "frontend sidecar; bring it up with qa-up --with-apache "
+                "first (#7323).\n"
+            )
+        print(
+            "RESULT:FAIL STEP:qa-health DETAIL:apache_container_missing "
+            f"MATCH:{ctx.apache_cell} HTTP:0 HEALTH:unknown "
+            f"URL:{ctx.url} CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+        return None
+    apache_expected = ctx.with_apache_flag or apache_present
+    apache_url = ""
+    apache_https_url = ""
+    apache_http_port = 0
+    apache_https_port = 0
+    apache_port_source = "none"
+    ca_pem = ""
+    if apache_expected:
+        apache_http_port, apache_port_source = qac.resolve_qa_apache_host_port(
+            ctx.repo_root, "http", container=ctx.apache_cell
+        )
+        apache_url = qac.apache_base_url(apache_http_port)
+        apache_https_port, _https_source = qac.resolve_qa_apache_host_port(
+            ctx.repo_root, "https", container=ctx.apache_cell
+        )
+        apache_https_url = qac.apache_https_base_url(apache_https_port)
+        ca_pem = str(
+            qac.apache_cert_dir(ctx.repo_root, ctx.cell_suffix)
+            / qac.APACHE_CA_FILE
+        )
+    return _QaHealthApache(
+        expected=apache_expected,
+        url=apache_url,
+        https_url=apache_https_url,
+        http_port=apache_http_port,
+        https_port=apache_https_port,
+        port_source=apache_port_source,
+        ca_pem=ca_pem,
+        container=ctx.apache_cell,
+    )
+
+
+def _qa_health_probe_apache(apache: Optional[_QaHealthApache]) -> tuple:
+    """Probe the Apache leg: static :80, TLS :443, proxy path (#7323).
+
+    Returns ``(http_code, https_code, proxy_code, ready)``. ``ready``
+    requires HTTP 200 from the vhost itself (Apache Server header —
+    static offload), HTTPS 200 verified against the mkcert test CA
+    (genuine chain, no bypass), and HTTP 200 on the backend-owned probe
+    path (Apache holds no local copy, so 200 can only come through the
+    fallback proxy to DTS). All three probes are backend-quiet (no
+    exception-mapper logging), so the poll loop stays log-clean; the
+    per-context service-map parity rides the one-shot boot check in
+    :func:`_qa_up_start_apache_cell` plus the Playwright surface spec
+    (dynamic service paths log the backend's own unseeded-path errors,
+    so they never run in the loop). A missing leg (``None`` or not
+    expected) is vacuously ready so CMS-only runs stay byte-identical.
+    """
+    import qa_apache_cell as qac
+
+    if apache is None or not apache.expected:
+        return 0, 0, 0, True
+    http_code, http_server = qac.http_get_status_and_server(
+        f"{apache.url}/", timeout=5.0
+    )
+    static_ok = http_code == 200 and "Apache" in (http_server or "")
+    ca_path = Path(apache.ca_pem)
+    if ca_path.is_file():
+        https_code, _https_server = qac.https_get_status_with_ca(
+            f"{apache.https_url}/", ca_path, timeout=10.0
+        )
+    else:
+        https_code = 0
+    https_ok = https_code == 200
+    proxy_code, _proxy_server = qac.http_get_status_and_server(
+        f"{apache.url}{qac.APACHE_PROXY_PROBE_PATH}", timeout=5.0
+    )
+    proxy_ok = proxy_code == 200
+    return http_code, https_code, proxy_code, bool(
+        static_ok and https_ok and proxy_ok
+    )
+
+
+def _qa_health_probe(
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    apache: Optional[_QaHealthApache] = None,
+) -> _QaHealthProbe:
     """Run one poll iteration: HTTP, health, logs, readiness (#6832).
 
     No prints, no sleeps — the caller decides fail-fast / success /
@@ -3196,6 +3656,9 @@ def _qa_health_probe(ctx: _QaHealthContext, dts: _QaHealthDts) -> _QaHealthProbe
     )
     ready_dts = (
         not dts.expected or dts_code in (200, 302, 401, 403)
+    )
+    apache_code, apache_https_code, apache_proxy_code, apache_ready = (
+        _qa_health_probe_apache(apache)
     )
     health = _docker_health(ctx.container)
     logs = _docker_logs_tail(ctx.container)
@@ -3212,6 +3675,10 @@ def _qa_health_probe(ctx: _QaHealthContext, dts: _QaHealthDts) -> _QaHealthProbe
         server_logs=server_logs,
         ready=ready,
         detail=detail,
+        apache_code=apache_code,
+        apache_https_code=apache_https_code,
+        apache_proxy_code=apache_proxy_code,
+        apache_ready=apache_ready,
     )
 
 
@@ -3251,11 +3718,42 @@ def _qa_health_fail_context(
     return EXIT_SUBPROCESS_FAILED
 
 
+def _qa_health_apache_suffix(
+    apache: Optional[_QaHealthApache], probe: _QaHealthProbe
+) -> str:
+    """``APACHE_HTTP/HTTPS/PROXY`` RESULT tokens (empty when leg absent)."""
+    if apache is not None and apache.expected:
+        return (
+            f" APACHE_HTTP:{probe.apache_code}"
+            f" APACHE_HTTPS:{probe.apache_https_code}"
+            f" APACHE_PROXY:{probe.apache_proxy_code}"
+        )
+    return ""
+
+
+def _qa_health_apache_log_lines(
+    apache: Optional[_QaHealthApache], probe: _QaHealthProbe
+) -> str:
+    """Apache leg log keys (empty when the leg is absent, #7323)."""
+    if apache is None or not apache.expected:
+        return ""
+    return (
+        f"apache_url={apache.url}\n"
+        f"apache_https_url={apache.https_url}\n"
+        f"apache_http={probe.apache_code}\n"
+        f"apache_https={probe.apache_https_code}\n"
+        f"apache_proxy={probe.apache_proxy_code}\n"
+        f"apache_port_source={apache.port_source}\n"
+        f"apache_container={apache.container}\n"
+    )
+
+
 def _qa_health_succeed(
     ctx: _QaHealthContext,
     dts: _QaHealthDts,
     probe: _QaHealthProbe,
     check: int,
+    apache: Optional[_QaHealthApache] = None,
 ) -> int:
     """Record a clean poll: HTTP + logs + healthy (+ DTS probe) (#6832).
 
@@ -3276,17 +3774,19 @@ def _qa_health_succeed(
             f.write(f"dts_url={dts.url}\n")
             f.write(f"dts_http={probe.dts_code}\n")
             f.write(f"dts_port_source={dts.port_source}\n")
+        f.write(_qa_health_apache_log_lines(apache, probe))
+    apache_suffix = _qa_health_apache_suffix(apache, probe)
     if dts.expected:
         print(
             f"RESULT:OK STEP:qa-health HTTP:{probe.code} "
             f"DTS_HTTP:{probe.dts_code} HEALTH:{probe.health} "
             f"URL:{ctx.url} DTS_URL:{dts.url} "
-            f"CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+            f"CONTAINER:{ctx.container}{apache_suffix} LOG:{ctx.log_file}"
         )
     else:
         print(
             f"RESULT:OK STEP:qa-health HTTP:{probe.code} HEALTH:{probe.health} "
-            f"URL:{ctx.url} CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+            f"URL:{ctx.url} CONTAINER:{ctx.container}{apache_suffix} LOG:{ctx.log_file}"
         )
     return EXIT_OK
 
@@ -3343,6 +3843,7 @@ def _qa_health_write_timeout_log(
     probe: _QaHealthProbe,
     final_detail: Optional[str],
     final_match: Optional[str],
+    apache: Optional[_QaHealthApache] = None,
 ) -> None:
     """Write the timeout-path log file (re-scan DETAIL preferred) (#6832)."""
     with ctx.log_file.open("w", encoding="utf-8") as f:
@@ -3358,6 +3859,7 @@ def _qa_health_write_timeout_log(
             f.write(f"dts_url={dts.url}\n")
             f.write(f"dts_http={probe.dts_code}\n")
             f.write(f"dts_port_source={dts.port_source}\n")
+        f.write(_qa_health_apache_log_lines(apache, probe))
         if final_match:
             f.write(f"match={final_match}\n")
             f.write(
@@ -3382,35 +3884,40 @@ def _qa_health_print_timeout(
     probe: _QaHealthProbe,
     final_detail: Optional[str],
     final_match: Optional[str],
+    apache: Optional[_QaHealthApache] = None,
 ) -> int:
     """Print the timeout-path RESULT line (server-logs > context > plain) (#6832)."""
     dts_suffix = ""
     if dts.expected:
         dts_suffix = f" DTS_HTTP:{probe.dts_code} DTS_URL:{dts.url}"
+    apache_suffix = _qa_health_apache_suffix(apache, probe)
     if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
             f"MATCH:{final_match} HTTP:{probe.code} HEALTH:{probe.health} "
-            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix} LOG:{ctx.log_file}"
+            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix}{apache_suffix} LOG:{ctx.log_file}"
         )
     elif final_match:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
             f"MATCH:{final_match} HTTP:{probe.code} HEALTH:{probe.health} "
-            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix} LOG:{ctx.log_file}"
+            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix}{apache_suffix} LOG:{ctx.log_file}"
         )
     else:
         mismatch = _qa_health_timeout_mismatch_suffix(ctx, probe.code)
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {ctx.timeout}s "
             f"(last_http={probe.code} health={probe.health}) URL:{ctx.url} "
-            f"CONTAINER:{ctx.container}{dts_suffix}{mismatch} LOG:{ctx.log_file}"
+            f"CONTAINER:{ctx.container}{dts_suffix}{apache_suffix}{mismatch} LOG:{ctx.log_file}"
         )
     return EXIT_SUBPROCESS_FAILED
 
 
 def _qa_health_finish_timeout(
-    ctx: _QaHealthContext, dts: _QaHealthDts, probe: _QaHealthProbe
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    probe: _QaHealthProbe,
+    apache: Optional[_QaHealthApache] = None,
 ) -> int:
     """Timeout path: re-scan logs once more so DETAIL prefers startup failure (#6832)."""
     final_logs = _docker_logs_tail(ctx.container)
@@ -3421,11 +3928,15 @@ def _qa_health_finish_timeout(
         if final_detail
         else None
     )
-    _qa_health_write_timeout_log(ctx, dts, probe, final_detail, final_match)
-    return _qa_health_print_timeout(ctx, dts, probe, final_detail, final_match)
+    _qa_health_write_timeout_log(ctx, dts, probe, final_detail, final_match, apache)
+    return _qa_health_print_timeout(ctx, dts, probe, final_detail, final_match, apache)
 
 
-def _qa_health_poll(ctx: _QaHealthContext, dts: _QaHealthDts) -> int:
+def _qa_health_poll(
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    apache: Optional[_QaHealthApache] = None,
+) -> int:
     """Run the poll loop: fail-fast, success, or timeout finish (#6832).
 
     One :func:`_qa_health_probe` per check (same docker/HTTP call
@@ -3434,16 +3945,16 @@ def _qa_health_poll(ctx: _QaHealthContext, dts: _QaHealthDts) -> int:
     """
     last_probe: Optional[_QaHealthProbe] = None
     for check in range(1, ctx.max_checks + 1):
-        probe = _qa_health_probe(ctx, dts)
+        probe = _qa_health_probe(ctx, dts, apache)
         last_probe = probe
         # Fail-fast: dead Spring context or ERROR/FATAL in product/install logs.
         if DETAIL_CONTEXT_FAILED in probe.detail or DETAIL_SERVER_LOG_ERRORS in probe.detail:
             return _qa_health_fail_context(ctx, probe, check)
-        if probe.ready and probe.health == "healthy" and probe.dts_ready:
-            return _qa_health_succeed(ctx, dts, probe, check)
+        if probe.ready and probe.health == "healthy" and probe.dts_ready and probe.apache_ready:
+            return _qa_health_succeed(ctx, dts, probe, check, apache)
         time.sleep(ctx.interval)
     assert last_probe is not None  # max_checks >= 1 guarantees one iteration
-    return _qa_health_finish_timeout(ctx, dts, last_probe)
+    return _qa_health_finish_timeout(ctx, dts, last_probe, apache)
 
 
 def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -3490,7 +4001,10 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     dts = _qa_health_resolve_dts(ctx)
     if dts is None:
         return EXIT_SUBPROCESS_FAILED
-    return _qa_health_poll(ctx, dts)
+    apache = _qa_health_resolve_apache(ctx)
+    if apache is None:
+        return EXIT_SUBPROCESS_FAILED
+    return _qa_health_poll(ctx, dts, apache)
 
 
 def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -3501,10 +4015,11 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     the container frees the port and disk used by the cell.
 
     Default (no ``--container`` override) also removes the QA DTS cell
-    (``qa-up --with-dts`` companion, #6237) best-effort: a missing DTS
-    container is a no-op skip, never a failure, so the CMS-only default
-    path stays green. An explicit ``--container <other>`` removes only
-    that container.
+    (``qa-up --with-dts`` companion, #6237) and the QA Apache frontend
+    sidecar (``qa-up --with-apache`` companion, #7323) best-effort: a
+    missing DTS container or sidecar is a no-op skip, never a failure,
+    so the CMS-only default path stays green. An explicit
+    ``--container <other>`` removes only that container.
 
     ``--cell-suffix`` (else ``PERC_QA_CELL_SUFFIX`` env) scopes both
     removals to this shard's cells (#6704) — a default ``qa-down`` in
@@ -3534,19 +4049,40 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     if not dts_present:
         print(f"QA_CONTAINER:{default_dts}")
         print("QA_DETAIL:dts-absent-skip (no DTS cell to remove)")
+    else:
+        rc_dts, _log_dts = _run_logged(
+            "qa-down-dts",
+            _qa_destroy_argv(default_dts),
+            log_dir=log_dir,
+            cwd=repo_root,
+            dry_run=dry_run,
+        )
+        print(f"QA_CONTAINER:{default_dts}")
+        if rc_dts == EXIT_OK:
+            print("QA_DETAIL:dts-removed (ports/disk freed)")
+        else:
+            rc = rc_dts
+    # Apache frontend sidecar (qa-up --with-apache companion, #7323),
+    # best-effort like DTS: a missing sidecar is a no-op skip, never a
+    # failure, so the CMS-only / DTS-only default paths stay green.
+    default_apache = qa_apache_container(cell_suffix)
+    apache_present = dry_run or _docker_container_present(default_apache)
+    if not apache_present:
+        print(f"QA_CONTAINER:{default_apache}")
+        print("QA_DETAIL:apache-absent-skip (no Apache sidecar to remove)")
         return rc
-    rc_dts, _log_dts = _run_logged(
-        "qa-down-dts",
-        _qa_destroy_argv(default_dts),
+    rc_apache, _log_apache = _run_logged(
+        "qa-down-apache",
+        _qa_destroy_argv(default_apache),
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=dry_run,
     )
-    print(f"QA_CONTAINER:{default_dts}")
-    if rc_dts == EXIT_OK:
-        print("QA_DETAIL:dts-removed (ports/disk freed)")
+    print(f"QA_CONTAINER:{default_apache}")
+    if rc_apache == EXIT_OK:
+        print("QA_DETAIL:apache-removed (ports/disk freed)")
         return rc
-    return rc_dts
+    return rc_apache
 
 
 def cmd_qa_preflight(
@@ -3633,6 +4169,7 @@ def cmd_qa_rebuild_chain(
             skip_image_build=bool(getattr(args, "skip_image_build", False)),
             then_qa_deploy_webui=False,
             with_dts=bool(getattr(args, "with_dts", False)),
+            with_apache=bool(getattr(args, "with_apache", False)),
         )
         rc = cmd_qa_up(qa_up_args, paths)
         if rc != EXIT_OK:
@@ -3648,6 +4185,22 @@ def cmd_qa_rebuild_chain(
             paths,
         )
     return rc
+
+
+def _qa_fixture_staging_dir(repo_root: Path) -> Path:
+    """Default fixture staging dir, suffix-scoped for parallel shards (#7323).
+
+    Unset suffix keeps the legacy fixed dir so single-worktree behavior
+    is unchanged; a shard suffix isolates its staging (and the Apache
+    DocumentRoot bind-mount that reuses it) from other shards' live
+    trees — two suffixed cells would otherwise delete/replace each
+    other's served assets mid-run.
+    """
+    suffix = resolve_cell_suffix(None)
+    leaf = "qa-fixture-published"
+    if suffix:
+        leaf = f"qa-fixture-published-{suffix}"
+    return Path(repo_root) / "tmp" / leaf
 
 
 def _qa_publish_fixture_plan(
@@ -3669,7 +4222,7 @@ def _qa_publish_fixture_plan(
     staging = (
         Path(args.staging_dir)
         if getattr(args, "staging_dir", None)
-        else repo_root / "tmp" / "qa-fixture-published"
+        else _qa_fixture_staging_dir(repo_root)
     )
     cms_install = str(getattr(args, "cms_install_root", None) or QA_INSTALL_ROOT)
     dts_install = str(getattr(args, "install_root", None) or QA_INSTALL_ROOT)

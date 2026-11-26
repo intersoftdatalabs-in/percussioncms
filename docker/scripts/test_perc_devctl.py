@@ -39,6 +39,10 @@ _PORT_ENV_KEYS = (
     # #2482 — ``qa_cms_probe_url`` honors this override so host + Docker +
     # in-image healthcheck can agree on the probe path.
     "RHYTHMYX_HEALTH_PATH",
+    # #7323 — Apache frontend leg pins / overrides.
+    "QA_APACHE_HTTP_PORT",
+    "QA_APACHE_HTTPS_PORT",
+    "QA_APACHE_HOSTNAME",
 )
 
 
@@ -2012,6 +2016,12 @@ class TestQaWithDts(unittest.TestCase):
             ),
             unittest.mock.patch.object(pdc, "_curl_status", side_effect=fake_curl),
             unittest.mock.patch.object(pdc, "_docker_health", return_value="healthy"),
+            # Apache leg (#7323): hermetic runs stub the vhost probe so no
+            # real HTTP leaves the test (auto-detect sees the mocked
+            # container as the sidecar too).
+            unittest.mock.patch.object(
+                pdc, "_qa_health_probe_apache", return_value=(200, 200, 200, True)
+            ),
             unittest.mock.patch.object(
                 pdc, "_docker_logs_tail",
                 return_value="INFO [Server] Started @7879ms\n",
@@ -2875,6 +2885,209 @@ class QaPublishFixtureDeployFallbackTest(unittest.TestCase):
         )
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertFalse(any("tar" in argv for argv, _ in calls))
+
+
+class TestQaWithApache(unittest.TestCase):
+    """Issue #7323: ``qa-up --with-apache`` / health / down wiring."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        self.runner = _CliRunner(self.repo_root)
+
+    def test_qa_up_with_apache_dry_run_banner(self):
+        _clear_port_env()
+        rc, out = self.runner.run(
+            ["qa-up", "--with-apache", "--timeout-seconds", "60"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        # Implied DTS leg stays on the banner.
+        self.assertIn("DTS_URL=", out)
+        # Apache leg lines.
+        self.assertIn("QA_APACHE_HOSTNAME=qa-published.percussion.local", out)
+        self.assertIn("APACHE_URL=http://127.0.0.1:", out)
+        self.assertIn("APACHE_HTTPS_URL=https://127.0.0.1:", out)
+        self.assertIn("APACHE_CA_PEM=", out)
+        self.assertIn("rootCA.pem", out)
+        self.assertIn("QA_DETAIL:qa-up-apache dry-run plan", out)
+
+    def test_qa_up_default_dry_run_has_no_apache_lines(self):
+        _clear_port_env()
+        rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertNotIn("APACHE_URL=", out)
+        self.assertNotIn("APACHE_HTTPS_URL=", out)
+        self.assertNotIn("APACHE_HOSTNAME=", out)
+
+    def test_qa_down_dry_run_includes_apache_step(self):
+        rc, out = self.runner.run(["qa-down"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down-apache", out)
+
+    def test_qa_health_with_apache_dry_run(self):
+        rc, out = self.runner.run(
+            ["qa-health", "--with-apache", "--timeout-seconds", "30"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+
+    def test_resolve_apache_flag_absent_fails_fast(self):
+        ns = pdc.argparse.Namespace(
+            dry_run=False,
+            timeout_seconds=10,
+            interval_seconds=10,
+            url=None,
+            with_dts=False,
+            with_apache=True,
+            cell_suffix=None,
+            container=None,
+        )
+        ctx = pdc._qa_health_resolve_context(
+            ns, (self.repo_root, self.repo_root, self.repo_root)
+        )
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            import io
+            from contextlib import redirect_stdout
+
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                apache = pdc._qa_health_resolve_apache(ctx)
+        self.assertIsNone(apache)
+        self.assertIn("apache_container_missing", buf.getvalue())
+
+    def test_probe_apache_absent_is_vacuously_ready(self):
+        ns = pdc.argparse.Namespace(
+            dry_run=False,
+            timeout_seconds=10,
+            interval_seconds=10,
+            url=None,
+            with_dts=False,
+            with_apache=False,
+            cell_suffix=None,
+            container=None,
+        )
+        ctx = pdc._qa_health_resolve_context(
+            ns, (self.repo_root, self.repo_root, self.repo_root)
+        )
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            apache = pdc._qa_health_resolve_apache(ctx)
+        self.assertIsNotNone(apache)
+        assert apache is not None
+        self.assertFalse(apache.expected)
+        code = pdc._qa_health_probe_apache(apache)
+        self.assertEqual(code, (0, 0, 0, True))
+
+    def test_probe_apache_green_path(self):
+        apache = pdc._QaHealthApache(
+            expected=True,
+            url="http://127.0.0.1:18080",
+            https_url="https://127.0.0.1:18443",
+            http_port=18080,
+            https_port=18443,
+            port_source="env",
+            ca_pem="/certs/rootCA.pem",
+            container="perc-matrix-apache-h2",
+        )
+        import qa_apache_cell as qac
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ca = Path(tmp) / "rootCA.pem"
+            ca.write_text("ca")
+            apache = apache._replace(ca_pem=str(ca))
+            with unittest.mock.patch.object(
+                qac, "http_get_status_and_server",
+                side_effect=[
+                    (200, "Apache/2.4.71 (Unix)"),
+                    (200, "Apache/2.4.71 (Unix)"),
+                ],
+            ), unittest.mock.patch.object(
+                qac, "https_get_status_with_ca",
+                return_value=(200, "Apache/2.4.71 (Unix)"),
+            ):
+                code = pdc._qa_health_probe_apache(apache)
+        self.assertEqual(code, (200, 200, 200, True))
+
+    def test_apache_service_parity_gates_mismatch(self):
+        import qa_apache_cell as qac
+
+        ctx = pdc._QaUpContext(
+            repo_root=self.repo_root,
+            log_dir=self.repo_root / "docker" / "logs",
+            dry_run=False,
+            probe_timeout=60,
+            skip_image_build=True,
+            skip_preflight=True,
+            cell_suffix="",
+            container="perc-matrix-cms-h2",
+            dts_cell="perc-matrix-dts-h2",
+            host_port=19993,
+            apache_cell="perc-matrix-apache-h2",
+        )
+        with unittest.mock.patch.object(
+            pdc, "resolve_qa_dts_health_host_port",
+            return_value=(19983, "env"),
+        ), unittest.mock.patch.object(
+            qac, "http_get_status_and_server",
+            side_effect=[(302, "x"), (302, "")],
+        ):
+            self.assertTrue(pdc._qa_up_apache_service_parity(ctx, 18080))
+        with unittest.mock.patch.object(
+            pdc, "resolve_qa_dts_health_host_port",
+            return_value=(19983, "env"),
+        ), unittest.mock.patch.object(
+            qac, "http_get_status_and_server",
+            side_effect=[(200, "x"), (404, "")],
+        ):
+            self.assertFalse(pdc._qa_up_apache_service_parity(ctx, 18080))
+
+    def test_apache_fixture_plan_covers_deploy_reads(self):
+        """The synthetic fixture plan must carry every attr the DTS-side
+        deploy reads (regression: missing ``context_dest`` crashed the
+        live ``qa-up --with-apache`` leg, #7323)."""
+        ctx = pdc._QaUpContext(
+            repo_root=self.repo_root,
+            log_dir=self.repo_root / "docker" / "logs",
+            dry_run=True,
+            probe_timeout=60,
+            skip_image_build=True,
+            skip_preflight=True,
+            cell_suffix="",
+            container="perc-matrix-cms-h2",
+            dts_cell="perc-matrix-dts-h2",
+            host_port=19993,
+            apache_cell="perc-matrix-apache-h2",
+        )
+        plan = pdc._qa_up_apache_fixture_plan(ctx)
+        for attr in (
+            "container", "cms_container", "site_url", "category_url",
+            "site_dir", "pull_dir", "cms_install", "context_dest",
+        ):
+            self.assertTrue(
+                hasattr(plan, attr), f"fixture plan missing {attr}"
+            )
+        self.assertIn("webapps/ROOT", str(plan.context_dest))
+
+    def test_apache_fixture_staging_scoped_by_suffix(self):
+        """Parallel shards must not share one staging tree (#7323)."""
+        self.assertEqual(
+            pdc._qa_fixture_staging_dir(self.repo_root),
+            self.repo_root / "tmp" / "qa-fixture-published",
+        )
+        os.environ["PERC_QA_CELL_SUFFIX"] = "qa-a"
+        try:
+            self.assertEqual(
+                pdc._qa_fixture_staging_dir(self.repo_root),
+                self.repo_root / "tmp" / "qa-fixture-published-qa-a",
+            )
+        finally:
+            _clear_port_env()
 
 
 if __name__ == "__main__":

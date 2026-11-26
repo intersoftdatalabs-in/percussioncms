@@ -110,6 +110,28 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
   publishes the in-cell 8443 there and prints both in the banner
   (`QA_DTS_HTTPS_HOST_PORT=` / `DTS_HTTPS_URL=`, #6375). Same freeport contract as
   `TEST_CMS_URL` — do not commit `:9980` / `:9983` literals.
+- **QA cell with Apache frontend (`qa-up --with-apache`, #7323):**
+  stock `httpd:2.4` sidecar (`perc-matrix-apache-h2[-suffix]`) on
+  `perc-matrix-net` terminating container 80/443 (host freeport-mapped,
+  preferred 80/443 when free; `QA_APACHE_HTTP_PORT` /
+  `QA_APACHE_HTTPS_PORT` to pin), `ServerName`
+  `qa-published.percussion.local` (`QA_APACHE_HOSTNAME` to override),
+  static DocumentRoot = the fixture staging dir, `ProxyPass` for the
+  seven DTS service contexts + `/` fallback to the Tomcat cell.
+  TLS identity is a throwaway mkcert test CA in
+  `docker/logs/qa-apache-certs[-suffix]/` (gitignored; QA host needs a
+  `mkcert` binary, `MKCERT_BIN` wins over `PATH`). Banner prints
+  `APACHE_URL` / `APACHE_HTTPS_URL` / `APACHE_HOSTNAME` /
+  `APACHE_CA_PEM`; `qa-health --with-apache` gates static :80 (Apache
+  Server header), CA-verified :443, and the backend-owned `/error.html`
+  fallback probe (Apache holds no local copy, so 200 proves proxy
+  transit); a one-shot boot check asserts vhost-vs-direct status parity
+  on `/feeds/rss` (dynamic service paths trip the backend's own
+  unseeded-path error logging, so parity never runs in the poll loop).
+  Surface spec `tests/apache-frontend-smoke.spec.js` (tags `@apache`
+  `@apache-frontend`) uses `APACHE_HTTPS_URL` with a named skip —
+  `ignoreHTTPSErrors` per the DTS HTTPS precedent (genuine chain is the
+  `curl --cacert` health probe, not the browser run).
 - **Skip contract:** published specs
   (`tests/published-site-smoke.spec.js`,
   `tests/published-category-tree-fancytree.spec.js`, tags `@published` /
