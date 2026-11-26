@@ -107,6 +107,7 @@ import re
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -1144,6 +1145,62 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     pqd.add_argument("--dry-run", action="store_true")
+
+    pqsl = sub.add_parser(
+        "qa-service-lifecycle",
+        help=(
+            "Install CMS/DTS service units in a systemd PID-1 QA cell and "
+            "drive the test instance lifecycle with real systemctl "
+            "start/stop/restart/status + journalctl (GH-7324). "
+            "In-container systemd only — never touches host systemd."
+        ),
+    )
+    pqsl.add_argument(
+        "--product",
+        choices=("cms", "dts"),
+        default="cms",
+        help="Product cell to exercise (default: cms).",
+    )
+    pqsl.add_argument(
+        "--cell-suffix",
+        default=None,
+        help=(
+            "Isolate the systemd cell name for parallel shards (#6704): "
+            "appends to perc-matrix-<product>-systemd so this run never "
+            f"rm -f's another shard's cell. Defaults to {QA_CELL_SUFFIX_ENV} env."
+        ),
+    )
+    pqsl.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=QA_PROBE_TIMEOUT_SECONDS_DEFAULT,
+        help=(
+            "Seconds to wait for product readiness after systemctl start "
+            f"(default: {QA_PROBE_TIMEOUT_SECONDS_DEFAULT})."
+        ),
+    )
+    pqsl.add_argument(
+        "--install-timeout-seconds",
+        type=int,
+        default=1800,
+        help=(
+            "Seconds to allow the silent in-cell install (default: 1800)."
+        ),
+    )
+    pqsl.add_argument(
+        "--skip-image-build",
+        action="store_true",
+        help="Reuse local percussion-matrix-cell / systemd images.",
+    )
+    pqsl.add_argument(
+        "--keep",
+        action="store_true",
+        help=(
+            "Leave the systemd cell container running after the run "
+            "(debugging; default removes it so no units/links linger)."
+        ),
+    )
+    pqsl.add_argument("--dry-run", action="store_true")
 
     pqpf = sub.add_parser(
         "qa-publish-fixture",
@@ -4085,6 +4142,269 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     return rc_apache
 
 
+def cmd_qa_service_lifecycle(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """GH-7324: systemd service-lifecycle run for the QA install-testing cell.
+
+    Boots a systemd-as-PID-1 cell (unprivileged, private cgroup namespace —
+    in-container systemd only), runs the silent installer via the normal
+    path, installs the native units (``install --systemd``), drives
+    ``systemctl start/stop/restart/status`` + ``journalctl`` assertions,
+    uninstalls the units, asserts no leftover units/links, and removes
+    the cell (unless ``--keep``). Host systemd is never touched: every
+    service-manager invocation is ``docker exec <cell>`` against a
+    ``perc-matrix-*-systemd`` container name.
+
+    Thin pipeline (#6782): context resolve → dry-run/finish legs in named
+    helpers so this entry point stays under the complexity gate.
+    """
+    import qa_service_lifecycle as qsl  # noqa: E402
+
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    product = str(getattr(args, "product", "cms"))
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    container = qsl.systemd_container_name(product, cell_suffix)
+    dry_run = bool(getattr(args, "dry_run", False))
+    scripts_dir = repo_root / "docker" / "scripts"
+    jar = _qa_service_lifecycle_installer_jar(scripts_dir, product, dry_run)
+    if jar is None:
+        print(
+            f"RESULT:FAIL STEP:{qsl.STEP_QA_SERVICE_LIFECYCLE} "
+            f"DETAIL:installer-jar-missing"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    ctx = _QaServiceLifecycleContext(
+        repo_root=repo_root,
+        log_dir=log_dir,
+        log_file=_new_log_file(log_dir, qsl.STEP_QA_SERVICE_LIFECYCLE),
+        container=container,
+        product=product,
+        jar=jar,
+        skip_image_build=bool(getattr(args, "skip_image_build", False)),
+        keep=bool(getattr(args, "keep", False)),
+        ready_timeout=int(getattr(args, "timeout_seconds", 900)),
+        install_timeout=int(getattr(args, "install_timeout_seconds", 1800)),
+    )
+    if dry_run:
+        return _qa_service_lifecycle_dry_run(ctx, qsl)
+    return _qa_service_lifecycle_live(ctx, qsl)
+
+
+class _QaServiceLifecycleContext(NamedTuple):
+    """Resolved ``qa-service-lifecycle`` runtime context (pure value object).
+
+    Groups the cell/container/timeout resolution owned by
+    :func:`cmd_qa_service_lifecycle` so the entry point stays a thin
+    resolve → dry-run/live pipeline under the complexity gate.
+    """
+
+    repo_root: Path
+    log_dir: Path
+    log_file: Path
+    container: str
+    product: str
+    jar: Path
+    skip_image_build: bool
+    keep: bool
+    ready_timeout: int
+    install_timeout: int
+
+
+def _qa_service_lifecycle_dry_run(ctx: _QaServiceLifecycleContext, qsl) -> int:
+    """Print the ``qa-service-lifecycle`` plan and RESULT line (no subprocesses)."""
+    plan = [
+        ("build-base", qsl.docker_build_base_argv(ctx.repo_root)),
+        ("build-systemd", qsl.docker_build_systemd_argv(ctx.repo_root)),
+        (
+            "run-cell",
+            qsl.docker_run_systemd_argv(
+                image=qsl.SYSTEMD_IMAGE,
+                container_name=ctx.container,
+                installer_jar_host=ctx.jar,
+                product=ctx.product,
+            ),
+        ),
+    ]
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        f.write("DRY-RUN: qa-service-lifecycle plan\n")
+        for label, argv in plan:
+            f.write(f"{label}: {' '.join(str(a) for a in argv)}\n")
+        f.write(f"container={ctx.container}\nproduct={ctx.product}\n")
+        f.write(
+            "lifecycle=install(--no-start) install-unit(--systemd) "
+            "start/stop/restart/status journalctl uninstall leftover-check\n"
+        )
+    print(f"QA_CONTAINER:{ctx.container}")
+    print(f"QA_DETAIL:product={ctx.product} unit={qsl.unit_for(ctx.product)}")
+    print(f"RESULT:OK STEP:{qsl.STEP_QA_SERVICE_LIFECYCLE} LOG:{ctx.log_file}")
+    return EXIT_OK
+
+
+def _qa_service_lifecycle_emit_fail(
+    ctx: _QaServiceLifecycleContext, qsl, detail: str
+) -> int:
+    """Append the failure to the run log and emit the FAIL RESULT line."""
+    with ctx.log_file.open("a", encoding="utf-8") as f:
+        f.write(f"FAIL: {detail}\n")
+    print(f"QA_CONTAINER:{ctx.container}")
+    print(f"RESULT:FAIL STEP:{qsl.STEP_QA_SERVICE_LIFECYCLE} DETAIL:{detail}")
+    return EXIT_SUBPROCESS_FAILED
+
+
+def _qa_service_lifecycle_boot(ctx: _QaServiceLifecycleContext, qsl) -> Optional[str]:
+    """Build images and start the systemd cell; None on success, detail on failure."""
+    if not ctx.skip_image_build:
+        for label, argv in (
+            ("build-base", qsl.docker_build_base_argv(ctx.repo_root)),
+            ("build-systemd", qsl.docker_build_systemd_argv(ctx.repo_root)),
+        ):
+            rc, _build_log = _run_logged(
+                f"{qsl.STEP_QA_SERVICE_LIFECYCLE}-{label}",
+                argv,
+                log_dir=ctx.log_dir,
+                cwd=ctx.repo_root,
+                dry_run=False,
+            )
+            if rc != EXIT_OK:
+                return f"{label}-failed"
+    subprocess.run(
+        ["docker", "rm", "-f", ctx.container],
+        shell=False, check=False,
+        capture_output=True, text=True,
+    )
+    started = subprocess.run(
+        qsl.docker_run_systemd_argv(
+            image=qsl.SYSTEMD_IMAGE,
+            container_name=ctx.container,
+            installer_jar_host=ctx.jar,
+            product=ctx.product,
+        ),
+        shell=False, check=False,
+        capture_output=True, text=True,
+    )
+    if started.returncode != 0:
+        return f"cell-start-failed: {(started.stderr or '').strip()[-500:]}"
+    return None
+
+
+def _qa_service_lifecycle_finish(
+    ctx: _QaServiceLifecycleContext, qsl, result, teardown: Optional[object] = None
+) -> int:
+    """Write step evidence to the run log and emit the verdict RESULT line.
+
+    ``teardown`` is the ``remove_cell_container`` evidence step (None when
+    ``--keep`` skips removal). A failed removal fails the run even when the
+    lifecycle itself was green — the cell must not linger while the command
+    claims ``cell-removed``.
+    """
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        for step in result.steps:
+            f.write(
+                f"STEP:{step.name} rc={step.returncode} "
+                f"argv={' '.join(str(a) for a in step.argv)}\n"
+                f"{step.output_tail}\n---\n"
+            )
+        f.write(f"VERDICT:{'OK' if result.ok else 'FAIL'} {result.detail}\n")
+        if teardown is not None:
+            f.write(
+                f"STEP:{teardown.name} rc={teardown.returncode} "
+                f"argv={' '.join(str(a) for a in teardown.argv)}\n"
+                f"{teardown.output_tail}\n---\n"
+            )
+    teardown_failed = (
+        teardown is not None and getattr(teardown, "returncode", 0) != 0
+    )
+    print(f"QA_CONTAINER:{ctx.container}")
+    for step in result.steps:
+        if step.name in ("assert-active-after-restart", "status", "journalctl",
+                         "assert-no-leftovers"):
+            print(f"QA_DETAIL:{step.name} rc={step.returncode}")
+    print(f"QA_DETAIL:{result.detail}")
+    if teardown_failed:
+        print(f"QA_DETAIL:teardown-failed rc={teardown.returncode}: "
+              f"{(teardown.output_tail or '').strip()[-300:]}")
+        print(
+            f"RESULT:FAIL STEP:{qsl.STEP_QA_SERVICE_LIFECYCLE} "
+            f"DETAIL:cell-removal-failed"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    if result.ok and teardown is not None:
+        print("QA_DETAIL:cell-removed (no leftover units/links on host)")
+    print(
+        f"RESULT:{'OK' if result.ok else 'FAIL'} "
+        f"STEP:{qsl.STEP_QA_SERVICE_LIFECYCLE} LOG:{ctx.log_file}"
+    )
+    return EXIT_OK if result.ok else EXIT_SUBPROCESS_FAILED
+
+
+def _qa_service_lifecycle_live(ctx: _QaServiceLifecycleContext, qsl) -> int:
+    """Build → boot cell → systemctl lifecycle → uninstall → teardown."""
+    detail = _qa_service_lifecycle_boot(ctx, qsl)
+    if detail is not None:
+        return _qa_service_lifecycle_emit_fail(ctx, qsl, detail)
+    try:
+        result = qsl.run_service_lifecycle(
+            container=ctx.container,
+            product=ctx.product,
+            run=subprocess.run,
+            install_timeout=ctx.install_timeout,
+            ready_timeout=ctx.ready_timeout,
+        )
+    except Exception as exc:  # noqa: BLE001 -- evidence-first: convert to FAIL verdict
+        result = qsl.LifecycleResult(
+            ok=False, product=ctx.product,
+            unit=qsl.unit_for(ctx.product), container=ctx.container,
+            detail=f"harness error: {exc!r}")
+    finally:
+        teardown = None
+        if not ctx.keep:
+            teardown = qsl.remove_cell_container(ctx.container, subprocess.run)
+    if ctx.keep:
+        return _qa_service_lifecycle_finish(ctx, qsl, result)
+    return _qa_service_lifecycle_finish(ctx, qsl, result, teardown)
+
+
+def _qa_service_lifecycle_installer_jar(
+    scripts_dir: Path, product: str, dry_run: bool
+) -> Optional[Path]:
+    """Resolve the shipped installer jar via matrix-install-smoke (lazy import).
+
+    ``matrix-install-smoke.py`` has a dashed filename so it cannot be a
+    top-level import; load it the same way the unit tests do. Returns None
+    when the jar is missing outside dry-run (the live run needs the real
+    customer artifact); in dry-run (or when the file is absent but the
+    caller only plans) returns the expected path so ``--dry-run`` stays
+    hermetic on machines without a built installer.
+    """
+    import importlib.util as _importlib_util
+
+    # Customer installer artifact names (mirror
+    # matrix-install-smoke.CMS/DTS_INSTALLER_JAR_NAME; kept literal so
+    # --dry-run stays hermetic when the smoke module file is absent).
+    fallback_names = {
+        "cms": "perc-distribution-tree.jar",
+        "dts": "delivery-tier-distribution.jar",
+    }
+    smoke_path = Path(scripts_dir) / "matrix-install-smoke.py"
+    if smoke_path.is_file():
+        spec = _importlib_util.spec_from_file_location(
+            "matrix_install_smoke", smoke_path
+        )
+        if spec is not None and spec.loader is not None:
+            smoke = _importlib_util.module_from_spec(spec)
+            sys.modules["matrix_install_smoke"] = smoke
+            spec.loader.exec_module(smoke)
+            try:
+                return smoke.resolve_installer_jar(scripts_dir.parent.parent, product)
+            except FileNotFoundError:
+                pass
+    if dry_run:
+        return Path(tempfile.gettempdir()) / fallback_names[product]
+    return None
+
+
 def cmd_qa_preflight(
     args: argparse.Namespace, paths: tuple[Path, Path, Path]
 ) -> int:
@@ -4590,6 +4910,7 @@ _DISPATCH = {
     "qa-up": cmd_qa_up,
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
+    "qa-service-lifecycle": cmd_qa_service_lifecycle,
     "qa-publish-fixture": cmd_qa_publish_fixture,
     "qa-seed-widget-fixtures": cmd_qa_seed_widget_fixtures,
     "qa-preflight": cmd_qa_preflight,

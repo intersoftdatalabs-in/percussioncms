@@ -859,6 +859,35 @@ class InstallArgvTests(unittest.TestCase):
         self.assertNotIn("--demo-sites", argv)
 
 
+class CellEntrypointStartFlagTests(unittest.TestCase):
+    """GH-7324: --start/--no-start controls the direct product launch."""
+
+    def test_start_defaults_true(self):
+        args = cell._build_parser().parse_args(
+            ["--installer-jar", "/installer/installer.jar"])
+        self.assertTrue(args.start)
+
+    def test_no_start_parses_false(self):
+        args = cell._build_parser().parse_args(
+            ["--installer-jar", "/installer/installer.jar", "--no-start"])
+        self.assertFalse(args.start)
+
+    def test_no_start_dry_run_skips_launch(self):
+        """--no-start --dry-run installs nothing live and never starts."""
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            argv = ["--installer-jar", "/installer/installer.jar",
+                    "--install-root", str(Path(td) / "perc"),
+                    "--no-start", "--no-keep-alive", "--dry-run"]
+            with unittest.mock.patch.object(
+                    cell, "start_product",
+                    side_effect=AssertionError("must not start")) as m:
+                rc = cell.main(argv)
+            self.assertEqual(rc, cell.EXIT_OK)
+            m.assert_not_called()
+
+
 class ProbeUrlTests(unittest.TestCase):
     def test_cms_and_dts_urls(self):
         self.assertEqual(

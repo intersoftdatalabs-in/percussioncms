@@ -22,6 +22,13 @@ EnvironmentFile=-@ENV_FILE@
 PIDFile=@PID_FILE@
 ExecStart=@INIT_SCRIPT@ start
 ExecStop=@INIT_SCRIPT@ stop
+# GH-7324: the stop helper kills the main JVM with SIGHUP
+# (start-stop-daemon -K -s HUP in rxjetty.sh stop), and the JVM reports
+# that as exit status 129 (code=exited, not code=killed — so the bare
+# signal name alone does not match; list both forms). Without this,
+# systemd grades a clean `systemctl stop` as Result=exit-code /
+# Active=failed instead of inactive.
+SuccessExitStatus=129 SIGHUP
 TimeoutStartSec=1800
 TimeoutStopSec=120
 StandardOutput=journal

@@ -174,6 +174,34 @@ function removeServiceScript() {
 	rm -rf "${TOMCAT_RUN}"
 }
 
+function prependLsbHeader() {
+	# GH-7324: systemctl enable syncs a same-named SysV script via
+	# systemd-sysv-install (update-rc.d), which aborts without LSB
+	# Default-Start runlevels and fails the whole enable. catalina.sh
+	# carries no LSB block, so prepend one (same shape as the CMS
+	# rxjetty.sh template). $1 is the Short-Description.
+	local helper="/etc/init.d/${SERVICE_NAME}"
+	local description="$1"
+	local tmp
+	tmp="$(mktemp)" || exit 1
+	{
+		head -n 1 "$helper"
+		cat <<EOF
+### BEGIN INIT INFO
+# Provides:          ${SERVICE_NAME}
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: ${description}
+### END INIT INFO
+EOF
+		tail -n +2 "$helper"
+	} > "$tmp"
+	cat "$tmp" > "$helper"
+	rm -f "$tmp"
+}
+
 function installInitScriptAndDefaults() {
 	echo "Setting up pid folder ${TOMCAT_RUN} user=${RX_USER} group=${RX_GROUP}"
 	mkdir -p "${TOMCAT_RUN}"
@@ -191,6 +219,7 @@ function installInitScriptAndDefaults() {
 	# Ensure env is set early in the helper script
 	sed -i "2 a CATALINA_HOME=${CATALINA_HOME}" "/etc/init.d/${SERVICE_NAME}"
 	sed -i "3 a JAVA_HOME=${JAVA_HOME}" "/etc/init.d/${SERVICE_NAME}"
+	prependLsbHeader "Percussion Production DTS (${SERVICE_NAME})"
 	chmod 755 "/etc/init.d/${SERVICE_NAME}"
 
 	# EnvironmentFile-safe defaults (no shell commands)

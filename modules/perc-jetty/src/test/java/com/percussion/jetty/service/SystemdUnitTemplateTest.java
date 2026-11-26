@@ -126,6 +126,19 @@ class SystemdUnitTemplateTest {
         "documents init.d remains start helper + fallback");
   }
 
+  @Test
+  void unit_treatsStopSignalAsCleanExit() {
+    // GH-7324: rxjetty.sh stop kills the main JVM with SIGHUP (exit 129);
+    // without SuccessExitStatus a clean `systemctl stop` grades failed.
+    boolean declaresHup = unitText.lines().anyMatch(l -> {
+      String trimmed = l.trim();
+      return trimmed.startsWith("SuccessExitStatus=")
+          && (trimmed.contains("SIGHUP") || trimmed.contains("HUP")
+              || trimmed.contains("129"));
+    });
+    assertTrue(declaresHup, "SuccessExitStatus must cover the SIGHUP stop path");
+  }
+
   private static int extractTimeoutStartSec(String text) {
     for (String line : text.split("\n")) {
       String trimmed = line.trim();

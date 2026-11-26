@@ -63,7 +63,37 @@ perc-devctl.py qa-down [--container NAME]
 # Frontend cell: qa-up --with-apache (implies --with-dts) adds the stock
 # httpd:2.4 sidecar terminating 80/443 + DTS reverse proxy (#7323);
 # qa-health --with-apache gates the vhost legs; qa-down removes the sidecar.
+perc-devctl.py qa-service-lifecycle [--product cms|dts] [--cell-suffix S] [--timeout-seconds N] [--install-timeout-seconds N] [--skip-image-build] [--keep] [--dry-run]
 ```
+
+#### Service-lifecycle cell — systemd units + systemctl (GH-7324)
+
+`perc-devctl.py qa-service-lifecycle [--product cms|dts]` boots a
+**systemd-as-PID-1** QA cell (`docker/matrix/Dockerfile.systemd`,
+run **unprivileged** with a private cgroup namespace plus `SYS_ADMIN` —
+`docker_run_systemd_argv()` fail-closed asserts `--cgroupns=private` is
+present and `--privileged` / `--cgroupns=host` / host-cgroup or `/dev`
+binds / `--device` are absent; never `--privileged`, never host cgroups
+— in-container systemd only, never the host's), runs the silent installer via the normal path
+(`cell-entrypoint.py --no-start`), installs the native service units via
+the shipped installer scripts (`install-jetty-service.sh` /
+`DTSProductionService.sh` `install --systemd` — the GH-962 / #1988
+dual-ship path), then drives the test instance lifecycle with real
+`systemctl start/stop/restart/status` + `journalctl -u` assertions and
+finishes with uninstall + a no-leftover-units/links check before
+removing the cell. Host systemd is structurally untouched: every
+service-manager invocation is `docker exec <perc-matrix-*-systemd cell>`.
+
+```bash
+python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms
+```
+
+`--cell-suffix` isolates the cell name for parallel shards (#6704);
+`--keep` leaves the cell running for debugging (default removes it so no
+units/links linger). Pure builders + the full sequence against a fake
+docker runner live in `docker/scripts/qa_service_lifecycle.py`
+(`docker/scripts/test_qa_service_lifecycle.py`). This is the container
+counterpart of the live-host soak (#1989), which stays ops-owned.
 
 #### Rebuild-chain preflight (#2486 / #2532 / matrix wire-up #2531)
 
