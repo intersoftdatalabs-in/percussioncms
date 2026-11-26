@@ -2554,6 +2554,9 @@ def _qa_print_endpoint_banner(
     print(
         f"APACHE_LOGS=docker logs {apache_container or qac.apache_container()} "
         "(vhost access/error: docker exec <cell> tail "
+        # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7323,
+        # precedent #6570) — container-internal Apache log path in banner
+        # help text, never a host path join.
         "/usr/local/apache2/logs/qa-cell-*-access.log)"
     )
 

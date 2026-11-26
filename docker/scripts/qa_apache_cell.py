@@ -101,7 +101,11 @@ APACHE_CERT_FILE = "apache-cert.pem"
 APACHE_KEY_FILE = "apache-key.pem"
 APACHE_CA_FILE = "rootCA.pem"
 
-# Container-side mount points (POSIX by construction — Linux cell).
+# Container-side mount points (POSIX by construction — Linux cell;
+# Path joins would emit backslashes on Windows hosts, so literals are
+# correct here, not a portability defect).
+# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7323,
+# precedent #6570) — Linux-cell-internal mount paths, never host joins.
 APACHE_CONF_CONTAINER_PATH = "/usr/local/apache2/conf/qa-cell.conf"
 APACHE_DOCROOT_CONTAINER_PATH = "/usr/local/apache2/htdocs/site"
 APACHE_CERTS_CONTAINER_PATH = "/certs"

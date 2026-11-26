@@ -202,6 +202,9 @@ class RunArgvTests(unittest.TestCase):
         self.assertIn("18080:80", text)
         self.assertIn("18443:443", text)
         # Read-only bind mounts: conf, docroot, certs.
+        # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #7323,
+        # precedent #6570) — Linux-cell-internal mount paths in test
+        # assertion literals, never host path joins.
         self.assertIn(
             "/repo/docker/apache/qa-apache-vhost.conf:"
             "/usr/local/apache2/conf/qa-cell.conf:ro",
