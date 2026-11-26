@@ -22,3 +22,7 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review
+
+No actionable defects were found against the specified merge base. The conformance helper matches its documented contract, and all nine focused tests passed using JDK 21.
