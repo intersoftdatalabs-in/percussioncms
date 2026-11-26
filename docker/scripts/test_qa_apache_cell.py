@@ -217,7 +217,9 @@ class RunArgvTests(unittest.TestCase):
             f"{site_dir}:{qac.APACHE_DOCROOT_CONTAINER_PATH}:ro",
             text,
         )
-        self.assertIn("/repo/docker/logs/qa-apache-certs:/certs:ro", text)
+        self.assertIn(
+            f"{cert_dir}:{qac.APACHE_CERTS_CONTAINER_PATH}:ro", text
+        )
         # Stock image + foreground + Include + env defines.
         self.assertIn("httpd:2.4", text)
         self.assertIn("httpd-foreground", text)
@@ -291,38 +293,58 @@ class MkcertTests(unittest.TestCase):
 
 
 class ProbeHelperTests(unittest.TestCase):
+    def _opener_with(self, *, result=None, error=None):
+        opener = unittest.mock.MagicMock()
+        if error is not None:
+            opener.open.side_effect = error
+        else:
+            opener.open.return_value.__enter__.return_value = result
+        patcher = unittest.mock.patch.object(
+            qac.urllib.request, "build_opener", return_value=opener
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return opener
+
     def test_http_ok_with_server(self):
         resp = unittest.mock.MagicMock()
         resp.status = 200
         resp.headers = {"Server": "Apache/2.4.62 (Unix)"}
-        resp.__enter__.return_value = resp
-        with unittest.mock.patch.object(
-            qac.urllib.request, "urlopen", return_value=resp
-        ):
-            self.assertEqual(
-                qac.http_get_status_and_server("http://127.0.0.1:1/"),
-                (200, "Apache/2.4.62 (Unix)"),
-            )
+        self._opener_with(result=resp)
+        self.assertEqual(
+            qac.http_get_status_and_server("http://127.0.0.1:1/"),
+            (200, "Apache/2.4.62 (Unix)"),
+        )
 
     def test_http_error_code_returned(self):
         err = urllib.error.HTTPError(
             "http://127.0.0.1:1/", 404, "nf", {"Server": "x"}, None
         )
-        with unittest.mock.patch.object(
-            qac.urllib.request, "urlopen", side_effect=err
-        ):
-            self.assertEqual(
-                qac.http_get_status_and_server("http://127.0.0.1:1/")[0], 404
-            )
+        self._opener_with(error=err)
+        self.assertEqual(
+            qac.http_get_status_and_server("http://127.0.0.1:1/")[0], 404
+        )
 
     def test_http_network_failure_is_zero(self):
-        with unittest.mock.patch.object(
-            qac.urllib.request, "urlopen",
-            side_effect=urllib.error.URLError("refused"),
-        ):
-            self.assertEqual(
-                qac.http_get_status_and_server("http://127.0.0.1:1/"), (0, "")
-            )
+        self._opener_with(
+            error=urllib.error.URLError("refused")
+        )
+        self.assertEqual(
+            qac.http_get_status_and_server("http://127.0.0.1:1/"), (0, "")
+        )
+
+    def test_http_does_not_follow_redirects(self):
+        # First-hop status is what the parity check compares (#7323).
+        err = urllib.error.HTTPError(
+            "http://127.0.0.1:1/loop", 302, "Found",
+            {"Server": "x", "Location": "/loop"}, None,
+        )
+        opener = self._opener_with(error=err)
+        self.assertEqual(
+            qac.http_get_status_and_server("http://127.0.0.1:1/loop")[0],
+            302,
+        )
+        opener.open.assert_called_once()
 
     def test_https_verifies_against_ca(self):
         resp = unittest.mock.MagicMock()

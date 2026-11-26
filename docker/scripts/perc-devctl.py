@@ -1203,7 +1203,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--staging-dir",
         default=None,
         help=(
-            "Host staging dir (default: <repo>/tmp/qa-fixture-published)."
+            "Host staging dir (default: <repo>/tmp/qa-fixture-published, "
+            "suffix-scoped per shard when PERC_QA_CELL_SUFFIX is set)."
         ),
     )
     pqpf.add_argument(
@@ -2931,7 +2932,7 @@ def _qa_up_apache_fixture_plan(ctx: _QaUpContext) -> argparse.Namespace:
         ctx.repo_root, container=ctx.dts_cell
     )
     dts_base = qa_dts_base_url(dts_port)
-    staging = ctx.repo_root / "tmp" / "qa-fixture-published"
+    staging = _qa_fixture_staging_dir(ctx.repo_root)
     return argparse.Namespace(
         container=ctx.dts_cell,
         cms_container=ctx.container,
@@ -4186,6 +4187,22 @@ def cmd_qa_rebuild_chain(
     return rc
 
 
+def _qa_fixture_staging_dir(repo_root: Path) -> Path:
+    """Default fixture staging dir, suffix-scoped for parallel shards (#7323).
+
+    Unset suffix keeps the legacy fixed dir so single-worktree behavior
+    is unchanged; a shard suffix isolates its staging (and the Apache
+    DocumentRoot bind-mount that reuses it) from other shards' live
+    trees — two suffixed cells would otherwise delete/replace each
+    other's served assets mid-run.
+    """
+    suffix = resolve_cell_suffix(None)
+    leaf = "qa-fixture-published"
+    if suffix:
+        leaf = f"qa-fixture-published-{suffix}"
+    return Path(repo_root) / "tmp" / leaf
+
+
 def _qa_publish_fixture_plan(
     args: argparse.Namespace, repo_root: Path
 ) -> argparse.Namespace:
@@ -4205,7 +4222,7 @@ def _qa_publish_fixture_plan(
     staging = (
         Path(args.staging_dir)
         if getattr(args, "staging_dir", None)
-        else repo_root / "tmp" / "qa-fixture-published"
+        else _qa_fixture_staging_dir(repo_root)
     )
     cms_install = str(getattr(args, "cms_install_root", None) or QA_INSTALL_ROOT)
     dts_install = str(getattr(args, "install_root", None) or QA_INSTALL_ROOT)

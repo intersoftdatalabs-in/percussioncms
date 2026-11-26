@@ -454,18 +454,33 @@ def ensure_apache_certs(hostname: str, cert_dir: Path) -> Tuple[bool, str]:
     return True, f"certs_ready dir={dest} hostname={hostname}"
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Disable redirect following so probes see the first hop (#7323).
+
+    ``urlopen`` follows 301/302/303/307 automatically; the service-map
+    parity check must compare first-hop statuses (the unseeded feed
+    path 302s into the backend's own error chain, which following would
+    chase instead of comparing).
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def http_get_status_and_server(
     url: str, timeout: float = 5.0
 ) -> Tuple[int, str]:
     """GET ``url`` over plain HTTP; return ``(status, server_header)``.
 
-    ``Server`` distinguishes Apache-direct (``Apache/2.4…``) from
-    proxied-to-Tomcat (``Apache-Coyote/1.1``) responses through the
-    vhost. Returns ``(0, "")`` on network error; HTTP error codes are
-    returned (not raised) with the header when present.
+    ``Server`` distinguishes Apache-direct (``Apache/2.4…``) responses
+    through the vhost. Redirects are NOT followed (first-hop status is
+    what the parity check compares). Returns ``(0, "")`` on network
+    error; HTTP error codes are returned (not raised) with the header
+    when present.
     """
+    opener = urllib.request.build_opener(_NoRedirectHandler())
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as response:
+        with opener.open(url, timeout=timeout) as response:
             return response.status, response.headers.get("Server", "")
     except urllib.error.HTTPError as exc:
         try:

@@ -2893,6 +2893,7 @@ class TestQaWithApache(unittest.TestCase):
     def setUp(self):
         self.td = tempfile.TemporaryDirectory()
         self.addCleanup(self.td.cleanup)
+        _clear_port_env()
         self.addCleanup(_clear_port_env)
         self.repo_root = _stub_repo_root(Path(self.td.name))
         self.runner = _CliRunner(self.repo_root)
@@ -3072,6 +3073,21 @@ class TestQaWithApache(unittest.TestCase):
                 hasattr(plan, attr), f"fixture plan missing {attr}"
             )
         self.assertIn("webapps/ROOT", str(plan.context_dest))
+
+    def test_apache_fixture_staging_scoped_by_suffix(self):
+        """Parallel shards must not share one staging tree (#7323)."""
+        self.assertEqual(
+            pdc._qa_fixture_staging_dir(self.repo_root),
+            self.repo_root / "tmp" / "qa-fixture-published",
+        )
+        os.environ["PERC_QA_CELL_SUFFIX"] = "qa-a"
+        try:
+            self.assertEqual(
+                pdc._qa_fixture_staging_dir(self.repo_root),
+                self.repo_root / "tmp" / "qa-fixture-published-qa-a",
+            )
+        finally:
+            _clear_port_env()
 
 
 if __name__ == "__main__":
