@@ -155,7 +155,14 @@ describe("Bootstrap owns tooltip on classic pages; autocomplete is jQuery UI (is
               setTimeout(() => {
                 const tip = document.createElement("div");
                 tip.className = `tooltip show ${opts.customClass || ""}`.trim();
-                tip.innerHTML = `<div class="tooltip-inner">${opts.title}</div>`;
+                // Static bubble structure; the title is inserted as text so
+                // this stub never constructs HTML from input (CodeQL
+                // js/html-constructed-from-input). The real Bootstrap
+                // Tooltip parses html:true titles itself (proven live in
+                // Playwright); this stub only needs the bubble + content
+                // assertions below to hold.
+                tip.innerHTML = '<div class="tooltip-inner"></div>';
+                tip.querySelector(".tooltip-inner").textContent = opts.title;
                 document.body.appendChild(tip);
               }, (opts.delay && opts.delay.show) || 0);
             });
