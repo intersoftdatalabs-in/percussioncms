@@ -453,5 +453,121 @@ class VhostConfParityTests(unittest.TestCase):
         )
 
 
+def _load_publish_fixture():
+    """Load qa_publish_fixture.py (fixture HTML + asset pins, stdlib only)."""
+    return _load(SCRIPTS / "qa_publish_fixture.py", "qa_publish_fixture")
+
+
+class HttpdSidecarWebAssetAuditTests(unittest.TestCase):
+    """Slice-4B audit lock (issue #7365, parent audit #5627).
+
+    The QA Apache sidecar (#7323/#7326: vhost conf, mkcert TLS material,
+    proxy wiring, staged fixture static site) must not introduce vendored
+    JS/TS that bypasses npm. The #7365 audit found zero stragglers:
+
+    * ``docker/apache/`` ships only the vhost conf (no ``.js``/``.ts``).
+    * The staged fixture pages reference exactly four scripts, every one
+      npm-backed: the jQuery trio (npm ``jquery``/``jquery-migrate``/
+      ``jquery-ui`` 1.14.2 via #5660 — ``build-legacy-bundles.cjs`` packs
+      ``profiles/3x`` from the npm graph, ``installDistributionFiles.xml``
+      copies the npm-built bytes to the publish ``web_resources`` tree the
+      fixture mirrors) plus FancyTree (npm ``jquery.fancytree`` 2.38.3 via
+      #6016/#6052). The retired DynaTree copies stay out (#6052).
+    * The full-tree ``web_resources`` mirror additionally serves assets
+      owned by prior slices (jquery.validate ← npm ``jquery-validation``,
+      jquery.cookie ← npm #7177, fontawesome ← npm #6321); this audit
+      asserts nothing about their contents (no double-count, cf. slice 3).
+
+    This class fails if a sidecar or fixture change adds a script outside
+    the pinned npm-backed set, so the inventory can only drift together
+    with an audit update.
+    """
+
+    # Every external script the staged fixture pages may load, as
+    # context-relative web_resources paths (fixture HTML uses docroot-
+    # relative URLs, so the page refs match these pins verbatim).
+    NPM_BACKED_FIXTURE_SCRIPTS = (
+        "web_resources/cm/jslib/jquery.js",
+        "web_resources/cm/jslib/jquery-migrate.js",
+        "web_resources/cm/jslib/jquery-ui.js",
+        "web_resources/cm/jslib/jquery.fancytree.js",
+    )
+
+    # vendored web-asset suffixes: any of these under docker/apache/ is a
+    # finding (the sidecar ships conf + mounts only, never web assets).
+    _WEBS_ASSET_SUFFIXES = (".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs")
+
+    def test_apache_conf_dir_ships_no_web_assets(self):
+        apache_dir = SCRIPTS.parent / "apache"
+        self.assertTrue(apache_dir.is_dir(), "docker/apache/ missing")
+        stragglers = sorted(
+            str(path.relative_to(SCRIPTS.parent))
+            for path in apache_dir.rglob("*")
+            if path.is_file()
+            and path.suffix.lower() in self._WEBS_ASSET_SUFFIXES
+        )
+        self.assertEqual(
+            stragglers,
+            [],
+            "vendored web assets under docker/apache/ must go through "
+            "audit #5627 (migration issue + npm tracking); got: "
+            f"{stragglers}",
+        )
+
+    def _fixture_script_refs(self, qpf) -> list:
+        pages = [
+            qpf.fixture_home_html(),
+            qpf.fixture_category_html(),
+        ]
+        pages.extend(
+            qpf.fixture_widget_html(name, label, kind, marker)
+            for name, label, kind, marker in qpf.WIDGET_FIXTURES
+        )
+        refs = []
+        for html in pages:
+            refs.extend(
+                re.findall(r'<script\s+src="([^"]+)"', html)
+            )
+        return sorted(set(refs))
+
+    def test_fixture_pages_reference_only_npm_backed_scripts(self):
+        qpf = _load_publish_fixture()
+        refs = self._fixture_script_refs(qpf)
+        self.assertEqual(
+            refs,
+            sorted(self.NPM_BACKED_FIXTURE_SCRIPTS),
+            "fixture script inventory drifted from the #7365 audit; new "
+            "third-party scripts must go through audit #5627 first.",
+        )
+
+    def test_required_published_js_is_npm_backed(self):
+        qpf = _load_publish_fixture()
+        required_js = sorted(
+            asset
+            for asset in qpf.REQUIRED_PUBLISHED_ASSETS
+            if asset.endswith(".js")
+        )
+        self.assertEqual(
+            required_js,
+            sorted(self.NPM_BACKED_FIXTURE_SCRIPTS),
+            "REQUIRED_PUBLISHED_ASSETS js must stay exactly the npm-backed "
+            "set the fixture pages load (nothing vendored, nothing extra).",
+        )
+
+    def test_retired_dynatree_stays_out_of_fixture_pages(self):
+        qpf = _load_publish_fixture()
+        refs = self._fixture_script_refs(qpf)
+        for removed in qpf.REMOVED_PUBLISHED_ASSETS:
+            self.assertNotIn(
+                removed,
+                refs,
+                f"retired copy {removed} must stay unreferenced (#6052).",
+            )
+            self.assertFalse(
+                removed.endswith(".js") and removed in refs,
+                f"retired script {removed} re-referenced by fixture pages.",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
