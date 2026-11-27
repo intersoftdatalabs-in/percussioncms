@@ -48,13 +48,15 @@ import org.junit.jupiter.api.Test;
  * payload surface.
  *
  * <p>The 4C audit found 2 straggler files (3 live CDN script loads, all plain {@code http://}):
- * {@code webapp/WEB-INF/pages/importtest_post.jsp} loads jQuery 1.2.6 from
- * {@code ajax.googleapis.com}, and {@code user/pages/DispatchTemplateGenerator.jsp} loads
- * jQuery 1.9.0 plus jquery-migrate 1.0.0 from {@code code.jquery.com}. Removal/migration is
- * tracked by the 4C follow-on migration issue (one per straggler cluster; no migration lands
- * in #7366). This test pins that exact inventory so no <em>new</em> CDN load can land
- * silently: any added {@code <script src>} CDN reference fails loudly, and the legitimate
- * migration shrinks {@link #EXPECTED_CDN_SCRIPT_REFS} in the same PR.
+ * {@code webapp/WEB-INF/pages/importtest_post.jsp} loaded jQuery 1.2.6 from
+ * {@code ajax.googleapis.com}, and {@code user/pages/DispatchTemplateGenerator.jsp} loaded
+ * jQuery 1.9.0 plus jquery-migrate 1.0.0 from {@code code.jquery.com}. Migration issue
+ * #7369 removed all three loads by de-jquerying both pages to dependency-free
+ * vanilla JS (no replacement bytes: the Dispatch page used only
+ * {@code $(document).ready}, and the import-test helper's jQuery calls map 1:1
+ * to {@code DOMContentLoaded} / {@code fetch} / {@code textContent}); the
+ * inventory below is now empty and this test is the tripwire against
+ * re-introduction. No migration lands in #7366 itself.
  *
  * <p>Explicitly out of scope (no double-count): the {@code .js} payload inventory itself is
  * owned by {@link InstallerPayloadVendoredJsAuditTest} (slice 2, #6069); DTS web resources by
@@ -67,13 +69,13 @@ public class InstallerPayloadCdnGuardTest {
    * Live CDN {@code <script src>} loads in the installer payload, as
    * {@code relative/path -> url} (line-independent on purpose: unrelated edits
    * above a pin must not trip the guard; only the inventory matters). Pinned by
-   * the 4C audit (#7366); the migration follow-on removes these rows.
+   * the 4C audit (#7366) and emptied by the migration (#7369, which
+   * de-jqueried both straggler pages to vanilla JS with no replacement
+   * bytes). A legitimate future migration that <em>adds</em> a CDN load must
+   * go through audit #5627 and grows this list in the same PR; anything else
+   * fails loudly.
    */
-  private static final List<String> EXPECTED_CDN_SCRIPT_REFS =
-      List.of(
-          "user/pages/DispatchTemplateGenerator.jsp -> http://code.jquery.com/jquery-1.9.0.js",
-          "user/pages/DispatchTemplateGenerator.jsp -> http://code.jquery.com/jquery-migrate-1.0.0.js",
-          "webapp/WEB-INF/pages/importtest_post.jsp -> http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js");
+  private static final List<String> EXPECTED_CDN_SCRIPT_REFS = List.of();
 
   /** File types that can carry a {@code <script src>} load in this payload. */
   private static final Set<String> SCANNED_EXTENSIONS =
@@ -144,16 +146,17 @@ public class InstallerPayloadCdnGuardTest {
     assertEquals(
         EXPECTED_CDN_SCRIPT_REFS.stream().sorted().collect(Collectors.toList()),
         actual,
-        "Installer-payload CDN <script src> inventory drifted from the #7366 audit. "
-            + "New CDN loads must go through audit #5627 (migration issue + npm tracking); "
-            + "the legitimate migration of the pinned http:// jQuery loads shrinks "
-            + "EXPECTED_CDN_SCRIPT_REFS in the same PR.");
+        "Installer-payload CDN <script src> inventory drifted from the #7366 audit as "
+            + "emptied by migration #7369. New CDN loads must go through audit #5627 "
+            + "(migration issue + npm tracking) and grow EXPECTED_CDN_SCRIPT_REFS "
+            + "in the same PR.");
   }
 
   @Test
   public void noPlainHttpScriptLoadsBeyondPinned() throws IOException {
-    // Every pinned 4C straggler is plain http:// — a mixed-content downgrade on
-    // admin pages. The migration must eliminate http:// loads, never add one.
+    // Every former 4C straggler was plain http:// — a mixed-content downgrade
+    // on admin pages. The #7369 migration eliminated http:// loads entirely;
+    // none may ever come back.
     List<String> actual = collectCdnScriptRefs(installDir());
     List<String> plainHttp =
         actual.stream()
