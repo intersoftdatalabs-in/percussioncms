@@ -10,8 +10,15 @@ import { afterEach } from "vitest";
 import { cleanup, configure } from "@testing-library/react";
 
 // Default RTL findBy/waitFor is 1000ms — too tight under Maven full-suite
-// jsdom contention (App PublishingShell lazy load, Explorer axe, #4558).
-configure({ asyncUtilTimeout: 5_000 });
+// jsdom contention (App PublishingShell lazy load, Explorer axe-core, #4558).
+// Raised to 15s for the full-suite flake saga (#7338): under oversubscribed
+// night hosts (load 35-55 on 32 cores) even waitFor-backed assertions with the
+// old 5s default timed out while starved workers flushed React effects
+// (ArchitectureShell nav tree, EditorHostTranslations 901-copy,
+// CheckoutOwnerPanel retry focus, EditorHost move/current-folder). 15s matches
+// the per-file ROUND_TRIP budgets already proven in-tree
+// (PICKER_MOUNT_TIMEOUT #7151, SEARCH_PANEL_ROUND_TRIP_TIMEOUT, #7122).
+configure({ asyncUtilTimeout: 15_000 });
 
 // Vitest 5 / jsdom on Node 22 throws inside URL.createObjectURL (missing
 // blob _buffer). Image-field tests need a blob: URL; swallow the throw.
