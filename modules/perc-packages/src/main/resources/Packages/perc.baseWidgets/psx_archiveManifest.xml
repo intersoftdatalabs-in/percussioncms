@@ -175,10 +175,10 @@
 	
 
 	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--web__resources_cm_themes_smoothness_jquery--ui--1-8-9-custom-css">
+		DependencyKey="sys__UserDependency--web__resources_cm_themes_smoothness_jquery--ui-css">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\web_resources\cm\themes\smoothness\jquery-ui-1.8.9.custom.css</RxFile>
-			<ArchiveFile>sys__UserDependency--web__resources_cm_themes_smoothness_jquery--ui--1-8-9-custom-css\jquery-ui-1.8.9.custom.css</ArchiveFile>
+			<RxFile>D:\Percussion\ins\dev\web_resources\cm\themes\smoothness\jquery-ui.css</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_cm_themes_smoothness_jquery--ui-css\jquery-ui.css</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

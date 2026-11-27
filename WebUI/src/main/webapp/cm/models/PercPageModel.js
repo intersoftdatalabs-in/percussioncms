@@ -663,7 +663,7 @@
     jQueryScripts +=
       "<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js'></script>";
     var jQueryCssLinks =
-      "<link rel='stylesheet' type='text/css' href='/cm/themes/smoothness/jquery-ui-1.8.9.custom.css'/>";
+      "<link rel='stylesheet' type='text/css' href='/cm/themes/smoothness/jquery-ui.css'/>";
 
     function renderAll(frame, callback) {
       //If the javascript is off then set the path to the page edit scriptsoff otherwise to page edit.

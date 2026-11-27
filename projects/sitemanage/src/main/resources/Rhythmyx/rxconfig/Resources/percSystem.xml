@@ -64,7 +64,7 @@
 		<dependency refid="percSystem.jquery-migrate" />
 	</file>
 	<file id="perc-jquery-ui-style"
-		path="/web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css"
+		path="/web_resources/cm/themes/smoothness/jquery-ui.css"
 		type="css">
 		<dependency refid="percSystem.perc_decoration_style" />
 	</file>

@@ -628,7 +628,7 @@
         var jQueryScripts  = "<script src='/cm/app/js/legacy/profiles/3x/jquery/jquery.min.js'></script>";
         jQueryScripts += "<script src='/cm/app/js/legacy/profiles/3x/jquery/jquery-migrate.min.js'></script>";
         jQueryScripts += "<script src='/cm/app/js/legacy/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js'></script>";
-        var jQueryCssLinks = "<link rel='stylesheet' type='text/css' href='/cm/themes/smoothness/jquery-ui-1.8.9.custom.css'/>";
+        var jQueryCssLinks = "<link rel='stylesheet' type='text/css' href='/cm/themes/smoothness/jquery-ui.css'/>";
 
         function renderAll(frame, callback)
         {

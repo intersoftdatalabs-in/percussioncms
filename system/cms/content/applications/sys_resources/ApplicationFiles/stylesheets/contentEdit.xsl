@@ -83,7 +83,7 @@
 				<link rel="stylesheet" href="/cm/widgets/PercPageDataTable/PercPageDataTable.css"/>
 				<link rel="stylesheet" href="/cm/widgets/PercSimpleMenu/PercSimpleMenu.css"/>
 				<link rel="stylesheet" href="/sys_resources/css/cmlite.css"/>
-				<link rel="stylesheet" href="/web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css"/>
+				<link rel="stylesheet" href="/web_resources/cm/themes/smoothness/jquery-ui.css"/>
 				<script src="{concat('/web_resources/cm/common/js/PercGlobalVariablesData.js?_',@currentTimeStamp)}"><xsl:value-of select="' '"/></script>
 				<script>
 					$(function(){

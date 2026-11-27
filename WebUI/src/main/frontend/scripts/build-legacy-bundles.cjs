@@ -54,6 +54,15 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery-migrate/dist/jquery-migrate.min.js",
   "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js":
     "jquery-ui/dist/jquery-ui.min.js",
+  // jQuery-UI smoothness theme from npm (issue #7381, parent audit #5627).
+  // The live cm/themes/smoothness/jquery-ui-1.8.9.custom.css was the stock
+  // 1.12.1 ThemeRoller smoothness bundle (not a custom cut: same widget set
+  // as the npm dist, MIT), so classic pages load the Dependabot-tracked
+  // jquery-ui 1.14 dist theme at the corrected URL below via the
+  // generated-webui overlay (STANDALONE_NPM_COPIES) instead. The mapping
+  // also lets bundle configs resolve the theme path into node_modules.
+  "themes/smoothness/jquery-ui.css":
+    "jquery-ui/dist/themes/smoothness/jquery-ui.css",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
   // Bootstrap 4.6.2 (EOL) retired (issue #5661): every directly loaded or
@@ -462,6 +471,76 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  // jQuery-UI smoothness theme from npm (issue #7381, parent audit #5627).
+  // The deleted cm/themes/smoothness/jquery-ui-1.8.9.custom.css was the
+  // stock 1.12.1 smoothness bundle (filename drift, not a custom cut), so
+  // the four legacy JSPs (+ pages twins, PercPageModel.js) load the
+  // Dependabot-tracked jquery-ui 1.14 dist theme at the corrected stable
+  // URL themes/smoothness/jquery-ui.css. The css url(images/...) refs
+  // resolve against the sibling npm image copies below (image-path parity:
+  // every images/*.png the npm css references is copied; the two legacy
+  // ui-bg_flat_* files the npm theme dropped stay in src for the
+  // PercDatetimePicker/PercMultiDropDown rules that still reference them).
+  {
+    src: "jquery-ui/dist/themes/smoothness/jquery-ui.css",
+    dest: "themes/smoothness/jquery-ui.css",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_glass_55_fbf9ee_1x400.png",
+    dest: "themes/smoothness/images/ui-bg_glass_55_fbf9ee_1x400.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_glass_65_ffffff_1x400.png",
+    dest: "themes/smoothness/images/ui-bg_glass_65_ffffff_1x400.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_glass_75_dadada_1x400.png",
+    dest: "themes/smoothness/images/ui-bg_glass_75_dadada_1x400.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png",
+    dest: "themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_glass_95_fef1ec_1x400.png",
+    dest: "themes/smoothness/images/ui-bg_glass_95_fef1ec_1x400.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-bg_highlight-soft_75_cccccc_1x100.png",
+    dest: "themes/smoothness/images/ui-bg_highlight-soft_75_cccccc_1x100.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-icons_222222_256x240.png",
+    dest: "themes/smoothness/images/ui-icons_222222_256x240.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-icons_2e83ff_256x240.png",
+    dest: "themes/smoothness/images/ui-icons_2e83ff_256x240.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-icons_454545_256x240.png",
+    dest: "themes/smoothness/images/ui-icons_454545_256x240.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-icons_888888_256x240.png",
+    dest: "themes/smoothness/images/ui-icons_888888_256x240.png",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/themes/smoothness/images/ui-icons_cd0a0a_256x240.png",
+    dest: "themes/smoothness/images/ui-icons_cd0a0a_256x240.png",
     required: true,
   },
   {

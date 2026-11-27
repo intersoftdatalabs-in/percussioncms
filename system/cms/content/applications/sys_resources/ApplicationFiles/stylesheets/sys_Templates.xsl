@@ -1766,8 +1766,8 @@ onchange    %Script;       #IMPLIED
 
 
 
-         <psxctl:FileDescriptor name="jquery-ui-1.8.9.custom.css" type="css" mimetype="text/css">
-            <psxctl:FileLocation>/cm/themes/smoothness/jquery-ui-1.8.9.custom.css</psxctl:FileLocation>
+         <psxctl:FileDescriptor name="jquery-ui.css" type="css" mimetype="text/css">
+            <psxctl:FileLocation>/cm/themes/smoothness/jquery-ui.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
       </psxctl:AssociatedFileList>
