@@ -22,3 +22,7 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review
+
+No actionable regressions were identified. The worker limits are consistent across both configurations, and the asynchronous assertions preserve existing checks. Both modified test files passed: 68 tests total.
