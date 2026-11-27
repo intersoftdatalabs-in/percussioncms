@@ -52,7 +52,11 @@ user-control stylesheet from the metadata.
 2. Click **Save user control**. The chrome sends metadata and the current XSL
    on `PUT /services/cecontrols/{name}`. Leave XSL blank to regenerate the
    server default stylesheet. Invalid XSL is **400**. **403**, **404**, and
-   system **409** appear in the detail error region.
+   system **409** appear in the detail error region. Clearing the **display
+   name** blocks the save before any PUT fires: the detail shows a named
+   **Display name is required** inline alert (`role="alert"`) and the stored
+   display name is kept. Press **Escape** in the display-name or description
+   field to cancel the edit without writing (the stored value is restored).
 3. Click **Delete user control**. Confirm in the in-app dialog (not the
    browser `window.confirm` prompt). A successful delete is **204**; a following
    GET is **404** and the catalog no longer lists the row.

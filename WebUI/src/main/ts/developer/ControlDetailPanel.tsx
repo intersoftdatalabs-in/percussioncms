@@ -39,6 +39,7 @@ import {
 } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { SimpleCatalogTable } from "./CatalogTable";
+import { CTL_PROP_REQUIRED_MSG } from "./controlPropRequiredMessages";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -120,6 +121,7 @@ export function ControlDetailPanel({
   const [xslSource, setXslSource] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [propError, setPropError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const inflight = useRef(false);
@@ -129,6 +131,7 @@ export function ControlDetailPanel({
     setDetail(null);
     setError(null);
     setNotice(null);
+    setPropError(null);
     setConfirmOpen(false);
     getControlDetail(name)
       .then((d) => {
@@ -172,14 +175,52 @@ export function ControlDetailPanel({
     return body;
   }
 
+  function cancelDisplayEdit(): void {
+    // #7345: Escape in the property input cancels the edit without writing
+    // (mirrors #6713/#6905) — the stored value is restored.
+    if (busy || inflight.current) {
+      return;
+    }
+    setDisplayName(detail?.displayName || "");
+    setPropError(null);
+  }
+
+  function handleDisplayKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDisplayEdit();
+    }
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (busy || inflight.current) {
+      return;
+    }
+    setDescription(detail?.description || "");
+  }
+
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDescriptionEdit();
+    }
+  }
+
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) {
+      return;
+    }
+    if (!displayName.trim()) {
+      // #7345: a blank display name blocks the PUT before it fires, so the
+      // stored display name is kept. Named alert, same as the content-type
+      // required-field pattern.
+      setPropError(CTL_PROP_REQUIRED_MSG.REQUIRED);
+      setNotice(null);
       return;
     }
     inflight.current = true;
     setBusy(true);
     setError(null);
     setNotice(null);
+    setPropError(null);
     try {
       const body = writeBody();
       const saved = await updateControl(name, body);
@@ -334,8 +375,22 @@ export function ControlDetailPanel({
                   style={inputStyle}
                   value={displayName}
                   disabled={busy}
-                  onChange={(e) => setDisplayName(e.target.value)}
+                  onChange={(e) => {
+                    setDisplayName(e.target.value);
+                    setPropError(null);
+                  }}
+                  onKeyDown={handleDisplayKeyDown}
                 />
+                {propError ? (
+                  <div
+                    role="alert"
+                    data-testid="developer-ctl-prop-required-error"
+                    aria-label={CTL_PROP_REQUIRED_MSG.ACTION}
+                    style={{ color: catalogColors.error }}
+                  >
+                    {propError}
+                  </div>
+                ) : null}
               </div>
               <div style={fieldStyle}>
                 <label htmlFor="ctl-edit-desc">{DEV_MSG.CTL_FORM_DESCRIPTION}</label>
@@ -346,6 +401,7 @@ export function ControlDetailPanel({
                   value={description}
                   disabled={busy}
                   onChange={(e) => setDescription(e.target.value)}
+                  onKeyDown={handleDescriptionKeyDown}
                 />
               </div>
               <div style={fieldStyle}>

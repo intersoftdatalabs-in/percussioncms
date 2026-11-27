@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as controlsApi from "../../../main/ts/api/developer/controlsApi";
 import { ControlDetailPanel } from "../../../main/ts/developer/ControlDetailPanel";
+import { CTL_PROP_REQUIRED_MSG } from "../../../main/ts/developer/controlPropRequiredMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
@@ -264,7 +265,7 @@ describe("ControlDetailPanel", () => {
     expect(notice.getAttribute("aria-live")).toBe("polite");
   });
 
-  it("sends trimmed description and server defaults when optional fields are cleared", async () => {
+  it("sends trimmed display name and server defaults when optional fields are cleared", async () => {
     getControlDetail.mockResolvedValue({
       ...sampleDetail,
       name: "qaCtl",
@@ -287,7 +288,7 @@ describe("ControlDetailPanel", () => {
       expect(screen.getByTestId("developer-ctl-edit-description")).toBeTruthy();
     });
     fireEvent.change(screen.getByTestId("developer-ctl-edit-display"), {
-      target: { value: "  " },
+      target: { value: "QA " },
     });
     fireEvent.change(screen.getByTestId("developer-ctl-edit-description"), {
       target: { value: "  " },
@@ -304,11 +305,115 @@ describe("ControlDetailPanel", () => {
     });
     expect(updateControl).toHaveBeenCalledWith("qaCtl", {
       name: "qaCtl",
-      displayName: "qaCtl",
+      displayName: "QA",
       dimension: "single",
       choiceSet: "none",
     });
     expect(updateControl.mock.calls[0][1].description).toBeUndefined();
+  });
+
+  it("blocks save with a named required alert when the display name is blank", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    const onSaved = vi.fn();
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} onSaved={onSaved} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-display")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-display"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-prop-required-error")).toBeTruthy();
+    });
+    // #7345: no PUT fires, so the stored display name is kept.
+    expect(updateControl).not.toHaveBeenCalled();
+    expect(onSaved).not.toHaveBeenCalled();
+    const alert = screen.getByTestId("developer-ctl-prop-required-error");
+    expect(alert.getAttribute("role")).toBe("alert");
+    expect(alert.textContent).toBe(CTL_PROP_REQUIRED_MSG.REQUIRED);
+    expect(alert.textContent).toContain("Display name is required");
+    expect(screen.queryByTestId("developer-ctl-detail-notice")).toBeNull();
+  });
+
+  it("cancels the display-name edit on Escape without writing", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-display")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-display"), {
+      target: { value: "oops" },
+    });
+    expect((screen.getByTestId("developer-ctl-edit-display") as HTMLInputElement).value).toBe(
+      "oops",
+    );
+    fireEvent.keyDown(screen.getByTestId("developer-ctl-edit-display"), { key: "Escape" });
+    // #7345: mirrors #6713/#6905 — the stored value is restored, nothing fires.
+    expect((screen.getByTestId("developer-ctl-edit-display") as HTMLInputElement).value).toBe(
+      "QA",
+    );
+    expect(updateControl).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-ctl-prop-required-error")).toBeNull();
+  });
+
+  it("clears the required alert on Escape after a blocked save", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-display")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-display"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-prop-required-error")).toBeTruthy();
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ctl-edit-display"), { key: "Escape" });
+    expect((screen.getByTestId("developer-ctl-edit-display") as HTMLInputElement).value).toBe(
+      "QA",
+    );
+    expect(screen.queryByTestId("developer-ctl-prop-required-error")).toBeNull();
+    expect(updateControl).not.toHaveBeenCalled();
+  });
+
+  it("cancels the description edit on Escape without writing", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      description: "keep me",
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-description")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-description"), {
+      target: { value: "changed" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ctl-edit-description"), { key: "Escape" });
+    // #7345: mirrors #6713/#6905 — the stored value is restored, nothing fires.
+    expect(
+      (screen.getByTestId("developer-ctl-edit-description") as HTMLInputElement).value,
+    ).toBe("keep me");
+    expect(updateControl).not.toHaveBeenCalled();
   });
 
   it("clears local xslSource after save when PUT omitted it and the server returned none", async () => {
