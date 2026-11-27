@@ -45,3 +45,7 @@ _No active issues._
 - `paths.hardcoded_sep` on `docker/scripts/test_perc_devctl.py:884` -- *Justification*: : adjudicated (issue #6570, parent #6341) - container-internal HEALTHCHECK path in mocked docker-inspect JSON, never a host path. (via in_source_mkd)
 
 </details>
+
+### Codex review
+
+No actionable regressions were identified. All 37 lifecycle tests and the new CLI profile test passed; broader CLI validation encountered sandbox permission errors, and live AppArmor enforcement could not be verified.
