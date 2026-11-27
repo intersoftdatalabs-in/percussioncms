@@ -44,6 +44,39 @@ import org.junit.jupiter.api.Test;
  * Jcrop + jquery-color) and #6274 (editor legacy cluster: Interface Elements +
  * jquery-form).
  *
+ * <p>Slice-2 re-sweep (#7166, 2026-11-27): inventory re-verified live on the
+ * tip - still exactly the 6 files pinned below (the two dead-upstream
+ * Interface Elements libraries stayed deleted), zero additional
+ * {@code .min.js}, zero CDN {@code <script src>} loads anywhere in the
+ * payload (see {@link InstallerPayloadCdnGuardTest}), zero {@code .js} in
+ * {@code perc-distribution-tree} (non-target), and all four audit issues
+ * closed (#6069, #6071, #6273, #6274). No new migration issue: every
+ * third-party row below is already npm-tracked via
+ * {@code modules/perc-toolkit/package.json} with a committed
+ * {@code package-lock.json} for Dependabot.
+ *
+ * <p>Inventory (path relative to InstallDir | version | license | consumer):
+ * <ul>
+ * <li>{@code rx_resources/js/jquery.Jcrop.min.js} - v0.9.12, MIT (Tapmodo) -
+ *     image-crop control UI via {@code rx_ImageCroppingControl.xsl}; npm-pinned
+ *     ({@code jcrop-0.9.12@0.9.12}), upstream dead since 2013, bytes identical
+ *     to the npm tarball (#6273).</li>
+ * <li>{@code rx_resources/js/jquery.color.js} - v3.0.0, MIT (OpenJS) -
+ *     animated crop-region shading for the Jcrop UI; npm-synced from
+ *     {@code jquery-color@3.0.0} via {@code npm run sync} (#6273).</li>
+ * <li>{@code rx_resources/addins/psoimageeditor/js/form.js} - v4.5.0,
+ *     LGPL-2.1+ OR MIT, MIT option taken (Kevin Morris / M. Alsup) - async
+ *     submit path of the editor glue ({@code ajaxSubmit}); npm-synced from
+ *     {@code jquery-form@4.5.0} (#6274).</li>
+ * <li>{@code rx_resources/js/cropper_custom.js} - first-party Percussion glue -
+ *     drives the Jcrop selection contract and posts x/y/w/h JSON back.</li>
+ * <li>{@code rx_resources/addins/psoimageeditor/js/image_editor_general.js} -
+ *     first-party PSO glue - crop-box interaction on jQuery UI
+ *     resizable + draggable (npm {@code jquery-ui}, #5660) since #6274.</li>
+ * <li>{@code rx_resources/addins/psoimageeditor/js/psoimageeditor.js} -
+ *     first-party PSO glue - dirty-flag / close-confirm helpers.</li>
+ * </ul>
+ *
  * <p>#6274 disposition (this test): the Interface Elements libraries
  * ({@code iutil.js}/{@code iresizable.js}, upstream dead since 2006, no npm
  * artifact) are deleted and the first-party glue ({@code

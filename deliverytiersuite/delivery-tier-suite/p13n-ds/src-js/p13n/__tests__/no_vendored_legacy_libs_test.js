@@ -41,6 +41,35 @@
  * widened this guard from p13n-ds-only to the whole
  * delivery-tier-suite tree so no sibling service can reintroduce a
  * vendored copy unnoticed.
+ *
+ * <p>Slice-2 re-sweep (#7166, 2026-11-27): inventory re-verified live on the
+ * tip - still exactly the 7 non-target .js files below (all first-party or
+ * guard tests; zero third-party), zero CDN <script src> loads in DTS webapp
+ * sources, zero .ts, zero lib-js/ trees, and the installer leg likewise
+ * clean (6 pinned files, all npm-tracked or first-party; see
+ * InstallerPayloadVendoredJsAuditTest). No new migration issue: nothing
+ * third-party ships from this tree.
+ *
+ * <p>Inventory (path relative to delivery-tier-suite | kind | consumer):
+ * <ul>
+ * <li>p13n-ds/src-js/p13n/p13nMain.js - first-party - profile-editor boot
+ *     (legacy page; splitter init already removed with the vendored
+ *     jquery-splitter, #5668).</li>
+ * <li>p13n-ds/src-js/p13n/perc_p13n_delivery.js - first-party - delivery
+ *     rule-item rendering (jQuery global supplied by the host page).</li>
+ * <li>p13n-ds/src-js/p13n/perc_p13n_profile.js - first-party - profile-editor
+ *     model (retains a dead log4javascript call from before the #5668
+ *     removal; legacy surface, not a vendored asset).</li>
+ * <li>p13n-ds/src-js/p13n/perc_p13n_track.js - first-party - tracking pixel
+ *     client loaded by pages/testTrack.jsp.</li>
+ * <li>p13n-ds/src-js/p13n/__tests__/no_vendored_legacy_libs_test.js - guard
+ *     test (this file).</li>
+ * <li>p13n-ds/src-js/p13n/__tests__/perc_p13n_profile_redos_test.js - guard
+ *     test (ReDoS lock on the profile parser).</li>
+ * <li>register/rootContent/resources/js/perc_constants.js - first-party -
+ *     delivery-server domain/URL constants (jQuery global supplied by the
+ *     host page).</li>
+ * </ul>
  */
 
 "use strict";
