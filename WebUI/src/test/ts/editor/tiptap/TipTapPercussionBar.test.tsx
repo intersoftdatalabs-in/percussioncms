@@ -287,6 +287,38 @@ describe("TipTapPercussionBar", () => {
     }
   });
 
+  it("source view sanitizes adversarial payloads but keeps co-present plugin markers (#7342)", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-source-text"));
+      const area = screen.getByTestId("tiptap-perc-source-content-text");
+      fireEvent.change(area, {
+        target: {
+          value:
+            "<p>Keep <span " +
+            'class="perc-global-variable-marker" title="company_name">Acme</span></p>' +
+            '<p><img src="/Rhythmyx/Assets/i.png" onerror="alert(1)" alt="x"></p>' +
+            "<script>alert(2)</script>" +
+            '<p><a href="javascript:alert(3)">bad</a></p>' +
+            '<p onmouseover="alert(4)">hover</p>',
+        },
+      });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      // Plugin markers co-present in the adversarial payload survive.
+      expect(html).toContain("perc-global-variable-marker");
+      expect(html).toContain('title="company_name"');
+      // Script tags, inline event handlers, and javascript: URLs are dropped.
+      expect(html).not.toContain("<script");
+      expect(html).not.toContain("onerror");
+      expect(html).not.toContain("onmouseover");
+      expect(html).not.toContain("javascript:");
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("picks CMS content through the link picker with managed attributes", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input: Parameters<typeof fetch>[0]) => {
       const url = String(input ?? "");

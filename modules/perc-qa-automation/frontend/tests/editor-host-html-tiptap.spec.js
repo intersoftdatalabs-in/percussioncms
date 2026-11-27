@@ -27,7 +27,9 @@
  * {@code PUT /services/itemmanagement/item/fields/{id}} path; the
  * Percussion-bar source view does too (source edit applies through the
  * schema with plugin markers intact, then saves through the same PUT —
- * #7340). Cutover
+ * #7340; adversarial script/event-handler/`javascript:` payloads entered
+ * through the source panel are dropped on apply and never reach the PUT —
+ * #7342). Cutover
  * coverage (#5758) lives in {@code editor-host-default-tiptap.spec.js};
  * parity tests stay below.</p>
  *
@@ -580,6 +582,79 @@ test.describe("React Content Editor TipTap editor", () => {
       const saved = (text && text.value) || "";
       expect(saved).toContain("Hi source edit");
       expect(saved).toContain("perc-blog-more-link");
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "tiptap source view drops unsafe markup before PUT (#7342)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+      await expect(
+        page.locator('[data-testid="editor-tiptap-perc-text"]'),
+      ).toBeVisible();
+
+      // Seed a plugin marker through the bar so the adversarial payload has
+      // stored CMS markup that must survive sanitization (one-click control,
+      // no dialog).
+      await page.locator('[data-testid="tiptap-perc-more-link-text"]').click();
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+
+      // Adversarial entry through the source panel: script tags, inline
+      // event handlers, and a javascript: URL riding alongside the marker.
+      await page.locator('[data-testid="tiptap-perc-source-text"]').click();
+      const sourceArea = page.locator(
+        '[data-testid="tiptap-perc-source-content-text"]',
+      );
+      await expect(sourceArea).toBeVisible();
+      await sourceArea.fill(
+        "<p>Keep this <span " +
+          'class="perc-blog-more-link"></span></p>' +
+          "<script>alert(1)</script>" +
+          '<p><a href="javascript:alert(2)">bad link</a></p>' +
+          '<p><img src="/Rhythmyx/Assets/i.png" onerror="alert(3)" alt="x"></p>' +
+          '<p onclick="alert(4)">hover bait</p>',
+      );
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      // Apply sanitizes through the schema: the marker stays, the unsafe
+      // markup never reaches the editing surface.
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+      const appliedHtml = await editable.innerHTML();
+      expect(appliedHtml).toContain("perc-blog-more-link");
+      expect(appliedHtml).not.toContain("<script");
+      expect(appliedHtml).not.toContain("javascript:");
+      expect(appliedHtml).not.toContain("onerror");
+      expect(appliedHtml).not.toContain("onclick");
+      await page.screenshot({
+        path: "test-results/live-proof-7342-source-unsafe.png",
+      });
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const saved = (text && text.value) || "";
+      expect(saved).toContain("perc-blog-more-link");
+      expect(saved).not.toContain("<script");
+      expect(saved).not.toContain("javascript:");
+      expect(saved).not.toContain("onerror");
+      expect(saved).not.toContain("onclick");
       await expect(page.getByText(/^Saved$/)).toBeVisible();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
