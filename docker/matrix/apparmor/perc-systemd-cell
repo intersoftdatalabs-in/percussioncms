@@ -71,8 +71,19 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /usr/bin/umount mrix,
   /bin/tail mrix,
   /usr/bin/tail mrix,
+  /bin/curl mrix,  # probe_readiness() serving check (Codex P2, #7332)
+  /usr/bin/curl mrix,
   /usr/bin/python3* mrix,
   /usr/local/bin/cell-entrypoint.py r,
+
+  # Loopback HTTP serving + readiness probes (curl to localhost inside
+  # the cell); udp covers DNS for the installer / external-DB legs.
+  # No host-network access is granted — the cell uses the default
+  # bridge (or the matrix network) with no published host ports.
+  network inet tcp,
+  network inet6 tcp,
+  network inet udp,
+  network inet6 udp,
 
   # Product runtimes launched by the installer / service scripts. The
   # JDK path varies by matrix image layer; `/opt` inside the cell holds
