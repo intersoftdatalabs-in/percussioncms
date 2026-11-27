@@ -95,6 +95,25 @@ docker runner live in `docker/scripts/qa_service_lifecycle.py`
 (`docker/scripts/test_qa_service_lifecycle.py`). This is the container
 counterpart of the live-host soak (#1989), which stays ops-owned.
 
+**Context-aware readiness (GH-7332).** After every start/restart the probe
+pairs the serving check with the `rhythmyx_ready` server.log
+context-failure assessment (`assess_context_ready`): a running JVM with a
+dead Rhythmyx Spring context fails the probe even when the legacy
+`/Rhythmyx/login` URL answers 200 (the login JSP renders; only the form
+POST fails). Any context-failure marker or server.log ERROR in the tail
+fails the run with a `rhythmyx_context_failed` / `server_log_errors`
+detail. The gate is CMS-only (server.log); DTS keeps the HTTP verdict.
+
+**Strict-host-profile variance (GH-7332).** The ENTRYPOINT remounts
+`/sys/fs/cgroup` rw in the container's private namespace. Docker hosts
+enforcing the default `docker-default` AppArmor profile deny that mount
+even with `SYS_ADMIN`, so the boot fails and the run fail-closes at
+`wait-systemd` — never a false green. Such hosts may opt into the
+narrowly-tailored profile at `docker/matrix/apparmor/perc-systemd-cell`
+(load it on the host with `apparmor_parser -r`, then pass
+`qa-service-lifecycle --apparmor-profile perc-systemd-cell`). The harness
+refuses `unconfined` — no privileged fallbacks, never `--privileged`.
+
 #### Rebuild-chain preflight (#2486 / #2532 / matrix wire-up #2531)
 
 `perc-devctl.py qa-preflight [--strict]` (or the standalone `python3 docker/scripts/qa_preflight.py`) detects a **stale WebUI WAR** vs a freshly built sitemanage SNAPSHOT **before** `qa-up`. Without this gate, re-running only `sitemanage → install` and then `qa-up` leaves the old `sitemanage-*.jar` bundled inside the `perc-web-ui-*.war` (which `perc-distribution-tree` unpacks into `Rhythmyx/WEB-INF/lib`). The container then loads the stale classpath and the cycle / DI fix appears to regress even though the m2 snapshot is correct.

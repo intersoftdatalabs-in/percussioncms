@@ -1,0 +1,84 @@
+# Narrowly-tailored AppArmor profile for the GH-7324 systemd QA cell (GH-7332).
+#
+# Purpose: Docker hosts enforcing the default `docker-default` AppArmor profile
+# deny `mount` even with `SYS_ADMIN`, so the systemd cell ENTRYPOINT
+# (`mount -o remount,rw /sys/fs/cgroup && exec /lib/systemd/systemd` in
+# `docker/matrix/Dockerfile.systemd`) fails and the harness fail-closes at
+# `wait-systemd`. On such hosts, load this profile on the HOST and select it
+# for the cell run — never `--privileged`, never `unconfined`:
+#
+#   sudo apparmor_parser -r docker/matrix/apparmor/perc-systemd-cell
+#   python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms \
+#       --apparmor-profile perc-systemd-cell
+#
+# Hosts where the default profile already permits the remount (e.g. the
+# Docker 29.10.1 QA host) need nothing: the harness passes no
+# `--security-opt` by default and behaviour is unchanged.
+#
+# Scope: this profile permits ONLY what the in-container systemd needs —
+# the cgroup remount in the container's PRIVATE cgroup namespace plus the
+# systemd unit/journal lifecycle. It grants no host device, host pid, or
+# host filesystem access beyond the stock container confinement. Validate on
+# the target host (`aa-status`, cell boot + full lifecycle green) before
+# relying on it; live-host soak stays ops-owned (#1989).
+#
+# NOTE: host-side artifact. It is never loaded or enforced by the harness
+# itself; `docker_run_systemd_argv()` only *names* it via
+# `--security-opt apparmor=<profile>` and refuses `unconfined`.
+
+#include <tunables/global>
+
+profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
+  #include <abstractions/base>
+
+  # Minimal capabilities for systemd-as-PID-1 inside an unprivileged cell.
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fowner,
+  capability fsetid,
+  capability kill,
+  capability setgid,
+  capability setuid,
+  capability sys_admin,  # cgroup remount in the container's private ns
+  capability sys_chroot,
+  capability sys_ptrace,
+  capability net_bind_service,
+
+  # The ENTRYPOINT remount (private cgroup namespace only — never host).
+  mount options=(rw, remount) /sys/fs/cgroup/,
+  mount options=(rw, remount) /sys/fs/cgroup/**,
+  umount /sys/fs/cgroup/,
+  umount /sys/fs/cgroup/**,
+
+  # systemd + unit/journal lifecycle inside the cell.
+  /lib/systemd/systemd mr,
+  /lib/systemd/systemd-* mr,
+  /usr/lib/systemd/systemd mr,
+  /usr/lib/systemd/systemd-* mr,
+  /bin/systemctl mr,
+  /usr/bin/systemctl mr,
+  /bin/journalctl mr,
+  /usr/bin/journalctl mr,
+  /bin/sh mr,
+  /usr/bin/python3* mr,
+  /usr/local/bin/cell-entrypoint.py r,
+
+  /etc/systemd/** r,
+  /etc/machine-id r,
+  /run/systemd/** rw,
+  /run/log/journal/** rw,
+  /run/lock/** rw,
+  /tmp/** rw,
+  /sys/fs/cgroup/** rw,
+  /proc/** r,
+  /sys/** r,
+
+  # CMS/DTS install roots and service scripts inside the cell.
+  /opt/Percussion/** rw,
+  /installer/** r,
+
+  # Product + server logs read by the readiness/context gate.
+  /opt/Percussion/jetty/base/logs/** r,
+  /opt/Percussion/rxconfig/Installer/** r,
+}

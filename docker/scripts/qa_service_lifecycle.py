@@ -14,14 +14,21 @@ directly (``StartJetty.sh`` / ``TomcatStartup.sh``). This harness instead:
    (``install-jetty-service.sh`` / ``DTSProductionService.sh`` ``install
    --systemd`` — the dual-ship path from GH-962 / #1988).
 4. Drives the test instance lifecycle with real ``systemctl
-   start/stop/restart/status`` + ``journalctl -u`` assertions.
+   start/stop/restart/status`` + ``journalctl -u`` assertions. After
+   every start/restart the readiness probe pairs the serving check
+   with the ``rhythmyx_ready`` server.log context-failure assessment
+   (GH-7332: a 200 from the login JSP alone never passes).
 5. Uninstalls the units and asserts no leftover units/links remain, then
    removes the cell container.
 
 Host-systemd independence is structural: every service-manager invocation
 is ``docker exec <cell> ...``. ``validate_container_name`` refuses any
 target outside the ``perc-matrix-*-systemd`` test-cell namespace, so the
-harness cannot touch host ``/etc`` no matter the flags passed.
+harness cannot touch host ``/etc`` no matter the flags passed. Hosts whose
+default AppArmor profile denies the ENTRYPOINT cgroup remount fail closed
+at ``wait-systemd``; such hosts may opt into the tailored profile at
+``docker/matrix/apparmor/perc-systemd-cell`` via ``apparmor_profile``
+(never ``unconfined``, never ``--privileged``).
 
 Live run (foreground, in-cell evidence)::
 
@@ -34,7 +41,12 @@ import subprocess
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
+
+from rhythmyx_ready import (  # noqa: E402 — same scripts dir (perc-devctl sys.path)
+    assess_rhythmyx_ready,
+    container_server_log_path,
+)
 
 STEP_QA_SERVICE_LIFECYCLE = "qa-service-lifecycle"
 
@@ -61,6 +73,17 @@ CELL_INSTALLER_JAR = "/installer/installer.jar"
 CONTAINER_PORTS = {"cms": 9992, "dts": 9980}
 # In-container readiness paths (mirror matrix-install-smoke probe paths).
 READINESS_PATHS = {"cms": "/Rhythmyx/login", "dts": "/"}
+
+# Bytes of the CMS server.log tail scanned for context-failure markers
+# after each serving probe (GH-7332). Bounded so the evidence step stays
+# small; a fresh start logs its Spring context outcome at the tail.
+SERVER_LOG_TAIL_BYTES = 65536
+
+# Host-side AppArmor profile name suggested for hosts whose default
+# Docker profile denies the ENTRYPOINT cgroup remount (GH-7332). Selected
+# only via the opt-in ``apparmor_profile`` parameter — never by default.
+# ``unconfined`` is refused (no privileged fallbacks).
+SUGGESTED_APPARMOR_PROFILE = "perc-systemd-cell"
 
 # systemctl verbs the harness drives (lifecycle + state assertions).
 LIFECYCLE_VERBS = ("start", "stop", "restart", "status")
@@ -130,6 +153,8 @@ def assert_safe_cell_argv(argv: Sequence[str]) -> List[str]:
     or pid namespace, host ``/sys/fs/cgroup`` or ``/dev`` binds, or
     ``--device`` passthrough, and must never hand-roll a
     ``/sbin/init``/``systemd`` PID-1 ``docker run`` outside this builder.
+    ``--security-opt apparmor=unconfined`` is likewise refused (GH-7332:
+    no privileged fallbacks — a tailored profile must be named explicitly).
     Raises :class:`LifecycleError` on any violation; returns the argv as
     a list otherwise. A private cgroup namespace is required so the
     in-container systemd cannot touch host cgroups or host VTs.
@@ -145,6 +170,7 @@ def assert_safe_cell_argv(argv: Sequence[str]) -> List[str]:
         "/sys/fs/cgroup:/sys/fs/cgroup",
         "-v /dev",
         "--volume /dev",
+        "apparmor=unconfined",
         "chvt",
         "openvt",
     ]
@@ -159,6 +185,22 @@ def assert_safe_cell_argv(argv: Sequence[str]) -> List[str]:
             f"{joined[:300]}"
         )
     return args
+
+
+def _is_safe_profile_name(profile: str) -> bool:
+    """True when ``profile`` is blank (no opt-in) or a safe AppArmor name.
+
+    Only simple host-loaded profile names are accepted (letters,
+    digits, ``-_.``) — no paths, no whitespace, and never
+    ``unconfined`` (GH-7332: no privileged fallbacks).
+    """
+    if not profile:
+        return True
+    if profile != profile.strip():
+        return False
+    if profile == "unconfined":
+        return False
+    return all(ch.isalnum() or ch in "-_." for ch in profile)
 
 
 def docker_build_base_argv(repo_root: Path) -> List[str]:
@@ -198,6 +240,7 @@ def docker_run_systemd_argv(
     network: Optional[str] = None,
     db_type: str = "h2",
     db_meta: Optional[Dict[str, str]] = None,
+    apparmor_profile: Optional[str] = None,
 ) -> List[str]:
     """``docker run`` argv for a systemd PID-1 test cell (pure).
 
@@ -207,9 +250,20 @@ def docker_run_systemd_argv(
     every assertion runs in-container via ``docker exec``. No host
     systemd is involved at any step. ``network`` is omitted when unset
     (default bridge); pass the matrix network for external-DB runs.
+
+    ``apparmor_profile`` (GH-7332) names a host-loaded AppArmor profile
+    selected via ``--security-opt`` for Docker hosts whose default
+    profile denies the ENTRYPOINT cgroup remount (fail closed via
+    wait-systemd otherwise). ``None``/blank keeps the host default.
+    ``unconfined`` is refused — no privileged fallbacks.
     """
     validate_container_name(container_name)
     meta = dict(db_meta or {})
+    profile = (apparmor_profile or "").strip()
+    if profile == "unconfined" or not _is_safe_profile_name(profile):
+        raise LifecycleError(
+            f"Refusing unsafe apparmor profile: {apparmor_profile!r}"
+        )
     argv = [
         "docker",
         "run",
@@ -222,6 +276,10 @@ def docker_run_systemd_argv(
     argv.extend([
         "--cgroupns=private",
         "--cap-add=SYS_ADMIN",
+    ])
+    if profile:
+        argv.extend(["--security-opt", f"apparmor={profile}"])
+    argv.extend([
         "--tmpfs",
         "/run",
         "--tmpfs",
@@ -381,6 +439,40 @@ def service_uninstall_exec_argv(container: str, *, product: str, unit: str) -> L
     ]
 
 
+def server_log_tail_exec_argv(
+    container: str,
+    install_root: str = CMS_INSTALL_ROOT,
+    *,
+    tail_bytes: int = SERVER_LOG_TAIL_BYTES,
+) -> List[str]:
+    """``docker exec`` argv capturing the CMS server.log tail (GH-7332).
+
+    The tail feeds :func:`assess_context_ready` after each serving
+    probe: a running JVM with a dead Rhythmyx Spring context must not
+    pass the lifecycle verdict on curl success alone. The log path is
+    the container-internal POSIX path from ``rhythmyx_ready`` (same
+    Linux-cell adjudication as the module header suppression).
+    """
+    validate_container_name(container)
+    return [
+        "docker", "exec", container,
+        "tail", "-c", str(int(tail_bytes)),
+        container_server_log_path(install_root),
+    ]
+
+
+def assess_context_ready(server_log_text: str) -> Tuple[bool, str]:
+    """Reuse the ``rhythmyx_ready`` health assessment on a log tail.
+
+    Pure; no I/O. Empty text (log not written yet) skips the file ERROR
+    gate per ``assess_rhythmyx_ready`` semantics — the HTTP serving
+    signal still applies. Any Rhythmyx context-failure marker or
+    server.log ERROR/FATAL/SEVERE line fails, even with HTTP 200.
+    """
+    return assess_rhythmyx_ready(
+        200, "", server_log_text=server_log_text or "", require_http=False)
+
+
 def leftover_unit_paths(unit: str) -> List[str]:
     """In-container registration paths that must be gone after uninstall."""
     return [template.format(unit=unit) for template in _UNIT_PATH_TEMPLATES]
@@ -456,13 +548,16 @@ def _run_step(
     *,
     timeout: int,
     step_input: Optional[str] = None,
+    output_limit: int = 2000,
 ) -> LifecycleStep:
     """Execute one harness step, capturing combined output for evidence.
 
     A wall-clock timeout is converted to a rc=124 evidence step (Codex P2,
     #7324): the sequence keeps its collected steps, the finish leg still
     writes the structured FAIL result, and teardown still runs — timeouts
-    never discard diagnostic evidence.
+    never discard diagnostic evidence. ``output_limit`` bounds the kept
+    tail (log-tail steps pass a larger budget; the default preserves the
+    evidence-size contract for every other step).
     """
     kwargs = {"shell": False, "check": False, "capture_output": True, "text": True,
               "timeout": timeout}
@@ -475,8 +570,10 @@ def _run_step(
             (exc.stderr or "") if isinstance(exc.stderr, str) else "")
         return LifecycleStep(
             name=name, argv=list(argv), returncode=124,
-            output_tail=_tail(f"TIMEOUT after {timeout}s: {partial.strip()}"))
-    output = _tail(((completed.stdout or "") + "\n" + (completed.stderr or "")).strip())
+            output_tail=_tail(f"TIMEOUT after {timeout}s: {partial.strip()}",
+                              output_limit))
+    output = _tail(((completed.stdout or "") + "\n" + (completed.stderr or "")).strip(),
+                   output_limit)
     return LifecycleStep(name=name, argv=list(argv), returncode=completed.returncode,
                          output_tail=output)
 
@@ -542,6 +639,14 @@ def probe_readiness(
     (Codex P2, #7324): the product must prove it serves after EVERY
     start/restart — a running-but-broken application context must not
     pass the lifecycle verdict. Returns one summary evidence step.
+
+    (GH-7332): for ``cms``, a serving HTTP probe is necessary but not
+    sufficient — the legacy ``/Rhythmyx/login`` probe renders 200 with a
+    dead Spring context. After curl succeeds, the server.log tail is
+    assessed with the ``rhythmyx_ready`` health check
+    (:func:`assess_context_ready`); any context-failure marker or
+    server.log ERROR fails the probe. Other products keep the HTTP-only
+    verdict (their logs live outside server.log).
     """
     validate_container_name(container)
     probe_argv = ["docker", "exec", container, "curl", "-sf", readiness_url(product)]
@@ -563,6 +668,19 @@ def probe_readiness(
             name=label, argv=probe_argv, returncode=1,
             output_tail=_tail(
                 f"readiness probe never passed ({attempts} attempts): {ready_output}"))
+    if product == "cms":
+        tail_argv = server_log_tail_exec_argv(container)
+        tail_step = _run_step(run, f"{label}-server-log", tail_argv,
+                              timeout=op_timeout,
+                              output_limit=SERVER_LOG_TAIL_BYTES + 1024)
+        server_log_text = (
+            tail_step.output_tail if tail_step.returncode == 0 else "")
+        context_ok, context_detail = assess_context_ready(server_log_text)
+        if not context_ok:
+            return LifecycleStep(
+                name=label, argv=tail_argv, returncode=1,
+                output_tail=_tail(
+                    f"application context not ready: {context_detail}"))
     return LifecycleStep(
         name=label, argv=probe_argv, returncode=0, output_tail=_tail(ready_output))
 

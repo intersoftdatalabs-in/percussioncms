@@ -1200,6 +1200,19 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "(debugging; default removes it so no units/links linger)."
         ),
     )
+    pqsl.add_argument(
+        "--apparmor-profile",
+        default=None,
+        metavar="PROFILE",
+        help=(
+            "Host-loaded AppArmor profile for the systemd cell "
+            "(GH-7332; e.g. perc-systemd-cell from "
+            "docker/matrix/apparmor/). Only needed on Docker hosts "
+            "whose default profile denies the ENTRYPOINT cgroup "
+            "remount (otherwise the run fail-closes at wait-systemd). "
+            "Never unconfined, never --privileged."
+        ),
+    )
     pqsl.add_argument("--dry-run", action="store_true")
 
     pqpf = sub.add_parser(
@@ -4186,6 +4199,7 @@ def cmd_qa_service_lifecycle(
         keep=bool(getattr(args, "keep", False)),
         ready_timeout=int(getattr(args, "timeout_seconds", 900)),
         install_timeout=int(getattr(args, "install_timeout_seconds", 1800)),
+        apparmor_profile=getattr(args, "apparmor_profile", None),
     )
     if dry_run:
         return _qa_service_lifecycle_dry_run(ctx, qsl)
@@ -4210,6 +4224,7 @@ class _QaServiceLifecycleContext(NamedTuple):
     keep: bool
     ready_timeout: int
     install_timeout: int
+    apparmor_profile: Optional[str] = None
 
 
 def _qa_service_lifecycle_dry_run(ctx: _QaServiceLifecycleContext, qsl) -> int:
@@ -4224,6 +4239,7 @@ def _qa_service_lifecycle_dry_run(ctx: _QaServiceLifecycleContext, qsl) -> int:
                 container_name=ctx.container,
                 installer_jar_host=ctx.jar,
                 product=ctx.product,
+                apparmor_profile=ctx.apparmor_profile,
             ),
         ),
     ]
@@ -4232,6 +4248,7 @@ def _qa_service_lifecycle_dry_run(ctx: _QaServiceLifecycleContext, qsl) -> int:
         for label, argv in plan:
             f.write(f"{label}: {' '.join(str(a) for a in argv)}\n")
         f.write(f"container={ctx.container}\nproduct={ctx.product}\n")
+        f.write(f"apparmor-profile={ctx.apparmor_profile or '(host default)'}\n")
         f.write(
             "lifecycle=install(--no-start) install-unit(--systemd) "
             "start/stop/restart/status journalctl uninstall leftover-check\n"
@@ -4280,6 +4297,7 @@ def _qa_service_lifecycle_boot(ctx: _QaServiceLifecycleContext, qsl) -> Optional
             container_name=ctx.container,
             installer_jar_host=ctx.jar,
             product=ctx.product,
+            apparmor_profile=ctx.apparmor_profile,
         ),
         shell=False, check=False,
         capture_output=True, text=True,

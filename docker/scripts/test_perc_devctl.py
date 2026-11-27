@@ -382,6 +382,20 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("QA_CONTAINER:perc-matrix-dts-systemd-shard-a", out)
         self.assertIn("unit=PercussionProductionDTS", out)
 
+    def test_qa_service_lifecycle_dry_run_apparmor_profile(self):
+        """GH-7332: opt-in profile flows into the run-cell plan."""
+        rc, out = self.runner.run(
+            ["qa-service-lifecycle", "--product", "cms",
+             "--apparmor-profile", "perc-systemd-cell"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-service-lifecycle", out)
+        logs = sorted((self.repo_root / "docker" / "logs").glob(
+            "qa-service-lifecycle*"))
+        self.assertTrue(logs, msg="dry-run must write its plan log")
+        plan = logs[-1].read_text(encoding="utf-8")
+        self.assertIn("apparmor=perc-systemd-cell", plan)
+        self.assertIn("apparmor-profile=perc-systemd-cell", plan)
+
     def test_qa_service_lifecycle_dispatch_registered(self):
         self.assertIn("qa-service-lifecycle", pdc._DISPATCH)
         self.assertIs(pdc._DISPATCH["qa-service-lifecycle"],
