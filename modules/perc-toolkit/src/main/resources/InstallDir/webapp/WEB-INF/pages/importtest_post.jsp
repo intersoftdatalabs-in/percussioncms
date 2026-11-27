@@ -49,33 +49,33 @@
 	%>
 
 <html><head><title>REST Import Service</title>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
 	<script type="text/javascript">
+	// Dependency-free vanilla JS (CDN jQuery 1.2.6 removed in #7369, parent
+	// audit #5627): this test helper ships no third-party script bytes.
 	function htmlEncode(value) {
-	    return $('<div/>').text(value).html();
-	} 
-	  $(function(){
-	    $("#form").submit(function(){
+	    var div = document.createElement("div");
+	    div.textContent = value;
+	    return div.innerHTML;
+	}
+	  document.addEventListener("DOMContentLoaded", function(){
+	    document.getElementById("form").addEventListener("submit", function(event){
+	        event.preventDefault();
 	        dataString = request.getParameter("");
-			posturl = $("#post_url").val();
-			
-	        $.ajax({
-	        type: "POST",
+			posturl = document.getElementById("post_url").value;
+
+	        fetch(posturl, {
+	        method: "POST",
 	        // url: "/Rhythmyx/services/Content/import/cdcSyndicationImport",
-			url: posturl,
-	        data: dataString,
-			contentType: "text/xml",
-	        dataType: "xml",
-	        complete: function(xhr, status) {
-	 	//	alert(data);
-		
-	            $("#message_ajax").html(htmlEncode(xhr.responseText));
-	        }
-	 
+	        body: dataString,
+			headers: {"Content-Type": "text/xml"}
+	        }).then(function(response){
+	            return response.text().then(function(text){
+	                document.getElementById("message_ajax").innerHTML = htmlEncode(text);
+	            });
 	        });
-	 
-	        return false;           
-	 
+
+	        return false;
+
 	    });
 	});
 	</script>

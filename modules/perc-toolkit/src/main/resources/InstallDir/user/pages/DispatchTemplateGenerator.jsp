@@ -28,8 +28,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <title>Dispatch Template Generator</title>
-	<script src="http://code.jquery.com/jquery-1.9.0.js"></script>
-	<script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
 </head>
 <body>
 <%
@@ -201,7 +199,9 @@ function populateTemplateList(site){
 	}
 }
 
-$(document).ready(function() {
+// No third-party JS on this page (CDN jQuery removed in #7369): use the
+// platform DOMContentLoaded event instead of $(document).ready.
+document.addEventListener("DOMContentLoaded", function() {
 	populateSiteList();
 });
 </script>  
