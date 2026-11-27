@@ -17,6 +17,7 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 - [Virtual Sites](id:developer-virtual-sites)
 - [Extensions & packages](id:developer-extensions)
 - [Product page packages](id:developer-page-packages)
+- [Pilot product package walkthrough](id:developer-page-package-pilot)
 - [Form widget rich-text editor](id:developer-widget-editor)
 - [Calendar 2.0 widget runtime](id:developer-calendar-widget)
 - [Build from source](id:developer-build-source)
