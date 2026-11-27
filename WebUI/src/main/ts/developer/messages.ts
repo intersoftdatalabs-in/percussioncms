@@ -145,6 +145,8 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@ACL created, but could not apply the default ACL template.",
   CT_LOADING: "perc.ui.developer@Loading content types...",
   CT_EMPTY: "perc.ui.developer@No content types returned.",
+  CT_EMPTY_HINT:
+    "perc.ui.developer@No content types yet — use New to create one.",
   CT_ERROR: "perc.ui.developer@Could not load content types.",
   CT_RETRY: "perc.ui.developer@Retry",
   CT_COL_NAME: "perc.ui.developer@Name",
@@ -890,6 +892,8 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Full ACL editor parity remains a separate slice; assign COMMUNITY principals on object ACL sections where mounted. Use Community Visibility for the SE-05 navigator groups.",
   ROLES_LOADING: "perc.ui.developer@Loading roles catalog...",
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
+  ROLES_EMPTY_HINT:
+    "perc.ui.developer@No roles yet — use Create role to add one.",
   ROLES_SEARCH_EMPTY: "perc.ui.developer@No roles match the current filter.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
@@ -1368,6 +1372,7 @@ export const DEV_MSG_KEYS = {
   PIPE_COL_PROB_PATH: "perc.ui.developer@Path",
   LOC_LOADING: "perc.ui.developer@Loading locales...",
   LOC_EMPTY: "perc.ui.developer@No locales returned.",
+  LOC_EMPTY_HINT: "perc.ui.developer@No locales yet — use New to create one.",
   LOC_ERROR: "perc.ui.developer@Could not load locales.",
   LOC_HINT:
     "perc.ui.developer@Create, save, or delete CMS locales (language string and label required). Language cannot be renamed after create. Format profiles (date/number/currency) save with the locale. Auto-translations (locale × content type) are edited from this chrome.",

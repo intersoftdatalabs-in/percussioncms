@@ -165,7 +165,26 @@ export function LocalesPanel(): React.ReactElement {
       </div>
 
       {items.length === 0 ? (
-        <CatalogStatus testId="developer-loc-empty">{DEV_MSG.LOC_EMPTY}</CatalogStatus>
+        <>
+          <CatalogStatus testId="developer-loc-empty">{DEV_MSG.LOC_EMPTY}</CatalogStatus>
+          <div data-testid="developer-loc-empty-hint">{DEV_MSG.LOC_EMPTY_HINT}</div>
+          <button
+            type="button"
+            data-testid="developer-loc-empty-new"
+            onClick={() => setSelected("new")}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "8px",
+            }}
+          >
+            {DEV_MSG.LOC_NEW}
+          </button>
+        </>
       ) : (
         <SimpleCatalogTable
           tableTestId="developer-loc-table"

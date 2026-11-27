@@ -78,6 +78,11 @@ describe("TemplatesPanel", () => {
       expect(screen.getByTestId("developer-tpl-empty")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-tpl-import")).toBeTruthy();
+    // #7346: template catalog has no create action — neutral named copy, no dead button.
+    expect(screen.getByTestId("developer-tpl-empty").textContent).toBe(DEV_MSG.TPL_EMPTY);
+    expect(screen.queryByTestId("developer-tpl-empty-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-tpl-empty-new")).toBeNull();
+    expect(screen.queryByTestId("developer-tpl-new")).toBeNull();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

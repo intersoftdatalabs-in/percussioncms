@@ -135,6 +135,14 @@ the row detail (`GET /services/contenttypes/{idOrName}`) are public REST
 Write and design-lock gaps (field-rule save, SPA choice/locale editors) are
 documented under their own sections below, not here.
 
+## Empty catalog
+
+An empty catalog shows a named empty state (**No content types returned**)
+followed by an actionable hint (**No content types yet — use New to create
+one**) and a **New content type** button that opens the same create chrome
+as the catalog header, so the first type can be created without leaving the
+panel.
+
 ## Product path — create a content type
 
 1. Sign in as **Admin**.

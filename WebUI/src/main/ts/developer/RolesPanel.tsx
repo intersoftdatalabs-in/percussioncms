@@ -1728,9 +1728,28 @@ export function RolesPanel(): React.ReactElement {
       </div>
 
       {catalog.length === 0 ? (
-        <CatalogStatus testId="developer-roles-empty">
-          {DEV_MSG.ROLES_EMPTY}
-        </CatalogStatus>
+        <>
+          <CatalogStatus testId="developer-roles-empty">
+            {DEV_MSG.ROLES_EMPTY}
+          </CatalogStatus>
+          <div data-testid="developer-roles-empty-hint">{DEV_MSG.ROLES_EMPTY_HINT}</div>
+          <button
+            type="button"
+            data-testid="developer-roles-empty-new"
+            onClick={openCreate}
+            style={{
+              padding: "8px 16px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "8px",
+            }}
+          >
+            {DEV_MSG.ROLES_CREATE}
+          </button>
+        </>
       ) : (
         <>
           <CatalogSearchFilter

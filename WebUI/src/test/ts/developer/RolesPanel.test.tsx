@@ -146,6 +146,18 @@ describe("RolesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-roles-empty")).toBeTruthy();
     });
+    // #7346: named empty copy + actionable create CTA hook (header Create stays too).
+    expect(screen.getByTestId("developer-roles-empty").textContent).toBe(
+      DEV_MSG.ROLES_EMPTY,
+    );
+    const hint = screen.getByTestId("developer-roles-empty-hint");
+    expect(hint.textContent).toBe(DEV_MSG.ROLES_EMPTY_HINT);
+    expect(hint.textContent).toContain("Create role");
+    expect(screen.getByTestId("developer-roles-create")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-roles-empty-new"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create-form")).toBeTruthy();
+    });
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
