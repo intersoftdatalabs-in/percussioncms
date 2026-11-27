@@ -201,6 +201,62 @@ describe("TipTapPercussionBar", () => {
     }
   });
 
+  it("source view keeps Percussion plugin markers on write-back (#7340)", () => {
+    const editor = makeEditor(
+      '<p>Teaser<span class="perc-blog-more-link"></span></p>' +
+        '<p>Welcome to <span class="perc-global-variable-marker" ' +
+        'title="company_name">Acme</span>!</p>' +
+        '<p>See <a href="/Rhythmyx/Sites/Enterprise/about.html" title="About" ' +
+        'rxinlineslot="103" inlinetype="rxhyperlink" sys_dependentid="101" ' +
+        'sys_dependentvariantid="201" rxselectedtext="About us">About us</a> now.</p>',
+    );
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-source-text"));
+      const area = screen.getByTestId(
+        "tiptap-perc-source-content-text",
+      ) as HTMLTextAreaElement;
+      expect(area.value).toContain("perc-blog-more-link");
+      fireEvent.change(area, {
+        target: { value: area.value.replace("Teaser", "Teaser edit") },
+      });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain("Teaser edit");
+      expect(html).toContain("perc-blog-more-link");
+      expect(html).toContain("perc-global-variable-marker");
+      expect(html).toContain('rxinlineslot="103"');
+      expect(html).toContain('inlinetype="rxhyperlink"');
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("source view drops unsafe markup on write-back (#7340)", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-source-text"));
+      const area = screen.getByTestId("tiptap-perc-source-content-text");
+      fireEvent.change(area, {
+        target: {
+          value:
+            "<p>Safe</p><script>alert(1)</script>" +
+            '<p><a href="javascript:alert(2)">x</a></p>' +
+            '<p onclick="alert(3)">y</p>',
+        },
+      });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain("Safe");
+      expect(html).not.toContain("<script");
+      expect(html).not.toContain("javascript:");
+      expect(html).not.toContain("onclick");
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("picks CMS content through the link picker with managed attributes", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input: Parameters<typeof fetch>[0]) => {
       const url = String(input ?? "");
