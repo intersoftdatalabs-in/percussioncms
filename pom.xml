@@ -475,8 +475,10 @@
                  (modules/perc-common-ui-bundle/package.json, issue #5626). -->
             <!-- No org.webjars:swagger-ui entry: the pin was dead (no module
                  declared it) and was removed in #7167. The CXF-bundled
-                 swagger-ui stays Maven-tracked; the /openapi viewer loads
-                 swagger-ui-dist from CDN (see #7170). Do NOT re-add. -->
+                 swagger-ui viewer dep (cxf-rt-rs-service-description-swagger-ui)
+                 was dropped from WebUI as unreachable in #7281; the /openapi
+                 viewer is npm self-hosted (swagger-ui-dist, modules/
+                 perc-openapi-webapp/package.json). Do NOT re-add. -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
