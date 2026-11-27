@@ -969,6 +969,491 @@
             }
         }
 
+    /**
+         * Tells whether the finder is editing an asset (the save-button context).
+         */
+        function isAssetEditView()
+        {
+          return (
+            $.PercNavigationManager.getMode() ===
+              $.PercNavigationManager.MODE_EDIT &&
+            view === $.PercNavigationManager.VIEW_EDIT_ASSET
+          );
+        }
+        /**
+         * Shows the save-blocked alert for an asset that was overridden by an
+         * Admin ("Overridden") or deleted in another session ("Deleted").
+         * @param actionKey the trailing message-key segment naming the cause.
+         */
+        function alertSaveBlockedDialog(actionKey)
+        {
+          $.perc_utils.alert_dialog({
+            title: I18N.message("perc.ui.common.label@Save"),
+            content: I18N.message(
+              "perc.ui.webmgt.contentbrowser.warning@Action Not Performed " +
+                actionKey,
+              ["asset"],
+            ),
+            okCallBack: function () {
+              $.PercNavigationManager.goTo(
+                $.PercNavigationManager.VIEW_EDITOR,
+                true,
+              );
+            },
+          });
+        }
+        /**
+         * Saves an existing asset after confirming it still exists.
+         */
+        function saveExistingAssetContent()
+        {
+          doIfItemExists(
+            contentId,
+            function () {
+              saveCheckedOutAssetContent();
+            },
+            function () {
+              alertSaveBlockedDialog("Deleted");
+            },
+          );
+        }
+        /**
+         * Saves an existing asset after confirming it is checked out to the
+         * current user.
+         */
+        function saveCheckedOutAssetContent()
+        {
+          doIfCheckedOutToCurrentUser(
+            contentId,
+            function () {
+              $.PercIFrameView.saveContent(false);
+            },
+            function () {
+              //an Admin has overridden the current editor in another session
+              alertSaveBlockedDialog("Overridden");
+            },
+          );
+        }
+        /**
+         * Handles save-button clicks: a new asset saves directly, an existing
+         * asset saves after the existence/checkout confirmations.
+         */
+        function handleSaveContentClick()
+        {
+          var newAsset = !contentId || contentId == null;
+          if (newAsset)
+          {
+            $.PercIFrameView.saveContent(newAsset);
+            return;
+          }
+          saveExistingAssetContent();
+        }
+        /**
+         * Adds the asset save button when the finder is editing an asset.
+         */
+        function addSaveButton()
+        {
+          //Add save button if it is asset view
+          if (!isAssetEditView())
+          {
+            return;
+          }
+          var saveButton =
+            '<button style="float: right;" name="perc_wizard_save" title="Save" class="btn btn-primary" id="perc-save-content">Save</button>';
+          $("#perc-content-menu").append($(saveButton));
+          $("#perc-save-content").on("click", handleSaveContentClick);
+        }
+        /**
+         * Opens the editor for the item stored on the edit button.
+         */
+        function openEditorForCurrentItem(item)
+        {
+          if (
+            $.PercNavigationManager.getView() ===
+            $.PercNavigationManager.VIEW_EDITOR
+          )
+          {
+            $.PercNavigationManager.handleOpenPage(item, true);
+            return;
+          }
+          if (
+            $.PercNavigationManager.getView() ===
+            $.PercNavigationManager.VIEW_EDIT_ASSET
+          )
+          {
+            openAssetForEdit(item);
+            return;
+          }
+          // This should never happen.
+          alertUnknownEditorView();
+        }
+        /**
+         * Opens an asset for edit, resolving through the Sites node when the
+         * finder has a site selected in the asset editor.
+         */
+        function openAssetForEdit(item)
+        {
+          //We are in AssetEditor but finder is having site selected, so need to find Asset
+          if (item.name === "Sites")
+          {
+            openAssetFromSitesNode();
+            return;
+          }
+          //CMS-8107 : item.name always returned the asset name.
+          $.PercNavigationManager.handleOpenAsset(item, true);
+        }
+        /**
+         * Resolves the edited asset through the Sites node and opens it.
+         */
+        function openAssetFromSitesNode()
+        {
+          $.PercPathService.getPathItemById(
+            contentId,
+            function (status, data) {
+              if (status === $.PercServiceUtils.STATUS_SUCCESS)
+              {
+                $.PercNavigationManager.handleOpenAsset(data.PathItem, true);
+                return;
+              }
+              $.perc_utils.alert_dialog({
+                title: I18N.message("perc.ui.publish.title@Error"),
+                content: data,
+              });
+            },
+          );
+        }
+        /**
+         * Shows the unknown-view alert for an unrecognized editor view.
+         */
+        function alertUnknownEditorView()
+        {
+          var eMsg = I18N.message("perc.ui.finder.view@Cannot Open Unknown View");
+          $.perc_utils.alert_dialog({
+            title: I18N.message("perc.ui.publish.title@Error"),
+            content: eMsg,
+          });
+        }
+        /**
+         * Binds the edit button once the path item for the current path loads.
+         */
+        function bindEditButtonForPathItem(message, item)
+        {
+          var currentItem = item.PathItem;
+          $("#perc-page-edit")
+            .data("currentItem", currentItem)
+            .on("click", function () {
+              openEditorForCurrentItem($(this).data("currentItem"));
+            });
+        }
+        /**
+         * Adds the edit button when the finder is in readonly mode.
+         */
+        function addEditButton()
+        {
+          //Add edit button if this is readonly mode
+          if (
+            $.PercNavigationManager.getMode() ===
+            $.PercNavigationManager.MODE_EDIT
+          )
+          {
+            return;
+          }
+          var editButton =
+            '<button name="perc_page_edit" title="Edit" class="btn btn-primary" id="perc-page-edit">' +
+            I18N.message("perc.ui.finder.view@Edit") +
+            "</button>";
+          $("#perc-content-menu").append($(editButton));
+          currentContentPath = $.PercNavigationManager.getPath();
+          $.PercPathService.getPathItemForPath(
+            currentContentPath,
+            bindEditButtonForPathItem,
+          );
+        }
+        /**
+         * Checks the item back in and returns to the editor view.
+         */
+        function checkInAndReturnToEditor()
+        {
+          $.PercWorkflowController().checkIn(
+            contentId,
+            function (status) {
+              contentId = null;
+              $.PercNavigationManager.goTo(
+                $.PercNavigationManager.VIEW_EDITOR,
+                true,
+              );
+              $.unblockUI();
+            },
+          );
+        }
+        /**
+         * Finishes the close-button flow after the dirty check: an edit-mode
+         * item is checked in, any other item just closes.
+         */
+        function finishCloseAfterDirtyCheck()
+        {
+          $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
+          if (
+            $.PercNavigationManager.getMode() ===
+            $.PercNavigationManager.MODE_EDIT
+          )
+          {
+            checkInAndReturnToEditor();
+            return;
+          }
+          contentId = null;
+          $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
+          $.unblockUI();
+        }
+        /**
+         * Closes the editor after the dirty confirmation.
+         */
+        function confirmAndCheckInBeforeClose()
+        {
+          confirm_if_dirty(finishCloseAfterDirtyCheck);
+        }
+        /**
+         * Closes the editor after confirming the item is checked out to the
+         * current user.
+         */
+        function closeCheckedOutItem()
+        {
+          doIfCheckedOutToCurrentUser(
+            contentId,
+            function () {
+              confirmAndCheckInBeforeClose();
+            },
+            function () {
+              //just close the content browser, an Admin has overridden the current editor in another session
+              $.PercNavigationManager.goTo(
+                $.PercNavigationManager.VIEW_EDITOR,
+                true,
+              );
+            },
+          );
+        }
+        /**
+         * Handles close-button clicks: nothing to do without an open item,
+         * otherwise closes after the existence confirmation.
+         */
+        function closeEditorAndReturnToDashboard()
+        {
+          if (!contentId)
+          {
+            return;
+          }
+          doIfItemExists(
+            contentId,
+            function () {
+              closeCheckedOutItem();
+            },
+            function () {
+              //just close the content browser, the item has been deleted in another session
+              $.PercNavigationManager.goTo(
+                $.PercNavigationManager.VIEW_EDITOR,
+                true,
+              );
+            },
+          );
+        }
+        /**
+         * Adds the close button, which closes the editor and switches to the
+         * dashboard.
+         */
+        function addCloseButton()
+        {
+          //Add close button, this will close the editor and switch to the dashboard
+          var closeButton =
+            "<button class='btn btn-primary' id='perc-page-close' title='Close'>" +
+            I18N.message("perc.ui.change.pw@Close") +
+            "</button>";
+          $("#perc-content-menu").append($(closeButton));
+          $("#perc-page-close").on("click", closeEditorAndReturnToDashboard);
+        }
+        /**
+         * Inner function to add the save and close buttons inside the workflow transition callback function as we
+         * want these to be added as the last buttons. If the contentid is null then just adds the save and close
+         * buttons.
+         */
+        function addSaveAndCloseButtons()
+        {
+          addSaveButton();
+          addEditButton();
+          addCloseButton();
+        }
+        /**
+         * Adds a comment icon to the menu bar if comment exists.
+         */
+        function addCommentsIcon()
+        {
+          $.PercRevisionService.getLastComment(
+            contentId,
+            function (status, result) {
+              if (status === $.PercServiceUtils.STATUS_SUCCESS)
+              {
+                if (result.data && result.data.length > 0)
+                {
+                  var commentIcon = $(
+                    "<a style='float: right;' href='javascript:void(0);'" +
+                      " class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>",
+                  );
+                  // Bootstrap 5 tooltip (issue #7178): the retired bassistance
+                  // tooltip plugin is gone, and the jQuery UI tooltip widget
+                  // cannot own $.fn.tooltip on classic pages — Bootstrap 5.3
+                  // re-registers its own $.fn.tooltip on DOMContentLoaded,
+                  // after every synchronous script (including jQuery UI).
+                  // Bootstrap 5 (npm, loaded by common_js.jsp) is therefore
+                  // the replacement. The comment text travels via the title
+                  // option (never interpolated into markup); delay/placement
+                  // carry the old delay/left/top tuning (element-anchored
+                  // now). The bubble look lives in cm/css/styles.css
+                  // (.perc-comment-tooltip); Bootstrap's default sanitizer
+                  // stays on (safer than the old raw-HTML bodyHandler).
+                  new bootstrap.Tooltip(commentIcon[0], {
+                    html: true,
+                    title: "<p class='perc-comment-tip'>" + result.data + "</p>",
+                    delay: { show: 500, hide: 100 },
+                    placement: "left",
+                    offset: [25, 150],
+                    customClass: "perc-comment-tooltip",
+                  });
+                  $("#perc-content-menu").append(commentIcon);
+                }
+                else
+                {
+                  $.perc_utils.info(
+                    I18N.message("perc.ui.finder.view@No Comment"),
+                  );
+                }
+              }
+              else
+              {
+                $.perc_utils.info(
+                  I18N.message("perc.ui.finder.view@Failed To Get Comment Info") +
+                    contentId +
+                    I18N.message("perc.ui.finder.view@See Server Log"),
+                );
+              }
+            },
+          );
+        }
+        /**
+         * Builds the workflow-transition dropdown data for the given results,
+         * duplicating the first transition for the split-button head.
+         */
+        function buildTransitionDropdownData(results, itemType)
+        {
+          var dropdownLabels = [];
+          var dropdownParams = [];
+          var dropdownActions = [];
+          var dropdownButtonImage = "";
+          var dropdownButtonImageOver = "";
+          results.unshift(results[0]);
+
+          $.each(results, function (index) {
+            if (typeof results[index] !== "undefined")
+            {
+              var trName = results[index].name;
+              var trClass = results[index].cssClass;
+              var trAlt = results[index].alt;
+              trClass += " perc-wf-button";
+              var trNameNormal = trName
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9/]/g, "_");
+              var trId = "perc_item_transition_" + trNameNormal;
+              var baseImageName =
+                "/cm/images/images/splitButtonWf" + trNameNormal;
+              var imageExt = ".gif";
+              var regImageFilename = baseImageName + imageExt;
+              var overImageFilename = baseImageName + "Over" + imageExt;
+
+              if (index === 0)
+              {
+                defaultButtonImage = regImageFilename;
+                defaultButtonImageOver = overImageFilename;
+                dropdownButtonImage = "/cm/images/images/splitButtonArrow.gif";
+                dropdownButtonImageOver = "/cm/images/images/splitButtonArrowOn.gif";
+              }
+              var param = {
+                name: trName,
+                contentId: contentId,
+                itemType: itemType,
+              };
+              dropdownParams.push(param);
+              dropdownLabels.push(trName);
+              dropdownActions.push(handlePageWorkflowDropdownAction);
+            }
+          });
+          return {
+            labels: dropdownLabels,
+            params: dropdownParams,
+            actions: dropdownActions,
+            buttonImage: dropdownButtonImage,
+            buttonImageOver: dropdownButtonImageOver,
+          };
+        }
+        /**
+         * Renders the workflow-transition split-button dropdown.
+         */
+        function renderWorkflowDropdown(dropdownData)
+        {
+          if (dropdownData.actions.length === 0)
+          {
+            return;
+          }
+          // Add workflow dropdown
+          var pageWorkflowDropdown = $("#perc-dropdown-page-workflow");
+          pageWorkflowDropdown
+            .append(
+              $("<button />")
+                .html(
+                  I18N.message(
+                    "perc.ui.edit.workflow.step.dialog@" +
+                      $.perc_textFilters.IDNAMECDATA(dropdownData.labels[0]),
+                  ),
+                )
+                .css("display", "inline-block")
+                .addClass(
+                  "btn btn-primary perc-workflow-split-button-left perc-workflow-split-button-" +
+                    $.perc_textFilters.IDNAMECDATA(dropdownData.labels[0]),
+                ),
+            )
+            .append(
+              $("<div />").addClass("perc-workflow").css("display", "inline-block"),
+            );
+          pageWorkflowDropdown.children("div").eq(0).PercDropdown({
+            percDropdownRootClass: "perc-workflow",
+            percDropdownOptionLabels: dropdownData.labels,
+            percDropdownCallbacks: dropdownData.actions,
+            percDropdownCallbackData: dropdownData.params,
+            percDropdownTitleImage: dropdownData.buttonImage,
+            percDropdownTitleImageOver: dropdownData.buttonImageOver,
+            percDropdownShowExpandIcon: false,
+            autoArrows: false,
+            cssArrows: false,
+            percDropdownResizeToElement: "#perc-dropdown-page-workflow",
+          });
+          pageWorkflowDropdown.find(".perc-dropdown-title").off("click");
+          pageWorkflowDropdown
+            .children("a, button")
+            .on("click", function () {
+              dropdownData.actions[0](dropdownData.params[0]);
+            });
+        }
+        /**
+         * Handles the workflow-transitions response: renders the transition
+         * dropdown, then appends the save and close buttons.
+         */
+        function handleTransitionsResponse(status, results, itemType)
+        {
+          if (!status)
+          {
+            return;
+          }
+          var dropdownData = buildTransitionDropdownData(results, itemType);
+          renderWorkflowDropdown(dropdownData);
+          addSaveAndCloseButtons();
+        }
         /**
          * Makes a call to workflow controller and gets the transtions and renders them as buttons.
          * Adds the click events to workflow controller's transtion method after transition is done, reloads the page
@@ -978,265 +1463,23 @@
          */
         function addTransitionButtons(itemType)
         {
-            //Inner function to add the save and close buttons inside the workflow transition callback function as we
-            //want these to be added as the last buttons. If the contentid is null then just adds the save and close
-            //buttons.
-            function addSaveAndCloseButtons()
-            {
-                //Add save button if it is asset view
-                if ($.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT &&
-                    view === $.PercNavigationManager.VIEW_EDIT_ASSET)
-                {
-                    var saveButton = '<button style="float: right;" name="perc_wizard_save" title="Save" class="btn btn-primary" id="perc-save-content">Save</button>';
-                    $("#perc-content-menu").append($(saveButton));
-                    $("#perc-save-content").on("click",function()
-                    {
-                        var newAsset = !contentId || contentId == null;
-                        if (!newAsset)
-                        {
-                            doIfItemExists(contentId, function()
-                            {
-                                doIfCheckedOutToCurrentUser(contentId, function()
-                                {
-                                    $.PercIFrameView.saveContent(newAsset);
-                                }, function()
-                                {
-                                    //an Admin has overridden the current editor in another session
-                                    $.perc_utils.alert_dialog({
-                                        title: I18N.message("perc.ui.common.label@Save"),
-                                        content: I18N.message("perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden", ["asset"]),
-                                        okCallBack: function()
-                                        {
-                                            $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                                        }
-                                    });
-                                });
-                            }, function()
-                            {
-                                $.perc_utils.alert_dialog({
-                                    title: I18N.message("perc.ui.common.label@Save"),
-                                    content: I18N.message("perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted", ["asset"]),
-                                    okCallBack: function()
-                                    {
-                                        $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                                    }
-                                });
-                            });
-                        }
-                        else
-                        {
-                            $.PercIFrameView.saveContent(newAsset);
-                        }
-                    });
-                }
-                //Add edit button if this is readonly mode
-                if ($.PercNavigationManager.getMode() !== $.PercNavigationManager.MODE_EDIT)
-                {
-                    var editButton = '<button name="perc_page_edit" title="Edit" class="btn btn-primary" id="perc-page-edit">' +I18N.message("perc.ui.finder.view@Edit") + '</button>';
-                    $("#perc-content-menu").append($(editButton));
-                    currentContentPath = $.PercNavigationManager.getPath();
-                    $.PercPathService.getPathItemForPath(currentContentPath, function(message, item)
-                    {
-                        var currentItem = item.PathItem;
-                        $("#perc-page-edit").data("currentItem", currentItem).on("click",function()
-                        {
-                            var item = $(this).data("currentItem");
-                            if ($.PercNavigationManager.getView() === $.PercNavigationManager.VIEW_EDITOR)
-                            {
-                                $.PercNavigationManager.handleOpenPage(item, true);
-                            }
-                            else if ($.PercNavigationManager.getView() === $.PercNavigationManager.VIEW_EDIT_ASSET)
-                            {
-                                //We are in AssetEditor but finder is having site selected, so need to find Asset
-                                if(item.name === "Sites"){
-                                    $.PercPathService.getPathItemById(contentId, function(status, data){
-                                        if(status === $.PercServiceUtils.STATUS_SUCCESS) {
-                                            $.PercNavigationManager.handleOpenAsset(data.PathItem, true);
-                                        } else {
-                                            $.perc_utils.alert_dialog({title: I18N.message("perc.ui.publish.title@Error"), content: data});
-
-                                        }
-                                    });
-                                }else{
-                                    //CMS-8107 : item.name always returned the asset name.
-                                    $.PercNavigationManager.handleOpenAsset(item, true);
-                                }
-                            }
-                            else
-                            {
-                                // This should never happen.
-                                var eMsg = I18N.message("perc.ui.finder.view@Cannot Open Unknown View");
-                                $.perc_utils.alert_dialog({
-                                    title: I18N.message("perc.ui.publish.title@Error"),
-                                    content: eMsg
-                                });
-                            }
-                        });
-                    });
-
-                }
-                //Add close button, this will close the editor and switch to the dashboard
-                var closeButton = "<button class='btn btn-primary' id='perc-page-close' title='Close'>" +I18N.message("perc.ui.change.pw@Close") + "</button>";
-                $("#perc-content-menu").append($(closeButton));
-                $("#perc-page-close").on("click",function()
-                {
-                    if (contentId)
-                    {
-                        doIfItemExists(contentId, function()
-                        {
-                            doIfCheckedOutToCurrentUser(contentId, function()
-                            {
-                                confirm_if_dirty(function()
-                                {
-                                    $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
-                                    if ($.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT)
-                                    {
-                                        $.PercWorkflowController().checkIn(contentId, function(status)
-                                        {
-                                            contentId = null;
-                                            $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                                            $.unblockUI();
-                                        });
-                                    }
-                                    else
-                                    {
-                                        contentId = null;
-                                        $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                                        $.unblockUI();
-                                    }
-                                });
-                            }, function()
-                            {
-                                //just close the content browser, an Admin has overridden the current editor in another session
-                                $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                            });
-                        }, function()
-                        {
-                            //just close the content browser, the item has been deleted in another session
-                            $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
-                        });
-                    }
-                });
-            }
-            /**
-             * Adds a comment icon to the menu bar if comment exists.
-             */
-            function addCommentsIcon(){
-                $.PercRevisionService.getLastComment(contentId, function(status, result){
-                    if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                        if(result.data && result.data.length > 0){
-                            var commentIcon = $("<a style='float: right;' href='javascript:void(0);' class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>");
-                            // Bootstrap 5 tooltip (issue #7178): the retired bassistance
-                            // tooltip plugin is gone, and the jQuery UI tooltip widget
-                            // cannot own $.fn.tooltip on classic pages — Bootstrap 5.3
-                            // re-registers its own $.fn.tooltip on DOMContentLoaded,
-                            // after every synchronous script (including jQuery UI).
-                            // Bootstrap 5 (npm, loaded by common_js.jsp) is therefore
-                            // the replacement. The comment text travels via the title
-                            // option (never interpolated into markup); delay/placement
-                            // carry the old delay/left/top tuning (element-anchored
-                            // now). The bubble look lives in cm/css/styles.css
-                            // (.perc-comment-tooltip); Bootstrap's default sanitizer
-                            // stays on (safer than the old raw-HTML bodyHandler).
-                            new bootstrap.Tooltip(commentIcon[0], {
-                                html: true,
-                                title: "<p class='perc-comment-tip'>" + result.data + "</p>",
-                                delay: { show: 500, hide: 100 },
-                                placement: "left",
-                                offset: [25, 150],
-                                customClass: "perc-comment-tooltip"
-                            });
-                            $("#perc-content-menu").append(commentIcon);
-                        }
-                        else{
-                            $.perc_utils.info(I18N.message("perc.ui.finder.view@No Comment"));
-                        }
-                    }
-                    else{
-                        $.perc_utils.info(I18N.message("perc.ui.finder.view@Failed To Get Comment Info") + contentId + I18N.message("perc.ui.finder.view@See Server Log"));
-                    }
-                });
-            }
-
-            //get the transition actions and add them.
-            if ($.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT &&
-                contentId)
-            {
-                $.PercWorkflowController().getTransitions(contentId, function(status, results)
-                {
-                    if (status)
-                    {
-                        var dropdownLabels = [];
-                        var dropdownParams = [];
-                        var dropdownActions = [];
-                        var dropdownButtonImage = "";
-                        var dropdownButtonImageOver = "";
-                        results.unshift(results[0]);
-
-                        $.each(results, function(index) {
-                            if(typeof results[index] !== 'undefined' ){
-
-
-                                var trName = results[index].name;
-                                var trClass = results[index].cssClass;
-                                var trAlt = results[index].alt;
-                                trClass += " perc-wf-button";
-                                var trNameNormal = trName.toLowerCase().replace(/[^a-zA-Z0-9\/]/g, '_');
-                                var trId = "perc_item_transition_" + trNameNormal;
-                                var baseImageName = "/cm/images/images/splitButtonWf" + trNameNormal;
-                                var imageExt = ".gif";
-                                var regImageFilename = baseImageName + imageExt;
-                                var overImageFilename = baseImageName + "Over" + imageExt;
-
-                                if (index === 0) {
-                                    defaultButtonImage = regImageFilename;
-                                    defaultButtonImageOver = overImageFilename;
-                                    dropdownButtonImage = '/cm/images/images/splitButtonArrow.gif';
-                                    dropdownButtonImageOver = '/cm/images/images/splitButtonArrowOn.gif';
-
-                                }
-                                var param = {
-                                    name: trName,
-                                    contentId: contentId,
-                                    itemType: itemType
-                                };
-                                dropdownParams.push(param);
-                                dropdownLabels.push(trName);
-                                dropdownActions.push(handlePageWorkflowDropdownAction);
-                            }
-                        });
-
-						if(dropdownActions.length >0){
-                            // Add workflow dropdown
-                            var pageWorkflowDropdown = $("#perc-dropdown-page-workflow");
-                            pageWorkflowDropdown.append($('<button />').html(I18N.message("perc.ui.edit.workflow.step.dialog@" + $.perc_textFilters.IDNAMECDATA(dropdownLabels[0]))).css('display', 'inline-block').addClass('btn btn-primary perc-workflow-split-button-left perc-workflow-split-button-' + $.perc_textFilters.IDNAMECDATA(dropdownLabels[0]))).append($('<div />').addClass('perc-workflow').css('display', 'inline-block'));
-                            pageWorkflowDropdown.children('div').eq(0).PercDropdown({
-                                percDropdownRootClass: "perc-workflow",
-                                percDropdownOptionLabels: dropdownLabels,
-                                percDropdownCallbacks: dropdownActions,
-                                percDropdownCallbackData: dropdownParams,
-                                percDropdownTitleImage: dropdownButtonImage,
-                                percDropdownTitleImageOver: dropdownButtonImageOver,
-                                percDropdownShowExpandIcon: false,
-                                autoArrows:false,
-                                cssArrows: false,
-                                percDropdownResizeToElement: "#perc-dropdown-page-workflow"
-                            });
-                            pageWorkflowDropdown.find('.perc-dropdown-title').off('click');
-                            pageWorkflowDropdown.children('a, button').on("click",function()
-                            {
-                                dropdownActions[0](dropdownParams[0]);
-                            });
-						}
-                        addSaveAndCloseButtons();
-                    }
-                });
-            }
-            else
-            {
-                addSaveAndCloseButtons();
-                addCommentsIcon();
-            }
+          //get the transition actions and add them.
+          if (
+            $.PercNavigationManager.getMode() ===
+              $.PercNavigationManager.MODE_EDIT &&
+            contentId
+          )
+          {
+            $.PercWorkflowController().getTransitions(
+              contentId,
+              function (status, results) {
+                handleTransitionsResponse(status, results, itemType);
+              },
+            );
+            return;
+          }
+          addSaveAndCloseButtons();
+          addCommentsIcon();
         }
         /*** Workflow functions end **/
         /* ===========================
