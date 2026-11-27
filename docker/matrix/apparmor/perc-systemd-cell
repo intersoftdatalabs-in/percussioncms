@@ -15,12 +15,15 @@
 # Docker 29.10.1 QA host) need nothing: the harness passes no
 # `--security-opt` by default and behaviour is unchanged.
 #
-# Scope: this profile permits ONLY what the in-container systemd needs —
-# the cgroup remount in the container's PRIVATE cgroup namespace plus the
-# systemd unit/journal lifecycle. It grants no host device, host pid, or
-# host filesystem access beyond the stock container confinement. Validate on
-# the target host (`aa-status`, cell boot + full lifecycle green) before
-# relying on it; live-host soak stays ops-owned (#1989).
+# Scope: this profile permits ONLY what the in-container lifecycle
+# needs — the cgroup remount in the container's PRIVATE cgroup namespace,
+# the systemd unit/journal lifecycle, the coreutils/sysv utilities the
+# two shipped installer scripts invoke (enumerated in the profile; keep
+# in sync with those scripts), and create/remove of this harness's own
+# `Percussion*` registration files. It grants no host device, host pid,
+# or host filesystem access beyond the stock container confinement.
+# Validate on the target host (`aa-status`, cell boot + full lifecycle
+# green) before relying on it; live-host soak stays ops-owned (#1989).
 #
 # NOTE: host-side artifact. It is never loaded or enforced by the harness
 # itself; `docker_run_systemd_argv()` only *names* it via
@@ -59,22 +62,44 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /lib/systemd/systemd-* mrix,
   /usr/lib/systemd/systemd mrix,
   /usr/lib/systemd/systemd-* mrix,
-  /bin/systemctl mrix,
-  /usr/bin/systemctl mrix,
-  /bin/journalctl mrix,
-  /usr/bin/journalctl mrix,
-  /bin/sh mrix,
-  /bin/bash mrix,
-  /bin/mount mrix,
-  /bin/umount mrix,
-  /usr/bin/mount mrix,
-  /usr/bin/umount mrix,
-  /bin/tail mrix,
-  /usr/bin/tail mrix,
-  /bin/curl mrix,  # probe_readiness() serving check (Codex P2, #7332)
-  /usr/bin/curl mrix,
+  /{bin,usr/bin}/systemctl mrix,
+  /{bin,usr/bin}/journalctl mrix,
+  /{bin,usr/bin}/sh mrix,
+  /{bin,usr/bin}/bash mrix,
+  /{bin,usr/bin}/mount mrix,
+  /{bin,usr/bin}/umount mrix,
+  /{bin,usr/bin}/tail mrix,
+  /{bin,usr/bin}/curl mrix,  # probe_readiness() serving check (P2, #7332)
   /usr/bin/python3* mrix,
   /usr/local/bin/cell-entrypoint.py r,
+
+  # Installer utilities actually invoked by the two shipped service
+  # scripts — modules/perc-jetty/src/main/jetty/service/
+  # install-jetty-service.sh and delivery-tier-distribution/.../
+  # DTSProductionService.sh (Codex P1, #7332: dirname/readlink/mkdir/
+  # chown/chmod/sed and friends must execute). Shell builtins
+  # (echo/command/[/printf) need no rule. Keep this list in sync with
+  # those scripts; prefer adding a named binary over widening to /bin/*.
+  /{bin,usr/bin}/awk mrix,
+  /{bin,usr/bin}/basename mrix,
+  /{bin,usr/bin}/cat mrix,
+  /{bin,usr/bin}/chmod mrix,
+  /{bin,usr/bin}/chown mrix,
+  /{bin,usr/bin}/cut mrix,
+  /{bin,usr/bin}/dirname mrix,
+  /{bin,usr/bin}/find mrix,
+  /{bin,usr/bin}/grep mrix,
+  /{bin,usr/bin}/id mrix,
+  /{bin,usr/bin}/ln mrix,
+  /{bin,usr/bin}/ls mrix,
+  /{bin,usr/bin}/mkdir mrix,
+  /{bin,usr/bin}/readlink mrix,
+  /{bin,usr/bin}/rm mrix,
+  /{bin,usr/bin}/sed mrix,
+  /{bin,usr/bin}/which mrix,
+  /{sbin,usr/sbin}/chkconfig mrix,
+  /{sbin,usr/sbin}/service mrix,
+  /{sbin,usr/sbin}/update-rc.d mrix,
 
   # Loopback HTTP serving + readiness probes (curl to localhost inside
   # the cell); udp covers DNS for the installer / external-DB legs.
@@ -93,9 +118,27 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /opt/** mrix,
 
   /etc/systemd/** r,
+  # Registration files the installers own — writable ONLY for this
+  # harness's units (both start with "Percussion"), plus the enablement
+  # link dir (Codex P1, #7332: install/enable/uninstall must create and
+  # remove unit files, wants-links, sysv links, and env files).
+  # Everything else under /etc stays read-only.
+  /etc/systemd/system/ rw,
+  /etc/systemd/system/Percussion*.service rw,
+  /etc/systemd/system/multi-user.target.wants/ rw,
+  /etc/systemd/system/multi-user.target.wants/Percussion*.service rw,
+  /etc/default/ rw,
+  /etc/default/Percussion* rw,
+  /etc/init.d/ rw,
+  /etc/init.d/Percussion* rwmix,
+  # SysV runlevel links managed by update-rc.d / chkconfig during
+  # install/uninstall (link names embed the unit name).
+  /etc/rc?.d/ rw,
+  /etc/rc?.d/*Percussion* rw,
   /etc/machine-id r,
   /run/systemd/** rw,
   /run/log/journal/** rw,
+  /var/log/journal/** rw,
   /run/lock/** rw,
   /tmp/** rw,
   /sys/fs/cgroup/** rw,
