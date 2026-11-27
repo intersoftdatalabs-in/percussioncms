@@ -146,7 +146,7 @@ describe("tiptapPercussion stored-markup helpers", () => {
     expect(preparePercussionHtml("<p>Plain</p>")).toBe("<p>Plain</p>");
   });
 
-  it("strips the CSRFGuard token parameter from addresses (#7360)", () => {
+  it("strips the CSRFGuard token parameter from addresses (#7360, #7361)", () => {
     expect(stripCsrfGuardTokenParam(null)).toBeNull();
     expect(stripCsrfGuardTokenParam("")).toBeNull();
     expect(stripCsrfGuardTokenParam("/Rhythmyx/Sites/a.html")).toBe(
@@ -279,7 +279,7 @@ describe("Percussion plugin nodes (#5652)", () => {
     }
   });
 
-  it("parses CSRFGuard-tokenized addresses back to canonical state (#7360)", () => {
+  it("parses CSRFGuard-tokenized addresses back to canonical state (#7360, #7361)", () => {
     // Editor state must never absorb the transport token: it would persist
     // a session token into stored content on the next save.
     const canonical =
@@ -301,7 +301,7 @@ describe("Percussion plugin nodes (#5652)", () => {
     expect(roundTripHtmlFragment(tokenizedImg)).toBe(canonicalImg);
   });
 
-  it("detects token-only href rewrites for the mark-view guard (#7360)", () => {
+  it("detects token-only href rewrites for the mark-view guard (#7360, #7361)", () => {
     const anchor = document.createElement("a");
     anchor.setAttribute("href", "/Rhythmyx/Sites/a.html");
     const rewrite = {
@@ -345,7 +345,7 @@ describe("Percussion plugin nodes (#5652)", () => {
     ).toBe(false);
   });
 
-  it("leaves an externally token-rewritten anchor alone (#7360)", async () => {
+  it("leaves an externally token-rewritten anchor alone (#7360, #7361)", async () => {
     // Live-cell regression: the CSRFGuard rewrite of a freshly inserted
     // relative href used to wedge ProseMirror reconcilation into a node
     // re-creation storm (trusted clicks hung). The PercLink mark view must
@@ -375,7 +375,7 @@ describe("Percussion plugin nodes (#5652)", () => {
     }
   });
 
-  it("keeps editor state canonical when the DOM gains a token (#7360)", () => {
+  it("keeps editor state canonical when the DOM gains a token (#7360, #7361)", () => {
     const editor = makeEditor("<p>Hi</p>");
     try {
       editor.commands.setContent(
