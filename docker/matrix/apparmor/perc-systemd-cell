@@ -1,0 +1,201 @@
+# Narrowly-tailored AppArmor profile for the GH-7324 systemd QA cell (GH-7332).
+#
+# Purpose: Docker hosts enforcing the default `docker-default` AppArmor profile
+# deny `mount` even with `SYS_ADMIN`, so the systemd cell ENTRYPOINT
+# (`mount -o remount,rw /sys/fs/cgroup && exec /lib/systemd/systemd` in
+# `docker/matrix/Dockerfile.systemd`) fails and the harness fail-closes at
+# `wait-systemd`. On such hosts, load this profile on the HOST and select it
+# for the cell run — never `--privileged`, never `unconfined`:
+#
+#   sudo apparmor_parser -r docker/matrix/apparmor/perc-systemd-cell
+#   python docker/scripts/perc-devctl.py qa-service-lifecycle --product cms \
+#       --apparmor-profile perc-systemd-cell
+#
+# Hosts where the default profile already permits the remount (e.g. the
+# Docker 29.10.1 QA host) need nothing: the harness passes no
+# `--security-opt` by default and behaviour is unchanged.
+#
+# Scope: this profile permits ONLY what the in-container lifecycle
+# needs — the cgroup remount in the container's PRIVATE cgroup namespace,
+# the systemd unit/journal lifecycle, the coreutils/sysv utilities the
+# two shipped installer scripts invoke (enumerated in the profile; keep
+# in sync with those scripts), and create/remove of this harness's own
+# `Percussion*` registration files. It grants no host device, host pid,
+# or host filesystem access beyond the stock container confinement.
+# Validate on the target host (`aa-status`, cell boot + full lifecycle
+# green) before relying on it; live-host soak stays ops-owned (#1989).
+#
+# NOTE: host-side artifact. It is never loaded or enforced by the harness
+# itself; `docker_run_systemd_argv()` only *names* it via
+# `--security-opt apparmor=<profile>` and refuses `unconfined`.
+
+#include <tunables/global>
+
+profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/python>  # stdlib reads for cell-entrypoint.py
+  # (encodings/argparse/…); the stock base abstraction does not supply
+  # them (Codex P1, #7332).
+
+  # Minimal capabilities for systemd-as-PID-1 inside an unprivileged cell.
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fowner,
+  capability fsetid,
+  capability kill,
+  capability setgid,
+  capability setuid,
+  capability sys_admin,  # cgroup remount in the container's private ns
+  capability sys_chroot,
+  capability sys_ptrace,
+  capability net_bind_service,
+
+  # The ENTRYPOINT remount (private cgroup namespace only — never host).
+  mount options=(rw, remount) /sys/fs/cgroup/,
+  mount options=(rw, remount) /sys/fs/cgroup/**,
+  umount /sys/fs/cgroup/,
+  umount /sys/fs/cgroup/**,
+
+  # systemd + unit/journal lifecycle inside the cell. Executables need
+  # mapped inherit-execute: `mr` alone permits read/map but NOT exec, so
+  # an `mr`-only profile would block the ENTRYPOINT and every later step
+  # on an enforcing host (Codex P1, #7332).
+  /lib/systemd/systemd mrix,
+  /lib/systemd/systemd-* mrix,
+  /usr/lib/systemd/systemd mrix,
+  /usr/lib/systemd/systemd-* mrix,
+  /{bin,usr/bin}/systemctl mrix,
+  /{bin,usr/bin}/journalctl mrix,
+  /{bin,usr/bin}/sh mrix,
+  /{bin,usr/bin}/bash mrix,
+  /{bin,usr/bin}/dash mrix,  # /bin/sh resolves here on Ubuntu (P1, #7332)
+  /{bin,usr/bin}/env mrix,  # #!/usr/bin/env shebangs (rxjetty.sh)
+  /{bin,usr/bin}/mount mrix,
+  /{bin,usr/bin}/umount mrix,
+  /{bin,usr/bin}/tail mrix,
+  /{bin,usr/bin}/curl mrix,  # probe_readiness() serving check (P2, #7332)
+  /{bin,usr/bin}/nohup mrix,  # rxjetty.sh JETTY_USER fallback start
+  /{bin,usr/bin}/su mrix,  # rxjetty.sh JETTY_USER fallback (runs as root
+  # inside the unprivileged cell only; no host privilege change)
+  /{sbin,usr/sbin}/start-stop-daemon mrix,  # rxjetty.sh forking start
+  /usr/bin/python3* mrix,
+  /usr/local/bin/cell-entrypoint.py r,
+  # Inherited Docker HEALTHCHECK (docker/matrix/Dockerfile): the interpreter
+  # is allowed above, but the shipped scripts themselves need read rules —
+  # abstractions/python covers the stdlib, not these files (P2, #7332).
+  /usr/local/bin/rhythmyx_healthcheck.py r,
+  /usr/local/lib/perc/rhythmyx_ready.py r,
+
+  # Installer utilities actually invoked by the two shipped service
+  # scripts — modules/perc-jetty/src/main/jetty/service/
+  # install-jetty-service.sh and delivery-tier-distribution/.../
+  # DTSProductionService.sh (Codex P1, #7332: dirname/readlink/mkdir/
+  # chown/chmod/sed and friends must execute). Shell builtins
+  # (echo/command/[/printf) need no rule. Keep this list in sync with
+  # those scripts; prefer adding a named binary over widening to /bin/*.
+  /{bin,usr/bin}/awk mrix,
+  /{bin,usr/bin}/basename mrix,
+  /{bin,usr/bin}/cat mrix,
+  /{bin,usr/bin}/chmod mrix,
+  /{bin,usr/bin}/chown mrix,
+  /{bin,usr/bin}/cut mrix,
+  /{bin,usr/bin}/dirname mrix,
+  /{bin,usr/bin}/find mrix,
+  /{bin,usr/bin}/grep mrix,
+  /{bin,usr/bin}/id mrix,
+  /{bin,usr/bin}/ln mrix,
+  /{bin,usr/bin}/ls mrix,
+  /{bin,usr/bin}/mkdir mrix,
+  /{bin,usr/bin}/mktemp mrix,  # DTS prependLsbHeader (P2, #7332)
+  /{bin,usr/bin}/mawk mrix,  # Ubuntu awk target (P2, #7332)
+  /{bin,usr/bin}/readlink mrix,
+  /{bin,usr/bin}/rm mrix,
+  /{bin,usr/bin}/sed mrix,
+  /{bin,usr/bin}/sleep mrix,  # rxjetty.sh stop-loop grace period (P2, #7332)
+  /{bin,usr/bin}/expr mrix,  # rxjetty.sh + Tomcat startup/shutdown.sh
+  /{bin,usr/bin}/date mrix,  # rxjetty.sh start/stop status stamps
+  /{bin,usr/bin}/touch mrix,  # rxjetty.sh pid/log file creation
+  /{bin,usr/bin}/whoami mrix,  # rxjetty.sh user check
+  /{bin,usr/bin}/tr mrix,  # resolve-java-home.sh version parsing (P1, #7332)
+  /{bin,usr/bin}/head mrix,  # resolve-java-home.sh version parsing
+  /{bin,usr/bin}/uname mrix,  # resolve-java-home.sh platform dispatch
+  /{bin,usr/bin}/which mrix,
+  /{sbin,usr/sbin}/chkconfig mrix,
+  /{sbin,usr/sbin}/service mrix,
+  /{sbin,usr/sbin}/update-rc.d mrix,
+  /usr/bin/perl mrix,  # update-rc.d is a Perl script on Debian/Ubuntu
+  # (P2, #7332: systemctl enable fans out through it),
+
+  # Loopback HTTP serving + readiness probes (curl to localhost inside
+  # the cell); udp covers DNS for the installer / external-DB legs.
+  # No host-network access is granted — the cell uses the default
+  # bridge (or the matrix network) with no published host ports.
+  network inet tcp,
+  network inet6 tcp,
+  network inet udp,
+  network inet6 udp,
+
+  # Product runtimes launched by the installer / service scripts. The
+  # JDK path varies by matrix image layer; `/opt` inside the cell holds
+  # only the product install, so inheritable exec there stays confined
+  # to the cell's own binaries.
+  /usr/lib/jvm/** mrix,
+  /opt/** mrix,
+
+  /etc/systemd/** r,
+  # Vendor unit trees PID 1 must load (multi-user.target et al.) —
+  # read-only (Codex P1, #7332).
+  /lib/systemd/system/** r,
+  /usr/lib/systemd/system/** r,
+  # Registration files the installers own — writable ONLY for this
+  # harness's units (both start with "Percussion"), plus the enablement
+  # link dir (Codex P1, #7332: install/enable/uninstall must create and
+  # remove unit files, wants-links, sysv links, and env files).
+  # Everything else under /etc stays read-only.
+  /etc/systemd/system/ rw,
+  /etc/systemd/system/Percussion*.service rw,
+  /etc/systemd/system/multi-user.target.wants/ rw,
+  /etc/systemd/system/multi-user.target.wants/Percussion*.service rw,
+  /etc/default/ rw,
+  /etc/default/Percussion* rw,
+  /etc/init.d/ rw,
+  /etc/init.d/Percussion* rwmix,
+  # GNU sed -i rewrites via a same-dir temp (DTSProductionService.sh edits
+  # /etc/init.d/<unit> in place); the temp name never matches Percussion*,
+  # so it needs its own narrow rule (Codex P2, #7332).
+  /etc/init.d/sed?????? rw,
+  # SysV runlevel links managed by update-rc.d / chkconfig during
+  # install/uninstall (link names embed the unit name).
+  /etc/rc?.d/ rw,
+  /etc/rc?.d/*Percussion* rw,
+  # RedHat-layout cleanup performed by DTSProductionService.sh.
+  /etc/rc.d/rc?.d/ rw,
+  /etc/rc.d/rc?.d/*Percussion* rw,
+  /etc/machine-id r,
+  /run/systemd/** rw,
+  /run/log/journal/** rw,
+  /var/log/journal/** rw,
+  # Service PID dirs created by the installers (install-jetty-service.sh
+  # mkdir/chown/chmod /var/run/rxjetty/<unit> holding rxjetty.pid for the
+  # Type=forking unit; DTSProductionService.sh owns
+  # /var/run/PercussionProductionService). /var/run aliases /run. Without
+  # these the unit cannot write its PID file and start fails (P1, #7332).
+  /run/rxjetty/ rw,
+  /run/rxjetty/** rw,
+  /run/PercussionProductionService/ rw,
+  /run/PercussionProductionService/** rw,
+  /run/lock/** rw,
+  /tmp/** rw,
+  /sys/fs/cgroup/** rw,
+  /proc/** r,
+  /sys/** r,
+
+  # CMS/DTS install roots and service scripts inside the cell.
+  /opt/Percussion/** rw,
+  /installer/** r,
+
+  # Product + server logs read by the readiness/context gate.
+  /opt/Percussion/jetty/base/logs/** r,
+  /opt/Percussion/rxconfig/Installer/** r,
+}

@@ -161,6 +161,7 @@ class ArgvTests(unittest.TestCase):
             qsl.service_install_exec_argv(CELL, product="cms", unit="PercussionCMS"),
             qsl.systemctl_exec_argv(CELL, "restart", "PercussionCMS"),
             qsl.journalctl_exec_argv(CELL, "PercussionCMS"),
+            qsl.server_log_tail_exec_argv(CELL),
             qsl.service_uninstall_exec_argv(CELL, product="cms", unit="PercussionCMS"),
             qsl.leftover_check_exec_argv(CELL, "PercussionCMS"),
             qsl.wait_systemd_exec_argv(CELL),
@@ -182,6 +183,81 @@ class ArgvTests(unittest.TestCase):
         self.assertFalse(qsl.is_unit_active("failed\n"))
         self.assertFalse(qsl.is_unit_active(""))
         self.assertEqual(qsl.parse_active_state("  enabled\n"), "enabled")
+
+    def test_server_log_tail_argv(self):
+        argv = qsl.server_log_tail_exec_argv(CELL)
+        self.assertEqual(argv[:4], ["docker", "exec", CELL, "tail"])
+        self.assertIn("-c", argv)
+        self.assertEqual(argv[-1],
+                         "/opt/Percussion/jetty/base/logs/server.log")
+        with self.assertRaises(qsl.LifecycleError):
+            qsl.server_log_tail_exec_argv("perc-matrix-cms-h2")
+
+    def test_assess_context_ready(self):
+        ok, detail = qsl.assess_context_ready(
+            "INFO [Server] Percussion CMS Server started\n")
+        self.assertTrue(ok)
+        self.assertEqual(detail, "ok")
+        # Empty tail (log not written yet) keeps the HTTP verdict.
+        ok, _detail = qsl.assess_context_ready("")
+        self.assertTrue(ok)
+        ok, detail = qsl.assess_context_ready(
+            "Failed startup of context: Rhythmyx webapp\n")
+        self.assertFalse(ok)
+        self.assertIn("rhythmyx_context_failed", detail)
+        ok, detail = qsl.assess_context_ready(
+            "ERROR [Server] Package deploy failed\n")
+        self.assertFalse(ok)
+        self.assertIn("server_log_errors", detail)
+
+    def test_run_argv_apparmor_opt_in(self):
+        """GH-7332: tailored profile is explicit opt-in, never default."""
+        plain = qsl.docker_run_systemd_argv(
+            image=qsl.SYSTEMD_IMAGE,
+            container_name=CELL,
+            installer_jar_host=Path("/tmp") / "x.jar",
+            product="cms",
+        )
+        self.assertNotIn("--security-opt", plain)
+        argv = qsl.docker_run_systemd_argv(
+            image=qsl.SYSTEMD_IMAGE,
+            container_name=CELL,
+            installer_jar_host=Path("/tmp") / "x.jar",
+            product="cms",
+            apparmor_profile="perc-systemd-cell",
+        )
+        self.assertIn("--security-opt", argv)
+        idx = argv.index("--security-opt")
+        self.assertEqual(argv[idx + 1], "apparmor=perc-systemd-cell")
+        # Fail-closed argv still holds with the profile selected.
+        self.assertEqual(qsl.assert_safe_cell_argv(list(argv)), argv)
+
+    def test_run_argv_rejects_unconfined_profile(self):
+        """GH-7332: no privileged fallbacks — unconfined is refused."""
+        with self.assertRaises(qsl.LifecycleError):
+            qsl.docker_run_systemd_argv(
+                image=qsl.SYSTEMD_IMAGE,
+                container_name=CELL,
+                installer_jar_host=Path("/tmp") / "x.jar",
+                product="cms",
+                apparmor_profile="unconfined",
+            )
+        with self.assertRaises(qsl.LifecycleError):
+            qsl.docker_run_systemd_argv(
+                image=qsl.SYSTEMD_IMAGE,
+                container_name=CELL,
+                installer_jar_host=Path("/tmp") / "x.jar",
+                product="cms",
+                apparmor_profile="has space",
+            )
+        base = [
+            "docker", "run", "-d", "--name", CELL,
+            "--cgroupns=private", "--cap-add=SYS_ADMIN",
+            qsl.SYSTEMD_IMAGE,
+        ]
+        with self.assertRaises(qsl.LifecycleError):
+            qsl.assert_safe_cell_argv(
+                base + ["--security-opt", "apparmor=unconfined"])
 
 
 class FakeRunner:
@@ -226,6 +302,8 @@ def _green_script() -> Dict[str, tuple]:
         "systemctl restart": (0, ""),
         "systemctl status": (0, "Active: active (running)\n"),
         "curl -sf": (0, "<html>login</html>"),
+        # Clean server.log tail: no context markers, no ERROR lines.
+        "tail -c": (0, "INFO  [Server] Percussion CMS Server started\n"),
         "journalctl": (0, "rxjetty.sh: Jetty running pid=123\n"),
         "uninstall": (0, "done\n"),
         "test ! -e": (0, ""),
@@ -234,10 +312,12 @@ def _green_script() -> Dict[str, tuple]:
 
 
 class LifecycleSequenceTests(unittest.TestCase):
-    def _run_with(self, script: Dict[str, tuple], **overrides):
+    def _run_with(self, script: Dict[str, tuple], product: str = "cms",
+                    **overrides):
         fake = FakeRunner(script)
         result = qsl.run_service_lifecycle(
-            container=CELL, product="cms", run=fake, ready_interval=0, **overrides)
+            container=CELL, product=product, run=fake, ready_interval=0,
+            **overrides)
         return fake, result
 
     def test_full_green_sequence(self):
@@ -359,6 +439,42 @@ class LifecycleSequenceTests(unittest.TestCase):
         names = [step.name for step in result.steps]
         self.assertIn("readiness-probe-after-restart", names)
 
+    def test_readiness_fails_on_context_marker_despite_http_ok(self):
+        """GH-7332: curl 200 + dead Spring context must FAIL the probe."""
+        script = _green_script()
+        script["tail -c"] = (
+            0, "Failed startup of context org.springframework.beans\n")
+        _fake, result = self._run_with(script)
+        self.assertFalse(result.ok)
+        self.assertIn("rhythmyx_context_failed", result.detail)
+        names = [step.name for step in result.steps]
+        self.assertIn("readiness-probe", names)
+
+    def test_readiness_fails_on_server_log_error_despite_http_ok(self):
+        """GH-7332: curl 200 + server.log ERROR must FAIL the probe."""
+        script = _green_script()
+        script["tail -c"] = (0, "ERROR [Server] Package deploy failed\n")
+        _fake, result = self._run_with(script)
+        self.assertFalse(result.ok)
+        self.assertIn("server_log_errors", result.detail)
+
+    def test_readiness_fails_when_log_tail_unreadable(self):
+        """Fail closed: no tail means no context assessment, no pass."""
+        script = _green_script()
+        script["tail -c"] = (1, "")
+        _fake, result = self._run_with(script)
+        self.assertFalse(result.ok)
+        self.assertIn("server.log tail unreadable", result.detail)
+        names = [step.name for step in result.steps]
+        self.assertIn("readiness-probe", names)
+
+    def test_dts_readiness_has_no_server_log_gate(self):
+        """server.log is CMS-only: DTS keeps the HTTP verdict, no tail call."""
+        fake, result = self._run_with(
+            _green_script(), product="dts")
+        self.assertTrue(result.ok, msg=result.detail)
+        self.assertFalse(any("tail -c" in " ".join(c) for c in fake.calls))
+
     def test_boot_race_retries_bus_only(self):
         """Early 'Failed to connect to bus' retries; other failures end fast."""
         attempts = {"n": 0}
@@ -402,6 +518,40 @@ class LifecycleSequenceTests(unittest.TestCase):
                              ["docker", "exec", CELL, "timeout-step"], timeout=30)
         self.assertEqual(step.returncode, 124)
         self.assertIn("TIMEOUT", step.output_tail)
+
+    def test_decode_output_tolerates_split_multibyte_tail(self):
+        """Codex P2 (#7332): byte-truncated UTF-8 must not raise."""
+        self.assertEqual(qsl._decode_output(None), "")
+        self.assertEqual(qsl._decode_output("ascii"), "ascii")
+        # Split é (U+00E9 = 0xC3 0xA9): lone lead byte → replacement char.
+        decoded = qsl._decode_output("caf".encode("utf-8") + b"\xc3")
+        self.assertIn("caf", decoded)
+        self.assertIn("�", decoded)
+
+    def test_run_step_handles_bytes_output_and_partial_timeout(self):
+        """Live subprocess returns bytes (text=False); timeout keeps partials."""
+        def _bytes_run(argv, **kwargs):
+            joined = " ".join(argv)
+            if "timeout-step" in joined:
+                raise subprocess.TimeoutExpired(
+                    argv, timeout=kwargs.get("timeout", 0),
+                    output="partial- Café".encode("utf-8")[:10],
+                    stderr=b"")
+            self.assertIsInstance(kwargs.get("input", b""), bytes)
+            return subprocess.CompletedProcess(
+                argv, 0, stdout="caf".encode("utf-8") + b"\xc3",
+                stderr=b"")
+
+        step = qsl._run_step(_bytes_run, "bytes-step",
+                             ["docker", "exec", CELL, "tail", "-c", "5"],
+                             timeout=30, step_input="root\n")
+        self.assertEqual(step.returncode, 0)
+        self.assertIn("�", step.output_tail)
+        timeout_step = qsl._run_step(
+            _bytes_run, "timeout-step",
+            ["docker", "exec", CELL, "timeout-step"], timeout=30)
+        self.assertEqual(timeout_step.returncode, 124)
+        self.assertIn("partial-", timeout_step.output_tail)
 
     def test_remove_cell_container_argv(self):
         argv = qsl.remove_cell_container(
