@@ -36,11 +36,13 @@
  *      `WebUI/war/` is a checked-in stale mirror that the WAR build never
  *      packages (maven-war-plugin webResources are `src/main/webapp` +
  *      `target/generated-webui` + config overlays — no `war/` directory).
- *      Its `war/api/` subtree is the retired Swagger-UI 1.x/2.x-era viewer
+ *      Its `war/api/` subtree was the retired Swagger-UI 1.x/2.x-era viewer
  *      (#5672 retired the live viewer to a redirect stub): the referenced
  *      jquery/backbone/underscore copies were already deleted by #5664, and
- *      the residual below (notably Handlebars 1.0.0, CVE-exposed) is dead
- *      weight with zero live references. Follow-on #7280 deletes it.
+ *      the residual below (notably Handlebars 1.0.0, CVE-exposed) was dead
+ *      weight with zero live references. Follow-on #7280 deleted the whole
+ *      `war/api/` tree (16 files); this audit now carries a stays-deleted
+ *      guard (RETIRED_7280) instead of version-banner pins.
  *   C. Explicitly OUT of this slice (cross-check, no double-count):
  *      - WebUI jslib/cm trees -> slice 1, #7165 (pinned in
  *        jslibVendoredAudit.test.js; migrations #7175-#7181).
@@ -49,18 +51,18 @@
  *        superfish/...) -> #6319/#6320/#6321/#6686/#6919 cluster.
  *      - TinyMCE bundle -> epic #5622. CodeMirror WebJar -> #5626.
  *
- * Inventory (this slice):
+ * Inventory (this slice; war/api rows deleted by #7280 — kept as record):
  *
  * | path (under WebUI/) | version | license | consumer | npm | migration |
  * |------|---------|---------|----------|-----|-----------|
- * | war/api/lib/handlebars-1.0.0.js | 1.0.0 (2011 Katz) | MIT | NONE (dead) | handlebars (modern) | #7280 |
- * | war/api/lib/highlight.7.3.pack.js | 7.3 pack | UNSTATED | NONE (dead) | highlight.js | #7280 |
- * | war/api/lib/shred.bundle.js + lib/shred/content.js | shred-era | UNSTATED | NONE (dead) | none | #7280 |
- * | war/api/lib/swagger.js | 2.0.37 (wordnik) | UNSTATED | NONE (dead) | n/a (retired viewer) | #7280 |
- * | war/api/swagger-ui.js | 2.0.22 (wordnik) | UNSTATED | NONE (dead) | n/a (retired viewer) | #7280 |
- * | war/api/lib/swagger-oauth.js + o2c.html | 2.x-era | UNSTATED | NONE (dead) | n/a | #7280 |
- * | war/api/css/* + war/api/images/* | n/a (theme) | UNSTATED | NONE (dead) | n/a | #7280 |
- * | war/api/index.html | stale viewer | UNSTATED | NONE (dead; live cm/api is a redirect stub) | n/a | #7280 |
+ * | war/api/lib/handlebars-1.0.0.js | 1.0.0 (2011 Katz) | MIT | NONE (dead) | handlebars (modern) | DELETED by #7280 |
+ * | war/api/lib/highlight.7.3.pack.js | 7.3 pack | UNSTATED | NONE (dead) | highlight.js | DELETED by #7280 |
+ * | war/api/lib/shred.bundle.js + lib/shred/content.js | shred-era | UNSTATED | NONE (dead) | none | DELETED by #7280 |
+ * | war/api/lib/swagger.js | 2.0.37 (wordnik) | UNSTATED | NONE (dead) | n/a (retired viewer) | DELETED by #7280 |
+ * | war/api/swagger-ui.js | 2.0.22 (wordnik) | UNSTATED | NONE (dead) | n/a (retired viewer) | DELETED by #7280 |
+ * | war/api/lib/swagger-oauth.js + o2c.html | 2.x-era | UNSTATED | NONE (dead) | n/a | DELETED by #7280 |
+ * | war/api/css/* + war/api/images/* | n/a (theme) | UNSTATED | NONE (dead) | n/a | DELETED by #7280 |
+ * | war/api/index.html | stale viewer | UNSTATED | NONE (dead; live cm/api is a redirect stub) | n/a | DELETED by #7280 |
  * | modules/perc-openapi-webapp swagger-ui | swagger-ui-dist 5.36.0 (npm-tracked) | Apache-2.0 (upstream) | /openapi viewer (self-hosted ./swagger-ui/) | swagger-ui-dist | #7281 (LANDED this slice) |
  * | root pom org.webjars:swagger-ui pin | 5.32.15 (dead pin) | n/a | NONE (no module declares it) | n/a | REMOVED this slice |
  * | WebUI cxf-rt-rs-service-description-swagger-ui | cxf.version (Maven-tracked) | Apache-2.0 | NONE active (Swagger2Feature commented out) | n/a | REMOVED by #7281 (unreachable) |
@@ -79,37 +81,24 @@ const REPO_ROOT = path.join(WEBUI_DIR, "..");
 const WEBAPP_CM = path.join(WEBUI_DIR, "src", "main", "webapp", "cm");
 const WAR_API = path.join(WEBUI_DIR, "war", "api");
 
-function readHead(abs, bytes = 4096) {
-  const fd = fs.openSync(abs, "r");
-  try {
-    const buf = Buffer.alloc(bytes);
-    const n = fs.readSync(fd, buf, 0, bytes, 0);
-    return buf.subarray(0, n).toString("utf8");
-  } finally {
-    fs.closeSync(fd);
-  }
-}
-
 /**
- * Dead war/api residuals: [relative path, version banner RegExp or null,
- * license RegExp or null]. `null` pins UNSTATED provenance: no license
- * marker may appear without a conscious test update.
+ * Issue #7280 deleted the dead war/api swagger-viewer tree (16 files, the
+ * full inventory above). Stays-deleted guard: none of these paths may
+ * reappear under WebUI/war/api/. Mirrors the RETIRED_* guards in
+ * jslibVendoredAudit.test.js (slice 1).
  */
-const WAR_API_RESIDUALS = [
-  ["lib/handlebars-1.0.0.js", /Handlebars\.VERSION = "1\.0\.0"/, /permission notice/],
-  ["lib/highlight.7.3.pack.js", /hljs/, null],
-  ["lib/shred.bundle.js", /require\.modules/, null],
-  ["lib/shred/content.js", /purpose of the `Content` object/, null],
-  ["lib/swagger.js", /swagger\.js\s+\/\/ version 2\.0\.37/, null],
-  ["swagger-ui.js", /swagger-ui\.js\s+\/\/ version 2\.0\.22/, null],
-  ["lib/swagger-oauth.js", /handleLogin/, null],
-  ["o2c.html", /location\.hash/, null],
-  ["index.html", /swagger-section/, null],
-  ["css/screen.css", null, null],
-  ["css/reset.css", null, null],
-];
-
-const WAR_API_IMAGES = [
+const RETIRED_7280 = [
+  "lib/handlebars-1.0.0.js",
+  "lib/highlight.7.3.pack.js",
+  "lib/shred.bundle.js",
+  "lib/shred/content.js",
+  "lib/swagger.js",
+  "swagger-ui.js",
+  "lib/swagger-oauth.js",
+  "o2c.html",
+  "index.html",
+  "css/screen.css",
+  "css/reset.css",
   "images/explorer_icons.png",
   "images/logo_small.png",
   "images/pet_store_api.png",
@@ -118,27 +107,17 @@ const WAR_API_IMAGES = [
 ];
 
 describe("webjar/build-copied slice-3 audit (issue #7167)", () => {
-  it("pins the dead war/api swagger-viewer residuals with version banners", () => {
-    expect(WAR_API_RESIDUALS.length).toBeGreaterThan(0);
-    for (const [rel, bannerRe, licenseRe] of WAR_API_RESIDUALS) {
-      const abs = path.join(WAR_API, rel);
-      expect(fs.existsSync(abs), `missing audited file: war/api/${rel}`).toBe(true);
-      const head = readHead(abs);
-      if (bannerRe !== null) {
-        expect(head, `war/api/${rel} lost its version banner`).toMatch(bannerRe);
-      }
-      if (licenseRe !== null) {
-        expect(head, `war/api/${rel} lost its license marker`).toMatch(licenseRe);
-      } else if (rel.endsWith(".js")) {
-        // UNSTATED provenance pinned: these dead files must not gain a
-        // license marker without a conscious test + migration-issue update.
-        expect(head, `war/api/${rel} gained an unrecorded license marker`).not.toMatch(
-          /licen[sc]e|\bmit\b|gpl|apache|public domain|bsd/i,
-        );
-      }
-    }
-    for (const rel of WAR_API_IMAGES) {
-      expect(fs.existsSync(path.join(WAR_API, rel)), `missing image: war/api/${rel}`).toBe(true);
+  it("deleted war/api swagger-viewer tree stays deleted (#7280)", () => {
+    expect(RETIRED_7280.length).toBe(16);
+    expect(
+      fs.existsSync(WAR_API),
+      "dead war/api tree resurrected; see #7280 (zero live references, never packaged)",
+    ).toBe(false);
+    for (const rel of RETIRED_7280) {
+      expect(
+        fs.existsSync(path.join(WAR_API, rel)),
+        `deleted file resurrected: war/api/${rel}`,
+      ).toBe(false);
     }
   });
 
@@ -149,8 +128,8 @@ describe("webjar/build-copied slice-3 audit (issue #7167)", () => {
     expect(webuiPom, "WebUI build must not package WebUI/war/").not.toMatch(
       /<directory>war<\/directory>/,
     );
-    // None of the residuals may exist under the shipped tree.
-    for (const [rel] of WAR_API_RESIDUALS) {
+    // None of the deleted files may exist under the shipped tree.
+    for (const rel of RETIRED_7280) {
       const base = path.basename(rel);
       const shipped = path.join(WEBAPP_CM, "api", "lib", base);
       expect(fs.existsSync(shipped), `dead file resurrected in shipped tree: ${shipped}`).toBe(false);
