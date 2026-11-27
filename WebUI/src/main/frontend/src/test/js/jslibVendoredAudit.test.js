@@ -82,8 +82,8 @@
  * | path | version | license | consumer | npm | migration |
  * |------|---------|---------|----------|-----|-----------|
  * | widgets/htmldiff.js (+ war twin, byte-drifted older cut) | UNKNOWN (tnwinc, no banner) | UNKNOWN (author URL only; MIT upstream) | LIVE: compare.jsp twins + common_js.jsp twins + static-bundles.json | htmldiff@0.0.4 (same lineage, stale source-only, broken main) | #7378 (identify cut + npm-track or retain-with-provenance) |
- * | css/superfish.css + app/css/legacy/superfish.css (identical orphans, older cut than npm 1.7.10) | pre-1.7.10 superfish | MIT (upstream) | NONE (live pages use npm-backed jslib copies) | superfish@1.7.10 (#6430) | #7380 retire cluster (delete orphans) |
- * | {gadgets,widgets}/repository/common/lib/uploadify/ (v2.1.0 css+swf+fla dupes) + uploadify feature.xml twins | Uploadify 2.1.0 (2009 Garcia/Nickels) | MIT-style grant in css header | NONE (feature.xml points at swfobject.js + jquery.uploadify.v2.1.0.min.js which do not exist; Flash dead 2020) | n/a (dead upstream) | #7380 retire cluster (delete dirs + feature entries) |
+ * | css/superfish.css + app/css/legacy/superfish.css (identical orphans, older cut than npm 1.7.10) | pre-1.7.10 superfish | MIT (upstream) | NONE (live pages use npm-backed jslib copies) | superfish@1.7.10 (#6430) | #7380 RETIRED: orphans + war twin deleted, PercDropdown consumers retargeted to jslib |
+ * | {gadgets,widgets}/repository/common/lib/uploadify/ (v2.1.0 css+swf+fla dupes) + uploadify feature.xml twins | Uploadify 2.1.0 (2009 Garcia/Nickels) | MIT-style grant in css header | NONE (feature.xml points at swfobject.js + jquery.uploadify.v2.1.0.min.js which do not exist; Flash dead 2020) | n/a (dead upstream) | #7380 RETIRED: dirs + feature entries (src twins + war mirror) deleted |
  * | themes/smoothness/jquery-ui-1.8.9.custom.css | MIGRATED #7381: npm jquery-ui 1.14 dist theme at corrected URL themes/smoothness/jquery-ui.css (stock 1.12.1 bundle, not a custom cut) | MIT (dist banner + pkg) | same smoothness theme, npm-backed | jquery-ui | #7381 DONE |
  * | WEB-INF/Owasp.CsrfGuard.js | 2011 Sheridan | BSD | live app (version-locked to server filter) | n/a | recorded human gate (#5667 precedent, no migration issue) |
  * | {css,app/css/legacy}/minuet/perc_fonts_minuet.css (@import https://fonts.googleapis.com/…) | remote font import, not vendored | n/a | bundled via common-minuet-bundles.json (zero direct JSP refs) | n/a | recorded: self-host-or-allowlist decision owned by CDN-guard follow-on, no vendored-migration issue |
@@ -896,20 +896,21 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     ).toContain("htmldiff");
   });
 
-  it("slice-5A: orphan superfish.css twins stay unreferenced (retire #7380)", () => {
-    // cm/css/superfish.css and cm/app/css/legacy/superfish.css are
-    // byte-identical older cuts (pre-1.7.10: live pages load the npm-backed
-    // jslib copies via common_css.jsp instead). No JSP may load them: the
-    // only in-repo mention outside the files themselves is a prose comment
-    // in a .js file (not a load). #7380 deletes both twins.
-    const a = path.join(WEBAPP_CM, "css/superfish.css");
-    const b = path.join(WEBAPP_CM, "app/css/legacy/superfish.css");
-    for (const abs of [a, b]) {
-      expect(fs.existsSync(abs), `orphan superfish.css missing: ${abs}`).toBe(
-        true,
+  it("slice-5A: orphan superfish.css twins stay deleted (retired #7380)", () => {
+    // #7380 deleted the byte-identical pre-1.7.10 orphan twins
+    // (cm/css/superfish.css, cm/app/css/legacy/superfish.css) plus the
+    // WebUI/war mirror: live pages load the npm-backed jslib copies via
+    // common_css.jsp instead. This guard fails loudly if any twin
+    // resurrects or a JSP loads a non-jslib superfish.css.
+    for (const abs of [
+      path.join(WEBAPP_CM, "css/superfish.css"),
+      path.join(WEBAPP_CM, "app/css/legacy/superfish.css"),
+      path.join(WAR_ROOT, "css/superfish.css"),
+    ]) {
+      expect(fs.existsSync(abs), `orphan superfish.css resurrected: ${abs}`).toBe(
+        false,
       );
     }
-    expect(fs.readFileSync(a).equals(fs.readFileSync(b))).toBe(true);
     const hits = [];
     for (const tree of ["app", "pages/app"]) {
       const walk = (dir) => {
@@ -931,20 +932,31 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     expect(hits, "orphan superfish.css gained a live JSP load").toEqual([]);
   });
 
-  it("slice-5A: uploadify Flash payload stays dead (retire #7380)", () => {
-    // Uploadify 2.1.0 (2009, Flash-era): the checked-in dirs hold only
-    // css+swf+fla while feature.xml declares swfobject.js +
-    // jquery.uploadify.v2.1.0.min.js, which do not exist anywhere in the
-    // tree. Zero JSP/JS/bundle references outside the payload itself.
-    // #7380 deletes the dirs + feature entries.
+  it("slice-5A: uploadify Flash payload stays deleted (retired #7380)", () => {
+    // #7380 deleted the Uploadify 2.1.0 (2009, Flash-era) dirs plus both
+    // perc_uploadify feature.xml entries (src twins + WebUI/war mirror):
+    // the payload held only css+swf+fla while feature.xml declared
+    // swfobject.js + jquery.uploadify.v2.1.0.min.js, which never existed in
+    // the tree. This guard fails loudly if any of it resurrects.
     for (const sub of ["gadgets", "widgets"]) {
       const dir = path.join(
         WEBAPP_CM,
         sub,
         "repository/common/lib/uploadify",
       );
-      expect(fs.existsSync(dir), `uploadify dir missing: ${dir}`).toBe(true);
+      expect(fs.existsSync(dir), `uploadify dir resurrected: ${dir}`).toBe(
+        false,
+      );
     }
+    expect(
+      fs.existsSync(
+        path.join(
+          WAR_ROOT,
+          "gadgets/repository/common/lib/uploadify",
+        ),
+      ),
+      `war uploadify dir resurrected`,
+    ).toBe(false);
     for (const feat of [
       path.join(
         WEBAPP_CM,
@@ -952,10 +964,14 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
         "WEB-INF/classes/features/perc/uploadify/feature.xml",
       ),
       path.join(WEBAPP_CM, "WEB-INF/classes/features/perc/uploadify/feature.xml"),
+      path.join(
+        WAR_ROOT,
+        "WEB-INF/classes/features/perc/uploadify/feature.xml",
+      ),
     ]) {
-      expect(fs.existsSync(feat), `uploadify feature.xml missing`).toBe(true);
-      const content = fs.readFileSync(feat, "utf8");
-      expect(content).toContain("jquery.uploadify.v2.1.0.min.js");
+      expect(fs.existsSync(feat), `uploadify feature.xml resurrected: ${feat}`).toBe(
+        false,
+      );
     }
     for (const missing of ["swfobject.js", "jquery.uploadify.v2.1.0.min.js"]) {
       const hits = [];

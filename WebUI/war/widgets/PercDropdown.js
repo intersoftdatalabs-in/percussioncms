@@ -65,7 +65,7 @@
  *
  *  (*) Dependencies
  *  /css/PercDropdown.css - overrides superfish's default styling to implement style guide
- *  /css/superfish.css
+ *  /jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css
  *  /jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js
  *  /jslib/hoverIntent.js
  *  /jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js
