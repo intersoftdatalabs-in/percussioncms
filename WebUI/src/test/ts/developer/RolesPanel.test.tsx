@@ -158,6 +158,9 @@ describe("RolesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-roles-create-form")).toBeTruthy();
     });
+    // Codex #7346: the empty-state CTA hides while the create form is open
+    // so re-clicking cannot wipe the active draft via openCreate.
+    expect(screen.queryByTestId("developer-roles-empty-new")).toBeNull();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
