@@ -524,6 +524,9 @@ describe("ContentTypesPanel", () => {
     expect(
       (screen.getByTestId("developer-ct-copy-name") as HTMLInputElement).value,
     ).toBe("percPageCopy");
+    // #7354: Back from the confirm step re-shows the name step, so the
+    // deterministic autofocus effect re-runs and focus returns to the input.
+    expect(screen.getByTestId("developer-ct-copy-name")).toHaveFocus();
     expect(copyContentType).not.toHaveBeenCalled();
   });
 

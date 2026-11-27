@@ -92,6 +92,20 @@ export function ContentTypesPanel(): React.ReactElement {
   const mountedRef = useRef(true);
   /** Copy source whose form just closed; drives #7344 focus return. */
   const prevCopyOfRef = useRef<string | null>(null);
+  /** Copy-name input; drives #7354 deterministic autofocus. */
+  const copyNameRef = useRef<HTMLInputElement | null>(null);
+
+  // #7354: mount-aware ref callback — focuses every newly mounted name
+  // input, including remounts where the layout-effect deps below are
+  // unchanged (e.g. Back from a detail/Create panel opened while the copy
+  // form was up: copyOf/copyReview/copying never change, so the effect
+  // below does not re-run but a fresh input mounts).
+  const focusCopyNameRef = useCallback((el: HTMLInputElement | null) => {
+    copyNameRef.current = el;
+    if (el && !el.disabled && typeof el.focus === "function") {
+      el.focus();
+    }
+  }, []);
 
   /**
    * Find the catalog Copy button for a content type by its selection key
@@ -173,6 +187,28 @@ export function ContentTypesPanel(): React.ReactElement {
     }
     prevCopyOfRef.current = copyOf;
   }, [copyOf]);
+
+  // #7354: React's autoFocus attribute fires during commit and loses to
+  // the invoking click's default focus under load (cycle-verify: focus
+  // stayed inactive 3/3 runs on tip although the input mounted). Focus the
+  // name input explicitly in a layout effect whenever the name step is
+  // shown — on open and on Back from the confirm step — so focus lands
+  // after commit instead of racing it. Guards mirror useDialogEscape's
+  // focusSafely (attached, enabled, focusable). The #7344 close effect
+  // above only runs when copyOf becomes null, so the two never fight.
+  useLayoutEffect(() => {
+    if (copyOf != null && copyReview == null && !copying) {
+      const el = copyNameRef.current;
+      if (
+        el &&
+        document.contains(el) &&
+        !el.disabled &&
+        typeof el.focus === "function"
+      ) {
+        el.focus();
+      }
+    }
+  }, [copyOf, copyReview, copying]);
 
   // #7344: Escape cancels the copy form without posting, reusing the
   // existing resetCopy (typed name discarded, catalog row unchanged).
@@ -372,10 +408,10 @@ export function ContentTypesPanel(): React.ReactElement {
             {DEV_MSG.CT_COPY_NAME}{" "}
             <input
               data-testid="developer-ct-copy-name"
+              ref={focusCopyNameRef}
               value={copyName}
               onChange={(event) => setCopyName(event.target.value)}
               disabled={copying}
-              autoFocus
               onKeyDown={handleCopyNameKeyDown}
             />
           </label>

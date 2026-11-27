@@ -134,6 +134,34 @@ test.describe("Developer content-type copy-form keyboard path (#7344)", () => {
     assertClean(consoleErrors, pageErrors);
   });
 
+  test("Back from confirm returns focus to the copy-name input", async ({ page }) => {
+    const { consoleErrors, pageErrors } = attachConsole(page);
+    await openContentTypesCatalog(page);
+
+    const posts = [];
+    page.on("request", (request) => {
+      if (isContentTypeCopy(request)) {
+        posts.push(request.url());
+      }
+    });
+
+    await page
+      .locator('[data-testid="developer-ct-copy"][data-ct-name="percPage"]')
+      .click();
+    const nameInput = page.locator('[data-testid="developer-ct-copy-name"]');
+    await expect(nameInput).toBeFocused();
+    await nameInput.fill("percPageQaBack");
+    await page.locator('[data-testid="developer-ct-copy-review"]').click();
+    await expect(page.locator('[data-testid="developer-ct-copy-confirm"]')).toBeVisible();
+    await page.locator('[data-testid="developer-ct-copy-back"]').click();
+    await expect(page.locator('[data-testid="developer-ct-copy-form"]')).toBeVisible();
+    await expect(nameInput).toHaveValue("percPageQaBack");
+    await expect(nameInput).toBeFocused();
+    expect(posts, "Back must not post the copy").toEqual([]);
+
+    assertClean(consoleErrors, pageErrors);
+  });
+
   test("Cancel returns focus to the invoking Copy button", async ({ page }) => {
     const { consoleErrors, pageErrors } = attachConsole(page);
     await openContentTypesCatalog(page);
