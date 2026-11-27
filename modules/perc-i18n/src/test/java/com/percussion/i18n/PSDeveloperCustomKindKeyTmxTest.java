@@ -65,9 +65,8 @@ import org.xml.sax.InputSource;
  * {@code रिवाज़} ("tradition/ritual", noun sense) → {@code कस्टम}, aligning the three
  * corrected TUs with the {@code perc.ui.dashboard@Custom} TUV that already ships the
  * transliteration, with the shared {@code hi + "Custom"} cache entry synced
- * TMX-leads-cache-follows. Remaining locale (he) is left for a per-group
- * native-confirmation follow-up (#7289); zh-cn / zh-tw (#7284), ru / uk (#7285), pl
- * (#7286), tr (#7287), and nb / sv (#7288) are pinned below.
+ * TMX-leads-cache-follows. All #7252 residuals are pinned below: zh-cn / zh-tw (#7284),
+ * ru / uk (#7285), pl (#7286), tr (#7287), nb / sv (#7288), and he (#7289).
  *
  * <p>Issues #7284 and #7285 extend the pin to zh-cn / zh-tw and ru / uk respectively
  * across all four {@code Custom} TUs, each following the stem-consistency invariant every
@@ -109,6 +108,18 @@ import org.xml.sax.InputSource;
  * "order") never appear as an nb/sv rendering of any other {@code Custom}-sourced
  * string. The kind-chrome stays distinct (nb {@code Standard} / {@code Egendefinert} /
  * {@code Bruker}, sv {@code Standard} / {@code Anpassad} / {@code Användare}).
+ *
+ * <p>Issue #7289 extends the pin to he across all four {@code Custom} TUs, following
+ * the same stem-consistency invariant: the bare {@code Custom} uses the stem of the
+ * locale's in-product {@code Custom Widgets} rendering — he {@code ווידג'טים מותאמים
+ * אישית:} / {@code מותאם אישית} (adjective sense "customized", as proposed on the
+ * issue), corroborated by the in-product {@code Customize...} rendering ({@code התאמה
+ * אישית...}) and other shipped adjective-sense strings ({@code HTML מותאם אישית},
+ * {@code ווידג'ט מותאם אישית}). Not machine-grade text: each is the product's own
+ * established rendering of the adjective sense, and the wrong-sense noun ({@code
+ * מִנְהָג} "custom/habit") never appears as a Hebrew rendering of any other {@code
+ * Custom}-sourced string. The kind-chrome stays distinct (he {@code תֶקֶן} /
+ * {@code מותאם אישית} / {@code מִשׁתַמֵשׁ}).
  */
 public class PSDeveloperCustomKindKeyTmxTest {
 
@@ -187,6 +198,15 @@ public class PSDeveloperCustomKindKeyTmxTest {
   private static final String EXPECTED_NB = "Egendefinert";
 
   private static final String EXPECTED_SV = "Anpassad";
+
+  /**
+   * Issue #7289 (he slice of the [7252-residual]): he shipped the wrong-sense noun
+   * {@code מִנְהָג} ("custom/habit") in all four {@code Custom} TUs. Corrected target is
+   * the adjective-sense ("customized") masculine singular {@code מותאם אישית} — the stem
+   * of the locale's in-product {@code Custom Widgets} rendering (see class Javadoc for the
+   * stem-consistency invariant).
+   */
+  private static final String EXPECTED_HE = "מותאם אישית";
 
   /**
    * Every {@code Custom}-sourced TU (Developer kind-chrome plus the three precedent TUs from
@@ -361,6 +381,22 @@ public class PSDeveloperCustomKindKeyTmxTest {
             + offenders);
   }
 
+  @Test
+  public void customKindKey_hebrewUsesAdjectiveSense() throws Exception {
+    List<String> offenders = new ArrayList<>();
+    for (Map.Entry<String, String> tu : CUSTOM_TUID_TO_TMX.entrySet()) {
+      Map<String, String> segs = loadSegs(tu.getKey(), tu.getValue());
+      assertNotNull(segs, tu.getValue() + " missing <tu> " + tu.getKey());
+      if (!EXPECTED_HE.equals(segs.get("he"))) {
+        offenders.add(tu.getKey() + " [he]=" + segs.get("he"));
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "Custom TUVs must use the adjective sense (customized מותאם אישית), not the noun (מִנְהָג): "
+            + offenders);
+  }
+
   /**
    * Guards issue #7116 for this key: the shared {@code es + "Custom"} cache entry must agree
    * with the shipped {@code es} segment. Missing keys are fine (uncached); disagreements
@@ -389,7 +425,8 @@ public class PSDeveloperCustomKindKeyTmxTest {
             Map.entry("pl", EXPECTED_PL),
             Map.entry("tr", EXPECTED_TR),
             Map.entry("nb", EXPECTED_NB),
-            Map.entry("sv", EXPECTED_SV));
+            Map.entry("sv", EXPECTED_SV),
+            Map.entry("he", EXPECTED_HE));
     for (Map.Entry<String, String> want : expected.entrySet()) {
       String seg = segs.get(want.getKey());
       if (seg != null) {
@@ -401,7 +438,7 @@ public class PSDeveloperCustomKindKeyTmxTest {
     }
     assertTrue(
         offenders.isEmpty(),
-        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284/#7285/#7286/#7287/#7288): "
+        "i18n_translate.json cache disagrees with shipped DeveloperUi.tmx (#7230/#7241/#7252/#7284/#7285/#7286/#7287/#7288/#7289): "
             + offenders);
   }
 
