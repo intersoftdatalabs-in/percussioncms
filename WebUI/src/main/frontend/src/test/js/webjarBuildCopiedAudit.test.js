@@ -31,7 +31,7 @@
  *      Maven-resolved swagger UI bits are the CXF
  *      `cxf-rt-rs-service-description-swagger-ui` runtime jar (Dependabot-
  *      visible, no vendoring) and the unpkg CDN pins in the openapi webapp
- *      (follow-on #7281: self-host via npm).
+ *      (follow-on #7281: self-hosted via npm; CXF dep removed as unreachable).
  *   B. Build-copied / stale-mirror JS.
  *      `WebUI/war/` is a checked-in stale mirror that the WAR build never
  *      packages (maven-war-plugin webResources are `src/main/webapp` +
@@ -61,9 +61,9 @@
  * | war/api/lib/swagger-oauth.js + o2c.html | 2.x-era | UNSTATED | NONE (dead) | n/a | #7280 |
  * | war/api/css/* + war/api/images/* | n/a (theme) | UNSTATED | NONE (dead) | n/a | #7280 |
  * | war/api/index.html | stale viewer | UNSTATED | NONE (dead; live cm/api is a redirect stub) | n/a | #7280 |
- * | modules/perc-openapi-webapp index.html unpkg pins | swagger-ui-dist@5 CDN | Apache-2.0 (upstream) | /openapi viewer | swagger-ui-dist | #7281 |
+ * | modules/perc-openapi-webapp swagger-ui | swagger-ui-dist 5.36.0 (npm-tracked) | Apache-2.0 (upstream) | /openapi viewer (self-hosted ./swagger-ui/) | swagger-ui-dist | #7281 (LANDED this slice) |
  * | root pom org.webjars:swagger-ui pin | 5.32.15 (dead pin) | n/a | NONE (no module declares it) | n/a | REMOVED this slice |
- * | WebUI cxf-rt-rs-service-description-swagger-ui | cxf.version (Maven-tracked) | Apache-2.0 | NONE active (Swagger2Feature commented out) | n/a | #7281 (review) |
+ * | WebUI cxf-rt-rs-service-description-swagger-ui | cxf.version (Maven-tracked) | Apache-2.0 | NONE active (Swagger2Feature commented out) | n/a | REMOVED by #7281 (unreachable) |
  */
 
 import { describe, expect, it } from "vitest";
@@ -214,13 +214,20 @@ describe("webjar/build-copied slice-3 audit (issue #7167)", () => {
     expect(bundlePkg.dependencies?.codemirror ?? bundlePkg.devDependencies?.codemirror).toBeTruthy();
   });
 
-  it("swagger-ui serving stays Maven/CDN-tracked, never re-vendored", () => {
-    // CXF embeds its swagger-ui in the Maven-tracked
-    // cxf-rt-rs-service-description-swagger-ui jar (WebUI runtime dep) —
-    // no checked-in copy. The /openapi viewer loads swagger-ui-dist@5
-    // from CDN (follow-on #7281 tracks self-hosting via npm).
+  it("swagger-ui serving is npm self-hosted, CXF viewer dep removed", () => {
+    // #7281 (implementing #5627): the /openapi viewer loads
+    // swagger-ui-dist from the npm graph (self-hosted under ./swagger-ui/,
+    // air-gap friendly, Dependabot-visible) — no CDN pins. The CXF
+    // cxf-rt-rs-service-description-swagger-ui runtime jar was dropped from
+    // WebUI: its Swagger2Feature beans are commented out and no code
+    // references org.apache.cxf.jaxrs.swagger types, so the bundled
+    // swagger-ui endpoint was unreachable. Any reintroduced CDN load or
+    // checked-in swagger bundle must come with a migration issue, not
+    // silent vendoring.
     const webuiPom = fs.readFileSync(path.join(WEBUI_DIR, "pom.xml"), "utf8");
-    expect(webuiPom).toMatch(/cxf-rt-rs-service-description-swagger-ui/);
+    expect(webuiPom, "CXF swagger-ui dep must stay removed (see #7281)").not.toMatch(
+      /cxf-rt-rs-service-description-swagger-ui/,
+    );
     const openapiIndex = path.join(
       REPO_ROOT,
       "modules",
@@ -232,10 +239,30 @@ describe("webjar/build-copied slice-3 audit (issue #7167)", () => {
     );
     expect(fs.existsSync(openapiIndex)).toBe(true);
     const html = fs.readFileSync(openapiIndex, "utf8");
-    expect(html, "openapi viewer lost its swagger-ui-dist pin").toMatch(/swagger-ui-dist@\d+/);
+    expect(html, "openapi viewer must load the self-hosted swagger bundle").toMatch(
+      /\.\/swagger-ui\/swagger-ui-bundle\.js/,
+    );
+    expect(html, "openapi viewer must load the self-hosted swagger CSS").toMatch(
+      /\.\/swagger-ui\/swagger-ui\.css/,
+    );
+    expect(html, "openapi viewer must not load third-party CDN scripts").not.toMatch(
+      /src=["']https?:\/\//i,
+    );
+    expect(html, "openapi viewer must not load third-party CDN styles").not.toMatch(
+      /href=["']https?:\/\//i,
+    );
     expect(html, "openapi viewer must not load a checked-in swagger bundle").not.toMatch(
       /src=["'](lib|js|vendor)\//i,
     );
+    // The self-hosted assets stay npm-tracked (Dependabot-visible): the
+    // module package.json pins swagger-ui-dist and the build syncs it.
+    const openapiPkg = JSON.parse(
+      fs.readFileSync(
+        path.join(REPO_ROOT, "modules", "perc-openapi-webapp", "package.json"),
+        "utf8",
+      ),
+    );
+    expect(openapiPkg.dependencies?.["swagger-ui-dist"]).toBeTruthy();
   });
 
   it("sibling slice scopes stay owned elsewhere (no double-count)", () => {

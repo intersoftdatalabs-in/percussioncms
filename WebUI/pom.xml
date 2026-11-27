@@ -206,11 +206,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
+        <!-- CXF swagger-ui reviewed by #7281: Swagger2Feature beans in
+             sitemanage-beans.xml are commented out and no code references
+             org.apache.cxf.jaxrs.swagger types, so the bundled swagger-ui
+             endpoint is unreachable. Dropped; the /openapi viewer is served
+             by modules/perc-openapi-webapp instead. -->
         <!-- Swagger annotations kept for source-level OpenAPI documentation support.
              All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->
         <dependency>
