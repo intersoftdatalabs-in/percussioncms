@@ -55,6 +55,14 @@ import org.junit.jupiter.api.Test;
  * {@code modules/perc-toolkit/package.json} with a committed
  * {@code package-lock.json} for Dependabot.
  *
+ * <p>Slice 5B re-sweep (#7376, 2026-11-27): inventory re-verified live on
+ * tip {@code ad5d50380f} - still exactly the 6 files pinned below, zero
+ * additional {@code .min.js}, zero CDN {@code <script src>} loads in the
+ * payload (see {@link InstallerPayloadCdnGuardTest}), zero {@code .js} in
+ * {@code perc-distribution-tree} (non-target, owned by slice 5C #7377),
+ * and zero in-scope-tree changes since the slice-2 base {@code ddafe888b8}.
+ * No new migration issue: every third-party row below stays npm-tracked.
+ *
  * <p>Inventory (path relative to InstallDir | version | license | consumer):
  * <ul>
  * <li>{@code rx_resources/js/jquery.Jcrop.min.js} - v0.9.12, MIT (Tapmodo) -
