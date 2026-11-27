@@ -186,6 +186,36 @@ describe("TipTapPercussionBar", () => {
     }
   });
 
+  it("inserts a CMS-table global variable through the picker (#7341)", () => {
+    const holder = window as unknown as Record<string, unknown>;
+    const previous = holder["PercGlobalVariablesData"];
+    holder["PercGlobalVariablesData"] = {
+      company_name: "Acme",
+      site_tagline: "Hello",
+    };
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-global-variable-text"));
+      // Table path renders a select (sorted names), not the manual input.
+      const picker = screen.getByTestId("tiptap-perc-variable-name-text");
+      expect(picker.tagName.toLowerCase()).toBe("select");
+      fireEvent.change(picker, { target: { value: "site_tagline" } });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain(
+        '<span class="perc-global-variable-marker" title="site_tagline">Hello</span>',
+      );
+    } finally {
+      editor.destroy();
+      if (previous === undefined) {
+        delete holder["PercGlobalVariablesData"];
+      } else {
+        holder["PercGlobalVariablesData"] = previous;
+      }
+    }
+  });
+
   it("writes source edits back through the schema", () => {
     const editor = makeEditor();
     try {
