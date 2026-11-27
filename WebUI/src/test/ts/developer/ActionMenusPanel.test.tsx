@@ -92,9 +92,13 @@ describe("ActionMenusPanel", () => {
       expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-am-tab-command"));
-    expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
-    expect(screen.getByTestId("developer-am-save")).toBeTruthy();
-    expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    // Tab-panel content mounts after the tab state commits; under full-suite
+    // load the single-shot getBy raced the render (#7338).
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
+      expect(screen.getByTestId("developer-am-save")).toBeTruthy();
+      expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    });
     fireEvent.click(screen.getByTestId("developer-am-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-table")).toBeTruthy();

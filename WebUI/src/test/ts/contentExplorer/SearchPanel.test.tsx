@@ -1391,10 +1391,15 @@ describe("SearchPanel", () => {
       );
       expect(executeSavedSearch).toHaveBeenCalledTimes(1);
       // Focus return is sane: the results region takes focus, not body.
-      expect(document.activeElement).toBe(
-        screen.getByTestId("search-panel-results"),
-      );
-      expect(document.activeElement?.tagName).not.toBe("BODY");
+      // The focus effect lands after the results render commits; poll it —
+      // a single-shot activeElement check raced the effect under full-suite
+      // load (#7338).
+      await waitFor(() => {
+        expect(document.activeElement).toBe(
+          screen.getByTestId("search-panel-results"),
+        );
+        expect(document.activeElement?.tagName).not.toBe("BODY");
+      });
       // The query input stays mounted as the visible focus path back.
       const input = screen.getByTestId(
         "search-panel-input",

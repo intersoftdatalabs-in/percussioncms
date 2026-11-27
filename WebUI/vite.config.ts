@@ -36,6 +36,12 @@ export default defineConfig({
     environment: "jsdom",
     testTimeout: 20_000,
     hookTimeout: 20_000,
+    // Lockstep with src/main/frontend/vite.config.ts (Maven workingDirectory
+    // copy): worker cap + per-file isolation for the full-suite flake saga
+    // (#7338). `npm test` from the WebUI root must behave the same as
+    // `cd WebUI && ../mvnw clean install`.
+    isolate: true,
+    maxWorkers: 8,
     // Same setup as src/main/frontend/vite.config.ts so `npm test` from
     // WebUI root also gets the jsdom location navigation mock, canvas
     // stubs, and jest-dom matchers.

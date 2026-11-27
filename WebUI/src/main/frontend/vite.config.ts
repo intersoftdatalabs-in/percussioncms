@@ -91,6 +91,18 @@ export default defineConfig({
     // RTL findBy; this is the Vitest ceiling.
     testTimeout: 20_000,
     hookTimeout: 20_000,
+    // Full-suite flake saga (#7338): under oversubscribed night hosts
+    // (load 35-55 on 32 cores, concurrent lanes) a different single
+    // timing-sensitive spec failed each run while passing in isolation.
+    // Cap workers so this suite stops adding ~31 jsdom contenders to an
+    // already oversubscribed host; fewer, better-fed workers flush React
+    // effects/focus deterministically instead of racing the RTL budget.
+    // 8 keeps the 1030-file suite throughput-bound while leaving headroom
+    // at 3-4x oversubscription. isolate stays pinned so spec files never
+    // share module state even if Vitest defaults drift (no cross-file
+    // leakage: each file keeps a fresh registry + jsdom).
+    isolate: true,
+    maxWorkers: 8,
     setupFiles: [resolve(__dirname, "vitest.setup.ts")],
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
