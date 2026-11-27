@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
@@ -90,6 +90,19 @@ export function ContentTypesPanel(): React.ReactElement {
   const [copyError, setCopyError] = useState<string | null>(null);
   const [copying, setCopying] = useState(false);
   const mountedRef = useRef(true);
+  /** Copy source whose form just closed; drives #7344 focus return. */
+  const prevCopyOfRef = useRef<string | null>(null);
+
+  /**
+   * Find the catalog Copy button for a content type by its selection key
+   * (mirrors the RolesPanel #6905 row lookup; avoids CSS.escape in jsdom).
+   */
+  function findCopyButton(name: string): HTMLElement | null {
+    const btn = Array.from(
+      document.querySelectorAll('button[data-testid="developer-ct-copy"]'),
+    ).find((el) => el.getAttribute("data-ct-name") === name);
+    return btn instanceof HTMLElement ? btn : null;
+  }
 
   useEffect(() => {
     mountedRef.current = true;
@@ -143,6 +156,30 @@ export function ContentTypesPanel(): React.ReactElement {
     setCopyName("");
     setCopyReview(null);
     setCopyError(null);
+  }
+
+  // #7344: when the copy form closes (Escape or Cancel) the name input
+  // unmounts and focus would fall back to <body>. Return focus to the
+  // invoking catalog Copy button so keyboard and screen-reader users keep
+  // their place (mirrors #6905 / #6733). On a successful copy the catalog
+  // unmounts into the detail view, so the lookup no-ops there. Layout
+  // effect so focus lands before paint.
+  useLayoutEffect(() => {
+    if (prevCopyOfRef.current != null && copyOf == null) {
+      const btn = findCopyButton(prevCopyOfRef.current);
+      if (btn && !btn.hasAttribute("disabled") && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    prevCopyOfRef.current = copyOf;
+  }, [copyOf]);
+
+  // #7344: Escape cancels the copy form without posting, reusing the
+  // existing resetCopy (typed name discarded, catalog row unchanged).
+  function handleCopyNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape" && !copying) {
+      resetCopy();
+    }
   }
 
   /**
@@ -338,6 +375,8 @@ export function ContentTypesPanel(): React.ReactElement {
               value={copyName}
               onChange={(event) => setCopyName(event.target.value)}
               disabled={copying}
+              autoFocus
+              onKeyDown={handleCopyNameKeyDown}
             />
           </label>
           <button
