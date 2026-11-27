@@ -458,13 +458,15 @@ class LifecycleSequenceTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertIn("server_log_errors", result.detail)
 
-    def test_readiness_passes_when_log_tail_missing(self):
-        """Tail rc!=0 (log not written yet) keeps the HTTP verdict."""
+    def test_readiness_fails_when_log_tail_unreadable(self):
+        """Fail closed: no tail means no context assessment, no pass."""
         script = _green_script()
         script["tail -c"] = (1, "")
-        fake, result = self._run_with(script)
-        self.assertTrue(result.ok, msg=result.detail)
-        self.assertTrue(any("tail -c" in " ".join(c) for c in fake.calls))
+        _fake, result = self._run_with(script)
+        self.assertFalse(result.ok)
+        self.assertIn("server.log tail unreadable", result.detail)
+        names = [step.name for step in result.steps]
+        self.assertIn("readiness-probe", names)
 
     def test_dts_readiness_has_no_server_log_gate(self):
         """server.log is CMS-only: DTS keeps the HTTP verdict, no tail call."""

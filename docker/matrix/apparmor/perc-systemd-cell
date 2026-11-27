@@ -51,18 +51,35 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   umount /sys/fs/cgroup/,
   umount /sys/fs/cgroup/**,
 
-  # systemd + unit/journal lifecycle inside the cell.
-  /lib/systemd/systemd mr,
-  /lib/systemd/systemd-* mr,
-  /usr/lib/systemd/systemd mr,
-  /usr/lib/systemd/systemd-* mr,
-  /bin/systemctl mr,
-  /usr/bin/systemctl mr,
-  /bin/journalctl mr,
-  /usr/bin/journalctl mr,
-  /bin/sh mr,
-  /usr/bin/python3* mr,
+  # systemd + unit/journal lifecycle inside the cell. Executables need
+  # mapped inherit-execute: `mr` alone permits read/map but NOT exec, so
+  # an `mr`-only profile would block the ENTRYPOINT and every later step
+  # on an enforcing host (Codex P1, #7332).
+  /lib/systemd/systemd mrix,
+  /lib/systemd/systemd-* mrix,
+  /usr/lib/systemd/systemd mrix,
+  /usr/lib/systemd/systemd-* mrix,
+  /bin/systemctl mrix,
+  /usr/bin/systemctl mrix,
+  /bin/journalctl mrix,
+  /usr/bin/journalctl mrix,
+  /bin/sh mrix,
+  /bin/bash mrix,
+  /bin/mount mrix,
+  /bin/umount mrix,
+  /usr/bin/mount mrix,
+  /usr/bin/umount mrix,
+  /bin/tail mrix,
+  /usr/bin/tail mrix,
+  /usr/bin/python3* mrix,
   /usr/local/bin/cell-entrypoint.py r,
+
+  # Product runtimes launched by the installer / service scripts. The
+  # JDK path varies by matrix image layer; `/opt` inside the cell holds
+  # only the product install, so inheritable exec there stays confined
+  # to the cell's own binaries.
+  /usr/lib/jvm/** mrix,
+  /opt/** mrix,
 
   /etc/systemd/** r,
   /etc/machine-id r,

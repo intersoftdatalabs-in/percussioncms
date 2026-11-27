@@ -203,6 +203,17 @@ def _is_safe_profile_name(profile: str) -> bool:
     return all(ch.isalnum() or ch in "-_." for ch in profile)
 
 
+def _apparmor_security_opt(profile: str) -> List[str]:
+    """``--security-opt`` fragment for an opted-in AppArmor profile.
+
+    Empty when no profile was selected (host default applies); the
+    caller validates the name via :func:`_is_safe_profile_name` first.
+    """
+    if not profile:
+        return []
+    return ["--security-opt", f"apparmor={profile}"]
+
+
 def docker_build_base_argv(repo_root: Path) -> List[str]:
     """Build argv for the stock matrix cell image (mirrors matrix-install-smoke)."""
     root = Path(repo_root)
@@ -277,8 +288,7 @@ def docker_run_systemd_argv(
         "--cgroupns=private",
         "--cap-add=SYS_ADMIN",
     ])
-    if profile:
-        argv.extend(["--security-opt", f"apparmor={profile}"])
+    argv.extend(_apparmor_security_opt(profile))
     argv.extend([
         "--tmpfs",
         "/run",
@@ -464,10 +474,12 @@ def server_log_tail_exec_argv(
 def assess_context_ready(server_log_text: str) -> Tuple[bool, str]:
     """Reuse the ``rhythmyx_ready`` health assessment on a log tail.
 
-    Pure; no I/O. Empty text (log not written yet) skips the file ERROR
-    gate per ``assess_rhythmyx_ready`` semantics — the HTTP serving
-    signal still applies. Any Rhythmyx context-failure marker or
-    server.log ERROR/FATAL/SEVERE line fails, even with HTTP 200.
+    Pure; no I/O. Empty text skips the file ERROR gate per
+    ``assess_rhythmyx_ready`` semantics — callers only pass text from a
+    successful tail (an unreadable tail fails the probe before this
+    runs), so empty here means an empty log, not a skipped assessment.
+    Any Rhythmyx context-failure marker or server.log ERROR/FATAL/SEVERE
+    line fails, even with HTTP 200.
     """
     return assess_rhythmyx_ready(
         200, "", server_log_text=server_log_text or "", require_http=False)
@@ -673,9 +685,17 @@ def probe_readiness(
         tail_step = _run_step(run, f"{label}-server-log", tail_argv,
                               timeout=op_timeout,
                               output_limit=SERVER_LOG_TAIL_BYTES + 1024)
-        server_log_text = (
-            tail_step.output_tail if tail_step.returncode == 0 else "")
-        context_ok, context_detail = assess_context_ready(server_log_text)
+        if tail_step.returncode != 0:
+            # Fail closed (Codex P2, #7332): curl already proved the
+            # server answers, so server.log must exist — an unreadable
+            # tail means the context assessment cannot run, and the
+            # known-weak login probe must not pass without it.
+            return LifecycleStep(
+                name=label, argv=tail_argv, returncode=1,
+                output_tail=_tail(
+                    "server.log tail unreadable, context not assessed: "
+                    f"{tail_step.output_tail}"))
+        context_ok, context_detail = assess_context_ready(tail_step.output_tail)
         if not context_ok:
             return LifecycleStep(
                 name=label, argv=tail_argv, returncode=1,
