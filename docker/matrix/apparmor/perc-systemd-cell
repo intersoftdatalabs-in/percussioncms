@@ -105,6 +105,11 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /{bin,usr/bin}/readlink mrix,
   /{bin,usr/bin}/rm mrix,
   /{bin,usr/bin}/sed mrix,
+  /{bin,usr/bin}/sleep mrix,  # rxjetty.sh stop-loop grace period (P2, #7332)
+  /{bin,usr/bin}/expr mrix,  # rxjetty.sh + Tomcat startup/shutdown.sh
+  /{bin,usr/bin}/date mrix,  # rxjetty.sh start/stop status stamps
+  /{bin,usr/bin}/touch mrix,  # rxjetty.sh pid/log file creation
+  /{bin,usr/bin}/whoami mrix,  # rxjetty.sh user check
   /{bin,usr/bin}/tr mrix,  # resolve-java-home.sh version parsing (P1, #7332)
   /{bin,usr/bin}/head mrix,  # resolve-java-home.sh version parsing
   /{bin,usr/bin}/uname mrix,  # resolve-java-home.sh platform dispatch
@@ -130,6 +135,10 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /opt/** mrix,
 
   /etc/systemd/** r,
+  # Vendor unit trees PID 1 must load (multi-user.target et al.) —
+  # read-only (Codex P1, #7332).
+  /lib/systemd/system/** r,
+  /usr/lib/systemd/system/** r,
   # Registration files the installers own — writable ONLY for this
   # harness's units (both start with "Percussion"), plus the enablement
   # link dir (Codex P1, #7332: install/enable/uninstall must create and
@@ -147,6 +156,9 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   # install/uninstall (link names embed the unit name).
   /etc/rc?.d/ rw,
   /etc/rc?.d/*Percussion* rw,
+  # RedHat-layout cleanup performed by DTSProductionService.sh.
+  /etc/rc.d/rc?.d/ rw,
+  /etc/rc.d/rc?.d/*Percussion* rw,
   /etc/machine-id r,
   /run/systemd/** rw,
   /run/log/journal/** rw,
