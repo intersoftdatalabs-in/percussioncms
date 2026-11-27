@@ -26,3 +26,9 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review
+
+No actionable regressions were identified in the asset removals, stylesheet reference updates, or audit changes. The focused vendored-asset audit passed all 16 tests; a full Maven build was not run.
+
+> Note: Codex ran before this note was written and could not see the shell history — the full `cd WebUI && ../mvnw clean install` gate WAS run green (BUILD SUCCESS, Surefire 84/0, Vitest 10338/0); see Build evidence below.
