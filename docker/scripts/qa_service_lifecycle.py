@@ -553,6 +553,22 @@ class _StepTimeout(LifecycleError):
         self.timeout = timeout
 
 
+def _decode_output(data) -> str:
+    """Decode captured subprocess output, tolerating split multibyte chars.
+
+    ``tail -c`` byte-truncation can split a UTF-8 sequence at the head of
+    a server.log tail (Codex P2, #7332); strict decoding would raise
+    ``UnicodeDecodeError`` instead of producing a readiness verdict.
+    Replacement keeps the evidence readable and never affects ASCII
+    marker matching. Accepts ``str`` (test fakes) and ``bytes`` (live).
+    """
+    if data is None:
+        return ""
+    if isinstance(data, str):
+        return data
+    return bytes(data).decode("utf-8", errors="replace")
+
+
 def _run_step(
     run: RunFn,
     name: str,
@@ -569,23 +585,29 @@ def _run_step(
     writes the structured FAIL result, and teardown still runs — timeouts
     never discard diagnostic evidence. ``output_limit`` bounds the kept
     tail (log-tail steps pass a larger budget; the default preserves the
-    evidence-size contract for every other step).
+    evidence-size contract for every other step). Output is captured as
+    bytes and decoded with replacement so a byte-truncated multibyte
+    tail cannot raise ``UnicodeDecodeError`` (Codex P2, #7332).
     """
-    kwargs = {"shell": False, "check": False, "capture_output": True, "text": True,
-              "timeout": timeout}
+    kwargs = {"shell": False, "check": False, "capture_output": True,
+              "text": False, "timeout": timeout}
     if step_input is not None:
-        kwargs["input"] = step_input
+        kwargs["input"] = step_input.encode("utf-8")
     try:
         completed = run(list(argv), **kwargs)
     except subprocess.TimeoutExpired as exc:
-        partial = ((exc.stdout or "") if isinstance(exc.stdout, str) else "") + "\n" + (
-            (exc.stderr or "") if isinstance(exc.stderr, str) else "")
+        # NB: TimeoutExpired stores partial output in .output (not
+        # .stdout); .stdout is also probed for foreign run fakes.
+        partial = _decode_output(
+            getattr(exc, "output", None)
+            or getattr(exc, "stdout", None)) + "\n" + _decode_output(
+                getattr(exc, "stderr", None))
         return LifecycleStep(
             name=name, argv=list(argv), returncode=124,
             output_tail=_tail(f"TIMEOUT after {timeout}s: {partial.strip()}",
                               output_limit))
-    output = _tail(((completed.stdout or "") + "\n" + (completed.stderr or "")).strip(),
-                   output_limit)
+    output = _tail((_decode_output(completed.stdout) + "\n"
+                    + _decode_output(completed.stderr)).strip(), output_limit)
     return LifecycleStep(name=name, argv=list(argv), returncode=completed.returncode,
                          output_tail=output)
 

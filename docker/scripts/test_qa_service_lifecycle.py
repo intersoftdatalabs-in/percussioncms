@@ -519,6 +519,40 @@ class LifecycleSequenceTests(unittest.TestCase):
         self.assertEqual(step.returncode, 124)
         self.assertIn("TIMEOUT", step.output_tail)
 
+    def test_decode_output_tolerates_split_multibyte_tail(self):
+        """Codex P2 (#7332): byte-truncated UTF-8 must not raise."""
+        self.assertEqual(qsl._decode_output(None), "")
+        self.assertEqual(qsl._decode_output("ascii"), "ascii")
+        # Split é (U+00E9 = 0xC3 0xA9): lone lead byte → replacement char.
+        decoded = qsl._decode_output("caf".encode("utf-8") + b"\xc3")
+        self.assertIn("caf", decoded)
+        self.assertIn("�", decoded)
+
+    def test_run_step_handles_bytes_output_and_partial_timeout(self):
+        """Live subprocess returns bytes (text=False); timeout keeps partials."""
+        def _bytes_run(argv, **kwargs):
+            joined = " ".join(argv)
+            if "timeout-step" in joined:
+                raise subprocess.TimeoutExpired(
+                    argv, timeout=kwargs.get("timeout", 0),
+                    output="partial- Café".encode("utf-8")[:10],
+                    stderr=b"")
+            self.assertIsInstance(kwargs.get("input", b""), bytes)
+            return subprocess.CompletedProcess(
+                argv, 0, stdout="caf".encode("utf-8") + b"\xc3",
+                stderr=b"")
+
+        step = qsl._run_step(_bytes_run, "bytes-step",
+                             ["docker", "exec", CELL, "tail", "-c", "5"],
+                             timeout=30, step_input="root\n")
+        self.assertEqual(step.returncode, 0)
+        self.assertIn("�", step.output_tail)
+        timeout_step = qsl._run_step(
+            _bytes_run, "timeout-step",
+            ["docker", "exec", CELL, "timeout-step"], timeout=30)
+        self.assertEqual(timeout_step.returncode, 124)
+        self.assertIn("partial-", timeout_step.output_tail)
+
     def test_remove_cell_container_argv(self):
         argv = qsl.remove_cell_container(
             CELL, FakeRunner(_green_script()))

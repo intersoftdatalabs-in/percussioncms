@@ -66,10 +66,16 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /{bin,usr/bin}/journalctl mrix,
   /{bin,usr/bin}/sh mrix,
   /{bin,usr/bin}/bash mrix,
+  /{bin,usr/bin}/dash mrix,  # /bin/sh resolves here on Ubuntu (P1, #7332)
+  /{bin,usr/bin}/env mrix,  # #!/usr/bin/env shebangs (rxjetty.sh)
   /{bin,usr/bin}/mount mrix,
   /{bin,usr/bin}/umount mrix,
   /{bin,usr/bin}/tail mrix,
   /{bin,usr/bin}/curl mrix,  # probe_readiness() serving check (P2, #7332)
+  /{bin,usr/bin}/nohup mrix,  # rxjetty.sh JETTY_USER fallback start
+  /{bin,usr/bin}/su mrix,  # rxjetty.sh JETTY_USER fallback (runs as root
+  # inside the unprivileged cell only; no host privilege change)
+  /{sbin,usr/sbin}/start-stop-daemon mrix,  # rxjetty.sh forking start
   /usr/bin/python3* mrix,
   /usr/local/bin/cell-entrypoint.py r,
 
