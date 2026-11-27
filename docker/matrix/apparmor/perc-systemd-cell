@@ -102,6 +102,9 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /{bin,usr/bin}/readlink mrix,
   /{bin,usr/bin}/rm mrix,
   /{bin,usr/bin}/sed mrix,
+  /{bin,usr/bin}/tr mrix,  # resolve-java-home.sh version parsing (P1, #7332)
+  /{bin,usr/bin}/head mrix,  # resolve-java-home.sh version parsing
+  /{bin,usr/bin}/uname mrix,  # resolve-java-home.sh platform dispatch
   /{bin,usr/bin}/which mrix,
   /{sbin,usr/sbin}/chkconfig mrix,
   /{sbin,usr/sbin}/service mrix,
@@ -145,6 +148,15 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /run/systemd/** rw,
   /run/log/journal/** rw,
   /var/log/journal/** rw,
+  # Service PID dirs created by the installers (install-jetty-service.sh
+  # mkdir/chown/chmod /var/run/rxjetty/<unit> holding rxjetty.pid for the
+  # Type=forking unit; DTSProductionService.sh owns
+  # /var/run/PercussionProductionService). /var/run aliases /run. Without
+  # these the unit cannot write its PID file and start fails (P1, #7332).
+  /run/rxjetty/ rw,
+  /run/rxjetty/** rw,
+  /run/PercussionProductionService/ rw,
+  /run/PercussionProductionService/** rw,
   /run/lock/** rw,
   /tmp/** rw,
   /sys/fs/cgroup/** rw,
