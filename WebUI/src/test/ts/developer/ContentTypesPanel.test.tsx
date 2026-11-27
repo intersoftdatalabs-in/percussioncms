@@ -453,6 +453,53 @@ describe("ContentTypesPanel", () => {
     expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
   });
 
+  it("focuses the copy-name input when the copy form opens (#7344)", async () => {
+    await openCopyForm();
+    expect(screen.getByTestId("developer-ct-copy-name")).toHaveFocus();
+  });
+
+  it("Escape cancels the copy without posting (#7344)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-copy-name"), {
+      key: "Escape",
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-copy-form")).toBeNull();
+    });
+    expect(copyContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+  });
+
+  it("returns focus to the catalog Copy button after Escape (#7344)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-copy-name"), {
+      key: "Escape",
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-copy-form")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-ct-copy")).toHaveFocus();
+  });
+
+  it("returns focus to the catalog Copy button after Cancel (#7344)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-copy-form")).toBeNull();
+    });
+    expect(copyContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-copy")).toHaveFocus();
+  });
+
   it("back returns to the name step without posting (#6480)", async () => {
     await openCopyForm();
     fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {

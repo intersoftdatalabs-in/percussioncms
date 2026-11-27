@@ -160,7 +160,10 @@ source is not locked or changed.
 2. Open **Developer → Content types**.
 3. Click **Copy** on the source row.
 4. Enter a unique **New name** (letters, digits, underscore, and period; no
-   spaces) and click **Review clone**. The panel discloses the deep-copy
+   spaces) and click **Review clone**. The **New name** input autofocuses when
+   the copy form opens; **Escape** cancels the form without calling REST (same
+   as **Cancel**, the typed name is discarded). When the form closes, focus
+   returns to the **Copy** button on the source row. The panel discloses the deep-copy
    scope: fields, field sets, controls, choices, item exits, and type
    settings move to the new name, and the source is not locked or changed.
 5. Confirm the clone (**Clone content type**) or go **Back** to edit the name.
