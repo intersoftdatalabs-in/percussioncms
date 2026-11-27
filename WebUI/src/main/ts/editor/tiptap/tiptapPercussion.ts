@@ -70,11 +70,101 @@ export const PERC_JCR_PATH_ATTR = "data-jcrpath";
 /** Inline-type value for inline links (matches {@code PSInlineLinkField}). */
 export const PERC_INLINE_TYPE_LINK = "rxhyperlink";
 
+import type { ViewMutationRecord } from "@tiptap/pm/view";
+
+/**
+ * Whether an externally-observed {@code href} attribute mutation is only the
+ * OWASP CSRFGuard token rewrite and carries no canonical address change
+ * (#7360).
+ *
+ * <p>Comparing the token-stripped old and current values (rather than the raw
+ * values) is what breaks the ProseMirror/CSRFGuard reconciliation livelock:
+ * the guard rewrites relative addresses in place on every node the editor
+ * (re-)renders, and every rewrite would otherwise mark the range dirty and
+ * re-render the anchor again. A genuine address change still takes the
+ * normal reconciliation path.</p>
+ *
+ * @param mutation the observed attribute mutation.
+ * @returns true when the mutation changes only the token parameter.
+ */
+export function isCsrfTokenOnlyAddressRewrite(
+  mutation: ViewMutationRecord,
+): boolean {
+  if (mutation.type !== "attributes" || mutation.attributeName !== "href") {
+    return false;
+  }
+  const target = mutation.target as {
+    getAttribute?: (name: string) => string | null;
+  } | null;
+  if (!target || typeof target.getAttribute !== "function") {
+    return false;
+  }
+  return (
+    stripCsrfGuardTokenParam(mutation.oldValue) ===
+    stripCsrfGuardTokenParam(target.getAttribute("href"))
+  );
+}
+
 /** Inline-type value for inline images. */
 export const PERC_INLINE_TYPE_IMAGE = "rximage";
 
 /** Inline-type value for inline templates (matches {@code PSSingleValueBuilder}). */
 export const PERC_INLINE_TYPE_TEMPLATE = "rxvariant";
+
+/**
+ * CSRFGuard token query parameter the live cell appends to relative
+ * {@code href}/{@code src} attributes in the served DOM
+ * ({@code /JavaScriptServlet}). The token is transport state, not content:
+ * it rotates per session and must never become editor state or stored
+ * markup.
+ */
+export const CSRF_GUARD_TOKEN_PARAM = "OWASP-CSRFTOKEN";
+
+/**
+ * Strip the OWASP CSRFGuard token query parameter from a URL (#7360).
+ *
+ * <p>The live cell rewrites relative {@code href}/{@code src} attributes in
+ * the DOM after the editor inserts them. Without canonicalization the
+ * ProseMirror document state (tokenless, as inserted) permanently disagrees
+ * with the DOM (tokenized), and the external-change reconciliation between
+ * the CSRFGuard mutation observer and the ProseMirror view observer never
+ * converges: the anchor node is re-created and re-injected ~1100 times per
+ * second, wedging the renderer so trusted clicks (e.g. the inline-link
+ * dialog Apply) hang until the test timeout with no console or server
+ * errors. Parsing addresses through this helper keeps editor state
+ * canonical, so a CSRFGuard rewrite parses back to identical state and the
+ * reconciliation settles after a single pass. Stored content stays
+ * token-free as well.</p>
+ *
+ * @param url raw attribute value (null/undefined become null).
+ * @returns the URL without the token parameter, or null for empty input.
+ */
+export function stripCsrfGuardTokenParam(
+  url: string | null | undefined,
+): string | null {
+  if (!url) {
+    return null;
+  }
+  const hashIndex = url.indexOf("#");
+  const withoutFragment =
+    hashIndex === -1 ? url : url.substring(0, hashIndex);
+  const fragment = hashIndex === -1 ? "" : url.substring(hashIndex);
+  const queryIndex = withoutFragment.indexOf("?");
+  if (queryIndex === -1) {
+    return url;
+  }
+  const path = withoutFragment.substring(0, queryIndex);
+  const kept = withoutFragment
+    .substring(queryIndex + 1)
+    .split("&")
+    .filter((segment) => segment.split("=", 1)[0] !== CSRF_GUARD_TOKEN_PARAM);
+  const stripped =
+    kept.length === 0
+      ? `${path}${fragment}`
+      : `${path}?${kept.join("&")}${fragment}`;
+  // A bare token (`?OWASP-CSRFTOKEN=x` with no path) is not an address.
+  return stripped || null;
+}
 
 /** Slot ids the TinyMCE plugins default to when the control sets none. */
 export const PERC_DEFAULT_LINK_SLOT = "103";

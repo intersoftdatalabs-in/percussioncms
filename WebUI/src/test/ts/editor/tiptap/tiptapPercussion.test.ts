@@ -19,10 +19,12 @@ import {
   buildPercInlineImageHtml,
   buildPercInlineLinkHtml,
   escapePercAttr,
+  isCsrfTokenOnlyAddressRewrite,
   isMoreLinkElement,
   parseGlobalVariableMarker,
   preparePercussionHtml,
   readGlobalVariableData,
+  stripCsrfGuardTokenParam,
 } from "../../../../main/ts/editor/tiptap/tiptapPercussion";
 import { roundTripHtmlFragment } from "../../../../main/ts/editor/tiptap/tiptapRoundTrip";
 import { createTipTapEditorExtensions } from "../../../../main/ts/editor/tiptap/tiptapSetup";
@@ -144,6 +146,40 @@ describe("tiptapPercussion stored-markup helpers", () => {
     expect(preparePercussionHtml("<p>Plain</p>")).toBe("<p>Plain</p>");
   });
 
+  it("strips the CSRFGuard token parameter from addresses (#7360, #7361)", () => {
+    expect(stripCsrfGuardTokenParam(null)).toBeNull();
+    expect(stripCsrfGuardTokenParam("")).toBeNull();
+    expect(stripCsrfGuardTokenParam("/Rhythmyx/Sites/a.html")).toBe(
+      "/Rhythmyx/Sites/a.html",
+    );
+    expect(
+      stripCsrfGuardTokenParam(
+        "/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN",
+      ),
+    ).toBe("/Rhythmyx/Sites/a.html");
+    expect(
+      stripCsrfGuardTokenParam(
+        "/Rhythmyx/Sites/a.html?x=1&OWASP-CSRFTOKEN=39S9-TOKEN&y=2",
+      ),
+    ).toBe("/Rhythmyx/Sites/a.html?x=1&y=2");
+    expect(
+      stripCsrfGuardTokenParam(
+        "/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN#frag",
+      ),
+    ).toBe("/Rhythmyx/Sites/a.html#frag");
+    expect(
+      stripCsrfGuardTokenParam(
+        "https://example.com/x?OWASP-CSRFTOKEN=39S9-TOKEN",
+      ),
+    ).toBe("https://example.com/x");
+    // A bare token is not an address.
+    expect(stripCsrfGuardTokenParam("?OWASP-CSRFTOKEN=39S9-TOKEN")).toBeNull();
+    // Similarly-named parameters are content, not transport state.
+    expect(
+      stripCsrfGuardTokenParam("/p?XOWASP-CSRFTOKEN=1&OWASP-CSRFTOKEN=2"),
+    ).toBe("/p?XOWASP-CSRFTOKEN=1");
+  });
+
   it("reads the CMS global-variable table when provided", () => {
     expect(readGlobalVariableData()).toBeNull();
     (window as unknown as Record<string, unknown>)["PercGlobalVariablesData"] = {
@@ -238,6 +274,114 @@ describe("Percussion plugin nodes (#5652)", () => {
       const html = editor.getHTML();
       expect(html).toContain('href="https://example.com"');
       expect(html).not.toContain(PERC_INLINE_TYPE_LINK);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("parses CSRFGuard-tokenized addresses back to canonical state (#7360, #7361)", () => {
+    // Editor state must never absorb the transport token: it would persist
+    // a session token into stored content on the next save.
+    const canonical =
+      '<p>See <a href="/Rhythmyx/Sites/a.html" title="About" rxinlineslot="103" ' +
+      'inlinetype="rxhyperlink" rxselectedtext="About">About</a> now.</p>';
+    const tokenized = canonical.replace(
+      "/Rhythmyx/Sites/a.html",
+      "/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN",
+    );
+    expect(roundTripHtmlFragment(tokenized)).toBe(canonical);
+
+    const canonicalImg =
+      '<p><img src="/Rhythmyx/Assets/i.png" alt="Pic" rxinlineslot="104" ' +
+      'inlinetype="rximage"></p>';
+    const tokenizedImg = canonicalImg.replace(
+      "/Rhythmyx/Assets/i.png",
+      "/Rhythmyx/Assets/i.png?OWASP-CSRFTOKEN=39S9-TOKEN",
+    );
+    expect(roundTripHtmlFragment(tokenizedImg)).toBe(canonicalImg);
+  });
+
+  it("detects token-only href rewrites for the mark-view guard (#7360, #7361)", () => {
+    const anchor = document.createElement("a");
+    anchor.setAttribute("href", "/Rhythmyx/Sites/a.html");
+    const rewrite = {
+      type: "attributes",
+      attributeName: "href",
+      oldValue: "/Rhythmyx/Sites/a.html",
+      target: anchor,
+    } as const;
+    anchor.setAttribute(
+      "href",
+      "/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN",
+    );
+    expect(isCsrfTokenOnlyAddressRewrite(rewrite)).toBe(true);
+    // A genuine address change still takes the normal path.
+    const moved = document.createElement("a");
+    moved.setAttribute("href", "/Rhythmyx/Sites/b.html");
+    expect(
+      isCsrfTokenOnlyAddressRewrite({
+        type: "attributes",
+        attributeName: "href",
+        oldValue: "/Rhythmyx/Sites/a.html",
+        target: moved,
+      }),
+    ).toBe(false);
+    // Non-href mutations are never the guard's business.
+    expect(
+      isCsrfTokenOnlyAddressRewrite({
+        type: "attributes",
+        attributeName: "title",
+        oldValue: null,
+        target: anchor,
+      }),
+    ).toBe(false);
+    expect(
+      isCsrfTokenOnlyAddressRewrite({
+        type: "childList",
+        attributeName: null,
+        oldValue: null,
+        target: anchor,
+      }),
+    ).toBe(false);
+  });
+
+  it("leaves an externally token-rewritten anchor alone (#7360, #7361)", async () => {
+    // Live-cell regression: the CSRFGuard rewrite of a freshly inserted
+    // relative href used to wedge ProseMirror reconcilation into a node
+    // re-creation storm (trusted clicks hung). The PercLink mark view must
+    // ignore the token-only rewrite, so the anchor element survives it.
+    const editor = makeEditor("<p>Hi</p>");
+    try {
+      editor.chain().focus().insertContent(
+        '<a href="/Rhythmyx/Sites/a.html" rxinlineslot="103" ' +
+          'inlinetype="rxhyperlink" rxselectedtext="About">About</a>',
+      ).run();
+      const before = editor.view.dom.querySelector(
+        'a[href="/Rhythmyx/Sites/a.html"]',
+      );
+      expect(before).not.toBeNull();
+      // External rewrite, like the live cell's JavaScriptServlet performs.
+      before?.setAttribute(
+        "href",
+        "/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN",
+      );
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      // The anchor element itself must survive: no re-render, no storm.
+      expect(editor.view.dom.querySelector("a")).toBe(before);
+      expect(editor.getHTML()).toContain('href="/Rhythmyx/Sites/a.html"');
+      expect(editor.getHTML()).not.toContain("OWASP-CSRFTOKEN");
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("keeps editor state canonical when the DOM gains a token (#7360, #7361)", () => {
+    const editor = makeEditor("<p>Hi</p>");
+    try {
+      editor.commands.setContent(
+        '<p><a href="/Rhythmyx/Sites/a.html?OWASP-CSRFTOKEN=39S9-TOKEN">About</a></p>',
+      );
+      expect(editor.getHTML()).toBe('<p><a href="/Rhythmyx/Sites/a.html">About</a></p>');
     } finally {
       editor.destroy();
     }

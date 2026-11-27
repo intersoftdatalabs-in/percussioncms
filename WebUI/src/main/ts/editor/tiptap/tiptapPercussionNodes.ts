@@ -53,6 +53,7 @@
 import { Link } from "@tiptap/extension-link";
 import { Image } from "@tiptap/extension-image";
 import { Node, mergeAttributes } from "@tiptap/core";
+import type { ViewMutationRecord } from "@tiptap/pm/view";
 import {
   PERC_BLOCK_VARIANT_CLASS,
   PERC_CONTENT_EDITABLE_ATTR,
@@ -66,8 +67,10 @@ import {
   PERC_MORE_LINK_CLASS,
   PERC_RELATIONSHIP_ATTR,
   PERC_SELECTED_TEXT_ATTR,
+  isCsrfTokenOnlyAddressRewrite,
   parseGlobalVariableMarker,
   readGlobalVariableData,
+  stripCsrfGuardTokenParam,
 } from "./tiptapPercussion";
 
 declare module "@tiptap/core" {
@@ -105,6 +108,16 @@ export const PercLink = Link.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
+      // Canonicalize the address on parse (#7360): the live cell's CSRFGuard
+      // rewrites relative hrefs in the DOM, and editor state must never
+      // absorb the transport token (it would persist a session token into
+      // stored content). Rendering stays the parent default (state is
+      // token-free).
+      href: {
+        default: null,
+        parseHTML: (element: HTMLElement) =>
+          stripCsrfGuardTokenParam(element.getAttribute("href")),
+      },
       title: {
         default: null,
         parseHTML: (el: HTMLElement) => el.getAttribute("title"),
@@ -122,6 +135,42 @@ export const PercLink = Link.extend({
       [PERC_JCR_PATH_ATTR]: percAttribute(PERC_JCR_PATH_ATTR),
     };
   },
+
+  /**
+   * External DOM-attribute reconciliation guard (#7360).
+   *
+   * <p>The live cell's CSRFGuard rewrites relative {@code href}s in place on
+   * every anchor the editor (re-)renders. ProseMirror's DOM observer treats
+   * each rewrite as an external change: the range is marked dirty and the
+   * same state re-renders the anchor again, which the guard rewrites again —
+   * a multi-kHz node re-creation storm that wedges the renderer (trusted
+   * clicks hang; the inline-link dialog Apply times the Playwright suite
+   * out) with no console or server errors. The parser already reuses state
+   * attributes for described nodes, so reconciling these rewrites can never
+   * converge: the only correct response is to ignore them.</p>
+   *
+   * <p>This mark view renders the anchor exactly like the default mark
+   * serializer and ignores only token-only {@code href} rewrites (no
+   * canonical address change). Genuine address changes still take the
+   * normal reconciliation path.</p>
+   */
+  addMarkView() {
+    return ({ HTMLAttributes }) => {
+      const dom = document.createElement("a");
+      for (const [key, value] of Object.entries(HTMLAttributes ?? {})) {
+        if (value === null || value === undefined || value === false) {
+          continue;
+        }
+        dom.setAttribute(key, String(value));
+      }
+      return {
+        dom,
+        contentDOM: dom,
+        ignoreMutation: (mutation: ViewMutationRecord) =>
+          isCsrfTokenOnlyAddressRewrite(mutation),
+      };
+    };
+  },
 });
 
 /** Parity {@code Image} node plus the CMS inline attributes. */
@@ -129,6 +178,13 @@ export const PercImage = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
+      // Same CSRFGuard canonicalization as the link href (#7360): a
+      // tokenized DOM src must parse back to the tokenless state address.
+      src: {
+        default: null,
+        parseHTML: (element: HTMLElement) =>
+          stripCsrfGuardTokenParam(element.getAttribute("src")),
+      },
       width: {
         default: null,
         parseHTML: (el: HTMLElement) => el.getAttribute("width"),
