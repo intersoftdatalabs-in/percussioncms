@@ -24,7 +24,10 @@
  * tables (plus undo/redo, inline styles, alignment) — and reduces Word
  * pastes to the {@code paste_word_valid_elements} contract. Toolbar edits
  * persist through the existing
- * {@code PUT /services/itemmanagement/item/fields/{id}} path. Cutover
+ * {@code PUT /services/itemmanagement/item/fields/{id}} path; the
+ * Percussion-bar source view does too (source edit applies through the
+ * schema with plugin markers intact, then saves through the same PUT —
+ * #7340). Cutover
  * coverage (#5758) lives in {@code editor-host-default-tiptap.spec.js};
  * parity tests stay below.</p>
  *
@@ -452,6 +455,59 @@ test.describe("React Content Editor TipTap editor", () => {
       expect(persisted).toContain('rxinlineslot="103"');
       expect(persisted).toContain('inlinetype="rxhyperlink"');
       expect(persisted).toContain('inlinetype="rximage"');
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "tiptap source view edits persist via PUT with plugin markers intact (#7340)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+      await expect(
+        page.locator('[data-testid="editor-tiptap-perc-text"]'),
+      ).toBeVisible();
+
+      // Seed a plugin marker through the bar so the source cycle has stored
+      // CMS markup to preserve (one-click control, no dialog).
+      await page.locator('[data-testid="tiptap-perc-more-link-text"]').click();
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+
+      // Source view shows the live schema HTML including the marker.
+      await page.locator('[data-testid="tiptap-perc-source-text"]').click();
+      const sourceArea = page.locator(
+        '[data-testid="tiptap-perc-source-content-text"]',
+      );
+      await expect(sourceArea).toBeVisible();
+      const current = await sourceArea.inputValue();
+      expect(current).toContain("perc-blog-more-link");
+      await sourceArea.fill(current.replace("Hi", "Hi source edit"));
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      await expect(editable).toContainText("Hi source edit");
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const saved = (text && text.value) || "";
+      expect(saved).toContain("Hi source edit");
+      expect(saved).toContain("perc-blog-more-link");
       await expect(page.getByText(/^Saved$/)).toBeVisible();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
