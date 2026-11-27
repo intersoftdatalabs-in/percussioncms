@@ -125,6 +125,26 @@ CMS-only cell.
    credentials are needed: every case is an anonymous GET against the
    published origin.
 
+   Production-like variant — Apache frontend (`#7323`, the unblock for
+   this slice's published-site gate): boot with
+   `python docker/scripts/perc-devctl.py qa-up --with-dts --with-apache`
+   (the Apache leg mints a throwaway mkcert TLS identity — the QA host
+   needs a `mkcert` binary, `MKCERT_BIN` wins over `PATH` — and
+   auto-deploys the same fixture tree, so no separate
+   `qa-publish-fixture` call is needed) and point the matrix at the
+   frontend origin instead of the Tomcat origin:
+
+   ```bash
+   PUBLISHED_SITE_URL=<APACHE_URL-from-banner> \
+     PUBLISHED_CATEGORY_URL=<APACHE_URL-from-banner>/category.html \
+     npm run test:surface -- --path tests/published-widget-matrix.spec.js
+   ```
+
+   The frontend serves the identical staged bytes statically on port 80
+   (`Server: Apache` response header) and proxies the DTS service
+   contexts, so a green run here is the production-shaped proof: static
+   shells served by a real httpd frontend, not the Tomcat origin.
+
    Evidence from earlier steps survives: matrix JSONs accumulate in
    `test-results/` (gitignored), which is separate from Playwright's
    failure-artifact `outputDir` (`playwright-output/`), so running the
@@ -174,11 +194,12 @@ commands exist. Latest first:
 
 | Date (UTC) | Cell | Base | Matrix | Result |
 |------------|------|------|--------|--------|
+| 2026-11-27 | Apache-fronted H2 (`qa-up --with-dts --with-apache`, fixture auto-deployed by the Apache leg, preflight FRESH) | `72df55f460` (origin/main) | published-widget-matrix (static) | 44/44 cases pass (44/44 rows `pass`, 0 fail, 0 skip); CMS `server.log` 0 ERROR/FATAL; 0 JS console errors in-run (`assertQuiet`); frontend `Server: Apache/2.4.71` static on :80 |
 | 2026-11-25 | CMS-only H2 (`qa-up`, no DTS; chain rebuilt from checkout incl. `system` clean install + `perc-distribution-tree` package, preflight FRESH) | `51b18b30b7` (origin/main) | content-create-matrix + inventory + index | 108/108 cases pass on two consecutive runs (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; unit 15/15; `server.log` 1 transient ERROR + 0 FATAL (single `PSItemWorkflowService` design-object miss during the first run only — the clean re-run added zero; 0 serious JS console errors both runs) |
 | 2026-11-24 | DTS H2 (`qa-up --with-dts`, chain rebuilt from checkout + `system` clean install, preflight FRESH) | `706a05b811` (origin/main) | retrieval family: polls-vote + feeds-entries + metadata-index + comments-moderation + membership-registration + forms-confirmation | 18/18 cases pass (6/6 rows `pass`, 0 fail, 0 skip); CMS `server.log` 0 ERROR/FATAL; DTS service logs 0 except 2 feeds ERROR lines from the asserted unseeded-name 404→redirect probe (`unseededRedirects` case); 4 boot-time Tomcat security-constraint warnings pre-run |
 | 2026-11-24 | CMS-only H2 (`qa-up`, no DTS) | `eede3df951` (origin/main; `qa-rebuild-chain` from checkout, preflight FRESH) | content-create-matrix + inventory + index | 108/108 cases pass (54/54 rows `pass`, 0 fail, 0 skip); inventory 2/2; index 4/4; `server.log` 0 ERROR/FATAL |
 
-Run commands are the step 2 / step 3 / step 5 blocks above; the results JSON
+Run commands are the step 2 / step 3 / step 4 / step 5 blocks above; the results JSON
 (`test-results/content-create-matrix.json`, one schema-valid row per
 pinned type) is the per-type accounting. Re-record this table whenever a
 matrix inventory changes or a run goes red — a stale date with a changed
