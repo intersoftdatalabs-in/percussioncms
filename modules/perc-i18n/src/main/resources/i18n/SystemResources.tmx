@@ -3637,7 +3637,7 @@
       <tuv xml:lang="pt"><seg>Personalizado</seg></tuv>
       <tuv xml:lang="te"><seg>కస్టమ్</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>自訂</seg></tuv>
-    <tuv xml:lang="ru"><seg>Пользовательский</seg></tuv><tuv xml:lang="he"><seg>מִנְהָג</seg></tuv><tuv xml:lang="uk"><seg>Спеціальний</seg></tuv><tuv xml:lang="lou"><seg>Pèsonalizé</seg></tuv><tuv xml:lang="pl"><seg>Niestandardowy</seg></tuv><tuv xml:lang="tr"><seg>Gelenek</seg></tuv><tuv xml:lang="zh-cn"><seg>自定义</seg></tuv><tuv xml:lang="ja-jp"><seg>カスタム</seg></tuv><tuv xml:lang="nb"><seg>Skikk</seg></tuv><tuv xml:lang="sv"><seg>Beställnings</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Пользовательский</seg></tuv><tuv xml:lang="he"><seg>מִנְהָג</seg></tuv><tuv xml:lang="uk"><seg>Спеціальний</seg></tuv><tuv xml:lang="lou"><seg>Pèsonalizé</seg></tuv><tuv xml:lang="pl"><seg>Niestandardowy</seg></tuv><tuv xml:lang="tr"><seg>Özel</seg></tuv><tuv xml:lang="zh-cn"><seg>自定义</seg></tuv><tuv xml:lang="ja-jp"><seg>カスタム</seg></tuv><tuv xml:lang="nb"><seg>Skikk</seg></tuv><tuv xml:lang="sv"><seg>Beställnings</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSFolderDialog@New folder">
       <tuv xml:lang="en-us"><seg>New folder</seg></tuv>
       <tuv xml:lang="ar"><seg>مجلد جديد</seg></tuv>
