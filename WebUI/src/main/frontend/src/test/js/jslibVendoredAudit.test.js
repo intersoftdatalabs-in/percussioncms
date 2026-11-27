@@ -72,6 +72,27 @@
  *
  * Retained (not on npm, #5665 precedent): Tim Down simpledateformat.js,
  * byte-identical under both library dirs.
+ *
+ * Slice-5A re-sweep (issue #7375, parent audit #5627): post-merge tip
+ * re-sweep of the WebUI + perc-common-ui-bundle surface (zero WebUI/bundle
+ * commits since the [5627/4A] re-sweep #7367). The jslib/cm third-party
+ * list stays drained, but the sweep surfaced live/unpinned assets outside
+ * the jslib trees that no earlier guard pinned:
+ *
+ * | path | version | license | consumer | npm | migration |
+ * |------|---------|---------|----------|-----|-----------|
+ * | widgets/htmldiff.js (+ war twin, byte-drifted older cut) | UNKNOWN (tnwinc, no banner) | UNKNOWN (author URL only; MIT upstream) | LIVE: compare.jsp twins + common_js.jsp twins + static-bundles.json | htmldiff@0.0.4 (same lineage, stale source-only, broken main) | #7378 (identify cut + npm-track or retain-with-provenance) |
+ * | css/superfish.css + app/css/legacy/superfish.css (identical orphans, older cut than npm 1.7.10) | pre-1.7.10 superfish | MIT (upstream) | NONE (live pages use npm-backed jslib copies) | superfish@1.7.10 (#6430) | #7380 retire cluster (delete orphans) |
+ * | {gadgets,widgets}/repository/common/lib/uploadify/ (v2.1.0 css+swf+fla dupes) + uploadify feature.xml twins | Uploadify 2.1.0 (2009 Garcia/Nickels) | MIT-style grant in css header | NONE (feature.xml points at swfobject.js + jquery.uploadify.v2.1.0.min.js which do not exist; Flash dead 2020) | n/a (dead upstream) | #7380 retire cluster (delete dirs + feature entries) |
+ * | themes/smoothness/jquery-ui-1.8.9.custom.css (banner: v1.12.1 2021 — filename drift) | jQuery UI 1.12.1 theme | MIT | LIVE: editTemplate/users/webmgt/dashboard.jsp (+ pages twins) | jQuery UI 1.14 npm (#5660, JS only — no theme mapping) | #7381 (serve theme from npm dist or record ThemeRoller provenance) |
+ * | WEB-INF/Owasp.CsrfGuard.js | 2011 Sheridan | BSD | live app (version-locked to server filter) | n/a | recorded human gate (#5667 precedent, no migration issue) |
+ * | {css,app/css/legacy}/minuet/perc_fonts_minuet.css (@import https://fonts.googleapis.com/…) | remote font import, not vendored | n/a | bundled via common-minuet-bundles.json (zero direct JSP refs) | n/a | recorded: self-host-or-allowlist decision owned by CDN-guard follow-on, no vendored-migration issue |
+ *
+ * Bundle rows (modules/perc-common-ui-bundle, pinned in
+ * bundleVendorInventory.test.js): vendor/jquery.timeago.js 1.6.3 MIT
+ * (Ryan McGeary; bundle.mjs concat comment claims "not on npm" — STALE:
+ * timeago@1.6.7 is npm-tracked in WebUI frontend) -> #7379; vendor/
+ * simpledateformat.js Tim Down 2007 Apache-2.0 -> RETAIN (#5665 precedent).
  */
 
 import { describe, expect, it } from "vitest";
@@ -828,5 +849,221 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
         );
       }
     }
+  });
+
+  it("slice-5A: live htmldiff.js pinned (tnwinc, UNKNOWN provenance) until #7378 decides", () => {
+    // The revision-compare surface (compare.jsp twins) loads
+    // cm/widgets/htmldiff.js directly; the file carries no version banner
+    // and no license marker (author URL only) and is invisible to
+    // Dependabot. This pin fails loudly on banner, provenance, or
+    // consumer drift so the #7378 decision (npm-track vs retain with
+    // provenance) is revisited consciously instead of rotting. The
+    // WebUI/war twin is a byte-drifted older cut (triple-tree reality is
+    // owned by #7378, not asserted here).
+    const live = path.join(WEBAPP_CM, "widgets/htmldiff.js");
+    const warTwin = path.join(WAR_ROOT, "widgets/htmldiff.js");
+    for (const abs of [live, warTwin]) {
+      expect(fs.existsSync(abs), `htmldiff copy missing: ${abs}`).toBe(true);
+      expect(readHead(abs), `${abs} lost its tnwinc marker`).toMatch(
+        /tnwinc\/htmldiff\.js/,
+      );
+    }
+    expect(
+      readHead(live),
+      "htmldiff gained an unrecorded version/license marker",
+    ).not.toMatch(/@version|\bversion\s*[:=]\s*["'\d]/i);
+    expect(
+      readHead(live),
+      "htmldiff gained an unrecorded license marker",
+    ).not.toMatch(/licen[sc]e|\bmit\b|gpl|apache|public domain/i);
+    for (const tree of ["app", "pages/app"]) {
+      for (const jspRel of ["compare.jsp", "includes/common_js.jsp"]) {
+        const content = fs.readFileSync(
+          path.join(WEBAPP_CM, tree, jspRel),
+          "utf8",
+        );
+        expect(content, `${tree}/${jspRel} lost htmldiff`).toContain(
+          "widgets/htmldiff.js",
+        );
+      }
+    }
+    expect(
+      fs.readFileSync(
+        path.join(FRONTEND_ROOT, "..", "resources", "minify", "static-bundles.json"),
+        "utf8",
+      ),
+      "static-bundles.json lost htmldiff",
+    ).toContain("htmldiff");
+  });
+
+  it("slice-5A: orphan superfish.css twins stay unreferenced (retire #7380)", () => {
+    // cm/css/superfish.css and cm/app/css/legacy/superfish.css are
+    // byte-identical older cuts (pre-1.7.10: live pages load the npm-backed
+    // jslib copies via common_css.jsp instead). No JSP may load them: the
+    // only in-repo mention outside the files themselves is a prose comment
+    // in a .js file (not a load). #7380 deletes both twins.
+    const a = path.join(WEBAPP_CM, "css/superfish.css");
+    const b = path.join(WEBAPP_CM, "app/css/legacy/superfish.css");
+    for (const abs of [a, b]) {
+      expect(fs.existsSync(abs), `orphan superfish.css missing: ${abs}`).toBe(
+        true,
+      );
+    }
+    expect(fs.readFileSync(a).equals(fs.readFileSync(b))).toBe(true);
+    const hits = [];
+    for (const tree of ["app", "pages/app"]) {
+      const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            walk(full);
+          } else if (entry.name.endsWith(".jsp")) {
+            for (const line of fs.readFileSync(full, "utf8").split("\n")) {
+              if (line.includes("superfish.css") && !line.includes("jslib/")) {
+                hits.push(`${full} :: ${line.trim()}`);
+              }
+            }
+          }
+        }
+      };
+      walk(path.join(WEBAPP_CM, tree));
+    }
+    expect(hits, "orphan superfish.css gained a live JSP load").toEqual([]);
+  });
+
+  it("slice-5A: uploadify Flash payload stays dead (retire #7380)", () => {
+    // Uploadify 2.1.0 (2009, Flash-era): the checked-in dirs hold only
+    // css+swf+fla while feature.xml declares swfobject.js +
+    // jquery.uploadify.v2.1.0.min.js, which do not exist anywhere in the
+    // tree. Zero JSP/JS/bundle references outside the payload itself.
+    // #7380 deletes the dirs + feature entries.
+    for (const sub of ["gadgets", "widgets"]) {
+      const dir = path.join(
+        WEBAPP_CM,
+        sub,
+        "repository/common/lib/uploadify",
+      );
+      expect(fs.existsSync(dir), `uploadify dir missing: ${dir}`).toBe(true);
+    }
+    for (const feat of [
+      path.join(
+        WEBAPP_CM,
+        "..",
+        "WEB-INF/classes/features/perc/uploadify/feature.xml",
+      ),
+      path.join(WEBAPP_CM, "WEB-INF/classes/features/perc/uploadify/feature.xml"),
+    ]) {
+      expect(fs.existsSync(feat), `uploadify feature.xml missing`).toBe(true);
+      const content = fs.readFileSync(feat, "utf8");
+      expect(content).toContain("jquery.uploadify.v2.1.0.min.js");
+    }
+    for (const missing of ["swfobject.js", "jquery.uploadify.v2.1.0.min.js"]) {
+      const hits = [];
+      const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            walk(full);
+          } else if (entry.name === missing) {
+            hits.push(full);
+          }
+        }
+      };
+      walk(WEBAPP_CM);
+      expect(hits, `declared uploadify script reappeared: ${missing}`).toEqual(
+        [],
+      );
+    }
+    const refHits = [];
+    const roots = [
+      path.join(WEBAPP_CM, "app"),
+      path.join(WEBAPP_CM, "pages"),
+      MINIFY_DIR,
+    ];
+    for (const root of roots) {
+      const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            walk(full);
+          } else if (/\.(jsp|js|json)$/.test(entry.name)) {
+            if (full.includes("uploadify")) continue;
+            if (fs.readFileSync(full, "utf8").includes("uploadify")) {
+              refHits.push(full);
+            }
+          }
+        }
+      };
+      walk(root);
+    }
+    expect(refHits, "uploadify gained a live reference").toEqual([]);
+  });
+
+  it("slice-5A: live jQuery-UI theme CSS pinned (filename drift recorded) until #7381 decides", () => {
+    // cm/themes/smoothness/jquery-ui-1.8.9.custom.css is loaded by four
+    // legacy JSPs (+ pages twins) but its banner is v1.12.1 (2021): the
+    // filename is drift, not the version. The JS side is npm-tracked
+    // (#5660) but no NPM_LIBRARY_MAPPINGS entry serves this theme file.
+    // #7381 maps it through the npm dist or records ThemeRoller
+    // provenance; this pin fails loudly on banner or consumer drift.
+    const theme = path.join(
+      WEBAPP_CM,
+      "themes/smoothness/jquery-ui-1.8.9.custom.css",
+    );
+    expect(fs.existsSync(theme), "live jQuery-UI theme CSS missing").toBe(
+      true,
+    );
+    expect(readHead(theme), "theme lost its v1.12.1 banner").toMatch(
+      /jQuery UI - v1\.12\.1/,
+    );
+    for (const tree of ["app", "pages/app"]) {
+      for (const jspName of [
+        "editTemplate.jsp",
+        "users.jsp",
+        "webmgt.jsp",
+        "dashboard.jsp",
+      ]) {
+        const content = fs.readFileSync(
+          path.join(WEBAPP_CM, tree, jspName),
+          "utf8",
+        );
+        expect(content, `${tree}/${jspName} lost theme load`).toContain(
+          "themes/smoothness/jquery-ui-1.8.9.custom.css",
+        );
+      }
+    }
+  });
+
+  it("slice-5A: CsrfGuard client + googleapis font import recorded (no migration issue)", () => {
+    // Owasp.CsrfGuard.js (OWASP CSRFGuard, BSD 2011 Sheridan) is
+    // version-locked to the server filter: recorded human-gate residual
+    // (#5667 precedent), not an npm migration.
+    const csrf = path.join(WEBAPP_CM, "WEB-INF/Owasp.CsrfGuard.js");
+    expect(fs.existsSync(csrf), "CsrfGuard client missing").toBe(true);
+    expect(readHead(csrf), "CsrfGuard lost its OWASP header").toMatch(
+      /OWASP CSRFGuard Project/,
+    );
+    // perc_fonts_minuet.css carries a remote Google Fonts @import (a CDN
+    // dependency, not a vendored lib): it ships inside the minuet bundle
+    // with zero direct JSP loads. Recorded so a CDN-guard follow-on can
+    // decide self-host vs allowlist; not a vendored-migration row.
+    for (const rel of [
+      "css/minuet/perc_fonts_minuet.css",
+      "app/css/legacy/minuet/perc_fonts_minuet.css",
+    ]) {
+      const abs = path.join(WEBAPP_CM, rel);
+      expect(fs.existsSync(abs), `font css missing: ${rel}`).toBe(true);
+      expect(
+        fs.readFileSync(abs, "utf8"),
+        `${rel} lost its googleapis import`,
+      ).toContain("fonts.googleapis.com");
+    }
+    expect(
+      fs.readFileSync(
+        path.join(MINIFY_DIR, "common-minuet-bundles.json"),
+        "utf8",
+      ),
+      "minuet bundle lost perc_fonts_minuet",
+    ).toContain("css/minuet/perc_fonts_minuet.css");
   });
 });
