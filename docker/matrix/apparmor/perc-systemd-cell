@@ -81,6 +81,11 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /{sbin,usr/sbin}/start-stop-daemon mrix,  # rxjetty.sh forking start
   /usr/bin/python3* mrix,
   /usr/local/bin/cell-entrypoint.py r,
+  # Inherited Docker HEALTHCHECK (docker/matrix/Dockerfile): the interpreter
+  # is allowed above, but the shipped scripts themselves need read rules —
+  # abstractions/python covers the stdlib, not these files (P2, #7332).
+  /usr/local/bin/rhythmyx_healthcheck.py r,
+  /usr/local/lib/perc/rhythmyx_ready.py r,
 
   # Installer utilities actually invoked by the two shipped service
   # scripts — modules/perc-jetty/src/main/jetty/service/
@@ -102,6 +107,8 @@ profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   /{bin,usr/bin}/ln mrix,
   /{bin,usr/bin}/ls mrix,
   /{bin,usr/bin}/mkdir mrix,
+  /{bin,usr/bin}/mktemp mrix,  # DTS prependLsbHeader (P2, #7332)
+  /{bin,usr/bin}/mawk mrix,  # Ubuntu awk target (P2, #7332)
   /{bin,usr/bin}/readlink mrix,
   /{bin,usr/bin}/rm mrix,
   /{bin,usr/bin}/sed mrix,
