@@ -27,7 +27,9 @@
  * {@code PUT /services/itemmanagement/item/fields/{id}} path; the
  * Percussion-bar source view does too (source edit applies through the
  * schema with plugin markers intact, then saves through the same PUT —
- * #7340). Cutover
+ * #7340; adversarial script/event-handler/`javascript:` payloads entered
+ * through the source panel are dropped on apply and never reach the PUT —
+ * #7342). Cutover
  * coverage (#5758) lives in {@code editor-host-default-tiptap.spec.js};
  * parity tests stay below.</p>
  *
@@ -461,6 +463,78 @@ test.describe("React Content Editor TipTap editor", () => {
   );
 
   test(
+    "tiptap global-variable CMS-table picker persists via PUT (#7341)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      // The QA host injects no CMS table by default (manual-name path); seed
+      // the classic-shell PercGlobalVariablesData table so the picker renders
+      // the table select. Must run before navigation scripts evaluate it.
+      await page.addInitScript(() => {
+        window.PercGlobalVariablesData = {
+          company_name: "Acme",
+          site_tagline: "Hello",
+        };
+      });
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+      await expect(
+        page.locator('[data-testid="editor-tiptap-perc-text"]'),
+      ).toBeVisible();
+
+      // Table path: picker renders a select of the CMS table names, not the
+      // manual-name input. Pick the non-default entry to prove selection.
+      await page.locator('[data-testid="tiptap-perc-global-variable-text"]').click();
+      const varSelect = page.locator(
+        '[data-testid="tiptap-perc-variable-name-text"]',
+      );
+      await expect(varSelect).toBeVisible();
+      expect((await varSelect.evaluate((el) => el.tagName)).toLowerCase()).toBe(
+        "select",
+      );
+      // Keyboard path: PanelShell autofocuses the select, so ArrowDown moves
+      // to the second table entry like a keyboard user would (selectOption
+      // never clears Playwright actionability here — the open TipTap host
+      // keeps the select from going stable — while keyboard input works).
+      await expect(varSelect).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      await expect(varSelect).toHaveValue("site_tagline");
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      const variableBadge = editable.locator(".perc-global-variable-marker").first();
+      await expect(variableBadge).toBeVisible();
+      // Edit surface shows the name badge; the stored marker carries the
+      // table value.
+      await expect(variableBadge).toContainText("$site_tagline");
+      await page.screenshot({
+        path: "test-results/live-proof-7341-table-picker.png",
+      });
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const persisted = (text && text.value) || "";
+      expect(persisted).toContain("perc-global-variable-marker");
+      expect(persisted).toContain('title="site_tagline"');
+      expect(persisted).toContain(">Hello</span>");
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "tiptap source view edits persist via PUT with plugin markers intact (#7340)",
     { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
     async ({ page }) => {
@@ -508,6 +582,79 @@ test.describe("React Content Editor TipTap editor", () => {
       const saved = (text && text.value) || "";
       expect(saved).toContain("Hi source edit");
       expect(saved).toContain("perc-blog-more-link");
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "tiptap source view drops unsafe markup before PUT (#7342)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+      await expect(
+        page.locator('[data-testid="editor-tiptap-perc-text"]'),
+      ).toBeVisible();
+
+      // Seed a plugin marker through the bar so the adversarial payload has
+      // stored CMS markup that must survive sanitization (one-click control,
+      // no dialog).
+      await page.locator('[data-testid="tiptap-perc-more-link-text"]').click();
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+
+      // Adversarial entry through the source panel: script tags, inline
+      // event handlers, and a javascript: URL riding alongside the marker.
+      await page.locator('[data-testid="tiptap-perc-source-text"]').click();
+      const sourceArea = page.locator(
+        '[data-testid="tiptap-perc-source-content-text"]',
+      );
+      await expect(sourceArea).toBeVisible();
+      await sourceArea.fill(
+        "<p>Keep this <span " +
+          'class="perc-blog-more-link"></span></p>' +
+          "<script>alert(1)</script>" +
+          '<p><a href="javascript:alert(2)">bad link</a></p>' +
+          '<p><img src="/Rhythmyx/Assets/i.png" onerror="alert(3)" alt="x"></p>' +
+          '<p onclick="alert(4)">hover bait</p>',
+      );
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      // Apply sanitizes through the schema: the marker stays, the unsafe
+      // markup never reaches the editing surface.
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+      const appliedHtml = await editable.innerHTML();
+      expect(appliedHtml).toContain("perc-blog-more-link");
+      expect(appliedHtml).not.toContain("<script");
+      expect(appliedHtml).not.toContain("javascript:");
+      expect(appliedHtml).not.toContain("onerror");
+      expect(appliedHtml).not.toContain("onclick");
+      await page.screenshot({
+        path: "test-results/live-proof-7342-source-unsafe.png",
+      });
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const saved = (text && text.value) || "";
+      expect(saved).toContain("perc-blog-more-link");
+      expect(saved).not.toContain("<script");
+      expect(saved).not.toContain("javascript:");
+      expect(saved).not.toContain("onerror");
+      expect(saved).not.toContain("onclick");
       await expect(page.getByText(/^Saved$/)).toBeVisible();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },

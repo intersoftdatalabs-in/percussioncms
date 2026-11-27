@@ -186,6 +186,36 @@ describe("TipTapPercussionBar", () => {
     }
   });
 
+  it("inserts a CMS-table global variable through the picker (#7341)", () => {
+    const holder = window as unknown as Record<string, unknown>;
+    const previous = holder["PercGlobalVariablesData"];
+    holder["PercGlobalVariablesData"] = {
+      company_name: "Acme",
+      site_tagline: "Hello",
+    };
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-global-variable-text"));
+      // Table path renders a select (sorted names), not the manual input.
+      const picker = screen.getByTestId("tiptap-perc-variable-name-text");
+      expect(picker.tagName.toLowerCase()).toBe("select");
+      fireEvent.change(picker, { target: { value: "site_tagline" } });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain(
+        '<span class="perc-global-variable-marker" title="site_tagline">Hello</span>',
+      );
+    } finally {
+      editor.destroy();
+      if (previous === undefined) {
+        delete holder["PercGlobalVariablesData"];
+      } else {
+        holder["PercGlobalVariablesData"] = previous;
+      }
+    }
+  });
+
   it("writes source edits back through the schema", () => {
     const editor = makeEditor();
     try {
@@ -252,6 +282,38 @@ describe("TipTapPercussionBar", () => {
       expect(html).not.toContain("<script");
       expect(html).not.toContain("javascript:");
       expect(html).not.toContain("onclick");
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("source view sanitizes adversarial payloads but keeps co-present plugin markers (#7342)", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-source-text"));
+      const area = screen.getByTestId("tiptap-perc-source-content-text");
+      fireEvent.change(area, {
+        target: {
+          value:
+            "<p>Keep <span " +
+            'class="perc-global-variable-marker" title="company_name">Acme</span></p>' +
+            '<p><img src="/Rhythmyx/Assets/i.png" onerror="alert(1)" alt="x"></p>' +
+            "<script>alert(2)</script>" +
+            '<p><a href="javascript:alert(3)">bad</a></p>' +
+            '<p onmouseover="alert(4)">hover</p>',
+        },
+      });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      // Plugin markers co-present in the adversarial payload survive.
+      expect(html).toContain("perc-global-variable-marker");
+      expect(html).toContain('title="company_name"');
+      // Script tags, inline event handlers, and javascript: URLs are dropped.
+      expect(html).not.toContain("<script");
+      expect(html).not.toContain("onerror");
+      expect(html).not.toContain("onmouseover");
+      expect(html).not.toContain("javascript:");
     } finally {
       editor.destroy();
     }
