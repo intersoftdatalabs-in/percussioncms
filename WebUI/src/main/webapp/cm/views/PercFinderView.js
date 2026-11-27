@@ -1746,9 +1746,9 @@
     function checkIfLinkedPage(pageId, itemType, type, trName) {
       if (type === "page" && trName === "Archive") {
         var findLinkedItemsUrl =
-          $.perc_paths.ITEM_LINKED_TO_ITEM + "/" + pageId;
+          $.perc_paths.ITEM_LINKED_TO_ITEM + "/" + pageId; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7320, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270/#7271) — slash joins REST URL path segments, not an OS path.
         var takeDownUrl = $.perc_paths.PAGE_TAKEDOWN;
-        takeDownUrl += "/" + pageId;
+        takeDownUrl += "/" + pageId; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7320, same as #5897/#5898/#5910/#5924/#5927/#6701/#7270/#7271) — slash joins REST URL path segments, not an OS path.
 
         $.PercServiceUtils.makeJsonRequest(
           findLinkedItemsUrl,
