@@ -140,8 +140,8 @@ class WidgetPayloadUpstreamNoticeGuardTest {
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/css/jquery-ui.min.css",
               "jQuery Foundation"),
           Map.entry(
-              "perc.baseWidgets/sys__UserDependency--web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css",
-              "jQuery Foundation"),
+              "perc.baseWidgets/sys__UserDependency--web_resources/cm/themes/smoothness/jquery-ui.css",
+              "OpenJS Foundation"),
           Map.entry(
               "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/css/jquery.minicolors.css",
               "Cory LaViska"),

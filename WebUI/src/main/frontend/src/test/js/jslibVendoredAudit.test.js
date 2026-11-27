@@ -84,7 +84,7 @@
  * | widgets/htmldiff.js (+ war twin, byte-drifted older cut) | UNKNOWN (tnwinc, no banner) | UNKNOWN (author URL only; MIT upstream) | LIVE: compare.jsp twins + common_js.jsp twins + static-bundles.json | htmldiff@0.0.4 (same lineage, stale source-only, broken main) | #7378 (identify cut + npm-track or retain-with-provenance) |
  * | css/superfish.css + app/css/legacy/superfish.css (identical orphans, older cut than npm 1.7.10) | pre-1.7.10 superfish | MIT (upstream) | NONE (live pages use npm-backed jslib copies) | superfish@1.7.10 (#6430) | #7380 retire cluster (delete orphans) |
  * | {gadgets,widgets}/repository/common/lib/uploadify/ (v2.1.0 css+swf+fla dupes) + uploadify feature.xml twins | Uploadify 2.1.0 (2009 Garcia/Nickels) | MIT-style grant in css header | NONE (feature.xml points at swfobject.js + jquery.uploadify.v2.1.0.min.js which do not exist; Flash dead 2020) | n/a (dead upstream) | #7380 retire cluster (delete dirs + feature entries) |
- * | themes/smoothness/jquery-ui-1.8.9.custom.css (banner: v1.12.1 2021 — filename drift) | jQuery UI 1.12.1 theme | MIT | LIVE: editTemplate/users/webmgt/dashboard.jsp (+ pages twins) | jQuery UI 1.14 npm (#5660, JS only — no theme mapping) | #7381 (serve theme from npm dist or record ThemeRoller provenance) |
+ * | themes/smoothness/jquery-ui-1.8.9.custom.css | MIGRATED #7381: npm jquery-ui 1.14 dist theme at corrected URL themes/smoothness/jquery-ui.css (stock 1.12.1 bundle, not a custom cut) | MIT (dist banner + pkg) | same smoothness theme, npm-backed | jquery-ui | #7381 DONE |
  * | WEB-INF/Owasp.CsrfGuard.js | 2011 Sheridan | BSD | live app (version-locked to server filter) | n/a | recorded human gate (#5667 precedent, no migration issue) |
  * | {css,app/css/legacy}/minuet/perc_fonts_minuet.css (@import https://fonts.googleapis.com/…) | remote font import, not vendored | n/a | bundled via common-minuet-bundles.json (zero direct JSP refs) | n/a | recorded: self-host-or-allowlist decision owned by CDN-guard follow-on, no vendored-migration issue |
  *
@@ -999,23 +999,43 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     expect(refHits, "uploadify gained a live reference").toEqual([]);
   });
 
-  it("slice-5A: live jQuery-UI theme CSS pinned (filename drift recorded) until #7381 decides", () => {
-    // cm/themes/smoothness/jquery-ui-1.8.9.custom.css is loaded by four
-    // legacy JSPs (+ pages twins) but its banner is v1.12.1 (2021): the
-    // filename is drift, not the version. The JS side is npm-tracked
-    // (#5660) but no NPM_LIBRARY_MAPPINGS entry serves this theme file.
-    // #7381 maps it through the npm dist or records ThemeRoller
-    // provenance; this pin fails loudly on banner or consumer drift.
-    const theme = path.join(
+  it("slice-5A: jQuery-UI theme served from npm (issue #7381 MIGRATED)", () => {
+    // The vendored cm/themes/smoothness/jquery-ui-1.8.9.custom.css was the
+    // stock 1.12.1 ThemeRoller smoothness bundle (filename drift, not a
+    // custom cut — same widget set as the npm dist, MIT), so #7381 deleted
+    // it and serves the Dependabot-tracked jquery-ui 1.14 dist theme at the
+    // corrected URL themes/smoothness/jquery-ui.css via the
+    // generated-webui overlay (STANDALONE_NPM_COPIES + NPM_LIBRARY_MAPPINGS
+    // in scripts/build-legacy-bundles.cjs). This pin fails loudly if the
+    // lie filename resurrects, the new URL loses its npm mapping/overlay
+    // entries, an image url() stops resolving, or a consumer drifts back.
+    const retired = path.join(
       WEBAPP_CM,
       "themes/smoothness/jquery-ui-1.8.9.custom.css",
     );
-    expect(fs.existsSync(theme), "live jQuery-UI theme CSS missing").toBe(
-      true,
-    );
-    expect(readHead(theme), "theme lost its v1.12.1 banner").toMatch(
-      /jQuery UI - v1\.12\.1/,
-    );
+    expect(
+      fs.existsSync(retired),
+      "vendored lie-filename theme resurrected",
+    ).toBe(false);
+    // Mirror trees carry no live copy either (vendor/css/legacy + war
+    // snapshots deleted with the live file; the perc-packages
+    // web_resources images-only mirror has no css companion and stays for
+    // the #7377 re-sweep to adjudicate).
+    for (const abs of [
+      path.join(
+        WEBAPP_CM,
+        "vendor/css/legacy/themes/smoothness/jquery-ui-1.8.9.custom.css",
+      ),
+      path.join(
+        WAR_ROOT,
+        "themes/smoothness/jquery-ui-1.8.9.custom.css",
+      ),
+    ]) {
+      expect(fs.existsSync(abs), `mirror lie-filename theme present: ${abs}`).toBe(
+        false,
+      );
+    }
+    const NEW_URL = "themes/smoothness/jquery-ui.css";
     for (const tree of ["app", "pages/app"]) {
       for (const jspName of [
         "editTemplate.jsp",
@@ -1027,10 +1047,53 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
           path.join(WEBAPP_CM, tree, jspName),
           "utf8",
         );
-        expect(content, `${tree}/${jspName} lost theme load`).toContain(
-          "themes/smoothness/jquery-ui-1.8.9.custom.css",
+        expect(content, `${tree}/${jspName} lost npm theme load`).toContain(
+          NEW_URL,
         );
+        expect(
+          content,
+          `${tree}/${jspName} still loads the lie filename`,
+        ).not.toContain("jquery-ui-1.8.9.custom.css");
       }
+    }
+    for (const jsRel of [
+      "models/PercPageModel.js",
+      "app/js/legacy/models/PercPageModel.js",
+    ]) {
+      const content = fs.readFileSync(path.join(WEBAPP_CM, jsRel), "utf8");
+      expect(content, `${jsRel} lost npm theme load`).toContain(
+        `/cm/${NEW_URL}`,
+      );
+      expect(content, `${jsRel} still loads the lie filename`).not.toContain(
+        "jquery-ui-1.8.9.custom.css",
+      );
+    }
+    // Image-path parity: every images/*.png the npm css references must
+    // exist in the npm dist (copied to the sibling images/ dir by the
+    // overlay). The two legacy ui-bg_flat_* files the npm theme dropped are
+    // still served from src for the PercDatetimePicker/PercMultiDropDown
+    // rules that reference them (see buildLegacyBundles.test.js).
+    const npmCss = fs.readFileSync(
+      path.join(
+        FRONTEND_ROOT,
+        "node_modules/jquery-ui/dist/themes/smoothness/jquery-ui.css",
+      ),
+      "utf8",
+    );
+    const refs = new Set(
+      [...npmCss.matchAll(/url\("?images\/([^")]+)"?\)/g)].map((m) => m[1]),
+    );
+    expect(refs.size, "npm theme references no images").toBeGreaterThan(0);
+    for (const img of refs) {
+      expect(
+        fs.existsSync(
+          path.join(
+            FRONTEND_ROOT,
+            `node_modules/jquery-ui/dist/themes/smoothness/images/${img}`,
+          ),
+        ),
+        `npm theme image missing from dist: ${img}`,
+      ).toBe(true);
     }
   });
 

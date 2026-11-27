@@ -3279,3 +3279,182 @@ describe("classic-UI FontAwesome from npm (issue #6321)", () => {
     ).not.toMatch(/fontawesome-all|v4-shims/);
   });
 });
+
+describe("classic-UI jQuery-UI smoothness theme from npm (issue #7381)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+  const WEBUI_DIR = path.dirname(
+    path.dirname(path.dirname(FRONTEND_ROOT)),
+  );
+
+  const THEME_SRC = "jquery-ui/dist/themes/smoothness/jquery-ui.css";
+  const THEME_DEST = "themes/smoothness/jquery-ui.css";
+  const THEME_IMAGE_NAMES = [
+    "ui-bg_glass_55_fbf9ee_1x400.png",
+    "ui-bg_glass_65_ffffff_1x400.png",
+    "ui-bg_glass_75_dadada_1x400.png",
+    "ui-bg_glass_75_e6e6e6_1x400.png",
+    "ui-bg_glass_95_fef1ec_1x400.png",
+    "ui-bg_highlight-soft_75_cccccc_1x100.png",
+    "ui-icons_222222_256x240.png",
+    "ui-icons_2e83ff_256x240.png",
+    "ui-icons_454545_256x240.png",
+    "ui-icons_888888_256x240.png",
+    "ui-icons_cd0a0a_256x240.png",
+  ];
+  const THEME_STANDALONE = [
+    { src: THEME_SRC, dest: THEME_DEST },
+    ...THEME_IMAGE_NAMES.map((name) => ({
+      src: `jquery-ui/dist/themes/smoothness/images/${name}`,
+      dest: `themes/smoothness/images/${name}`,
+    })),
+  ];
+
+  // Four legacy JSPs (+ pages twins) plus the PercPageModel.js twins that
+  // inject the theme <link> into preview documents.
+  const THEME_CONSUMERS = [
+    "app/editTemplate.jsp",
+    "app/users.jsp",
+    "app/webmgt.jsp",
+    "app/dashboard.jsp",
+    "pages/app/editTemplate.jsp",
+    "pages/app/users.jsp",
+    "pages/app/webmgt.jsp",
+    "pages/app/dashboard.jsp",
+  ];
+  const THEME_JS_CONSUMERS = [
+    "models/PercPageModel.js",
+    "app/js/legacy/models/PercPageModel.js",
+  ];
+  const RETIRED_URL = "themes/smoothness/jquery-ui-1.8.9.custom.css";
+
+  it("pins the npm mapping for the corrected theme URL", () => {
+    expect(NPM_LIBRARY_MAPPINGS[THEME_DEST]).toBe(THEME_SRC);
+    const resolved = resolvePath(THEME_DEST);
+    const normalized = resolved.split(path.sep).join("/");
+    expect(normalized).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+    // The lie filename must have no mapping of its own.
+    expect(NPM_LIBRARY_MAPPINGS[RETIRED_URL]).toBeUndefined();
+  });
+
+  it("pins the required standalone copies (css + sibling images)", () => {
+    for (const { src, dest } of THEME_STANDALONE) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs theme css + images byte-identical to the npm dist", () => {
+    const distPath = path.join(NODE_MODULES, THEME_SRC);
+    if (!fs.existsSync(distPath)) {
+      // Hermetic CI without frontend node_modules: presence pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest } of THEME_STANDALONE) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+    }
+    // The deleted vendored lie file must not leak back into the source tree.
+    expect(fs.existsSync(path.join(WEBAPP_CM, RETIRED_URL))).toBe(false);
+  });
+
+  it("ships the npm banner version, never the 1.12.1 drift", () => {
+    const distPath = path.join(NODE_MODULES, THEME_SRC);
+    if (!fs.existsSync(distPath)) {
+      return;
+    }
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(NODE_MODULES, "jquery-ui/package.json"), "utf8"),
+    );
+    const head = fs.readFileSync(distPath, "utf8").slice(0, 1024);
+    expect(head, "npm theme lost its version banner").toContain(
+      `jQuery UI - v${pkg.version}`,
+    );
+    expect(head, "npm theme regressed to the 1.12.1 banner").not.toContain(
+      "v1.12.1",
+    );
+  });
+
+  it("points every legacy consumer at the corrected URL, never the lie", () => {
+    for (const rel of THEME_CONSUMERS) {
+      const content = fs.readFileSync(path.join(WEBAPP_CM, rel), "utf8");
+      expect(content, `${rel} lost npm theme load`).toContain(THEME_DEST);
+      expect(content, `${rel} still loads the lie filename`).not.toContain(
+        RETIRED_URL,
+      );
+    }
+    for (const rel of THEME_JS_CONSUMERS) {
+      const content = fs.readFileSync(path.join(WEBAPP_CM, rel), "utf8");
+      expect(content, `${rel} lost npm theme load`).toContain(
+        `/cm/${THEME_DEST}`,
+      );
+      expect(content, `${rel} still loads the lie filename`).not.toContain(
+        RETIRED_URL,
+      );
+    }
+  });
+
+  it("covers every images/ url() in the npm css with an overlay copy", () => {
+    const distPath = path.join(NODE_MODULES, THEME_SRC);
+    if (!fs.existsSync(distPath)) {
+      return;
+    }
+    const css = fs.readFileSync(distPath, "utf8");
+    const refs = new Set(
+      [...css.matchAll(/url\("?images\/([^")]+)"?\)/g)].map((m) => m[1]),
+    );
+    expect(refs.size, "npm theme references no images").toBeGreaterThan(0);
+    const covered = new Set(
+      THEME_STANDALONE.filter((e) => e.dest.startsWith("themes/smoothness/images/")).map(
+        (e) => e.dest.split("/").pop(),
+      ),
+    );
+    for (const img of refs) {
+      expect(covered, `no overlay copy covers npm theme image ${img}`).toContain(
+        img,
+      );
+    }
+  });
+
+  it("deleted vendored tree copies are gone from the source tree", () => {
+    // The live lie-filename css plus the 11 npm-covered images are deleted
+    // from cm/themes and the vendor/css/legacy mirror; the war/ snapshot
+    // mirror is deleted too (tracked legacy duplicate tree). The two legacy
+    // ui-bg_flat_* images the npm theme dropped stay: the
+    // PercDatetimePicker/PercMultiDropDown rules still reference them.
+    const deleted = [
+      RETIRED_URL,
+      ...THEME_IMAGE_NAMES.map((name) => `themes/smoothness/images/${name}`),
+    ];
+    for (const rel of deleted) {
+      expect(
+        fs.existsSync(path.join(WEBAPP_CM, rel)),
+        `deleted vendored file still present: ${rel}`,
+      ).toBe(false);
+    }
+    const vendorRel = (rel) => rel.replace(/^themes\//, "vendor/css/legacy/themes/");
+    for (const rel of deleted) {
+      expect(
+        fs.existsSync(path.join(WEBAPP_CM, vendorRel(rel))),
+        `deleted vendor-mirror file still present: ${rel}`,
+      ).toBe(false);
+    }
+    const warFile = (rel) => path.join(WEBUI_DIR, "war", rel);
+    for (const rel of deleted) {
+      expect(
+        fs.existsSync(warFile(rel)),
+        `deleted war-mirror file still present: ${rel}`,
+      ).toBe(false);
+    }
+  });
+});
