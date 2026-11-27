@@ -220,6 +220,16 @@ describe("LocalesPanel", () => {
       expect(screen.getByTestId("developer-loc-empty")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-loc-new")).toBeTruthy();
+    // #7346: named empty copy + actionable create CTA hook.
+    expect(screen.getByTestId("developer-loc-empty").textContent).toBe(DEV_MSG.LOC_EMPTY);
+    const hint = screen.getByTestId("developer-loc-empty-hint");
+    expect(hint.textContent).toBe(DEV_MSG.LOC_EMPTY_HINT);
+    expect(hint.textContent).toContain("New");
+    fireEvent.click(screen.getByTestId("developer-loc-empty-new"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-save")).toBeDisabled();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

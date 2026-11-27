@@ -133,6 +133,14 @@ describe("ContentTypesPanel", () => {
       expect(screen.getByTestId("developer-ct-empty")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ct-new")).toBeTruthy();
+    // #7346: named empty copy + actionable create CTA hook.
+    expect(screen.getByTestId("developer-ct-empty").textContent).toBe(DEV_MSG.CT_EMPTY);
+    const hint = screen.getByTestId("developer-ct-empty-hint");
+    expect(hint.textContent).toBe(DEV_MSG.CT_EMPTY_HINT);
+    expect(hint.textContent).toContain("New");
+    fireEvent.click(screen.getByTestId("developer-ct-empty-new"));
+    expect(screen.getByTestId("developer-ct-create")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-create-save")).toBeDisabled();
   });
 
   it("opens create chrome from New content type", async () => {

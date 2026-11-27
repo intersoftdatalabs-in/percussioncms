@@ -401,6 +401,13 @@ the catalog no longer lists that language string.
 5. HTTP 400, 403, and 409 do not show **Locale enabled status saved** and
    do not replace the previous status.
 
+## Empty catalog
+
+An empty catalog shows a named empty state (**No locales returned**) followed
+by an actionable hint (**No locales yet — use New to create one**) and a
+**New locale** button that opens the same create chrome as the catalog
+header, so the first locale can be created without leaving the panel.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).

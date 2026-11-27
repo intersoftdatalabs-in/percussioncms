@@ -431,7 +431,26 @@ export function ContentTypesPanel(): React.ReactElement {
       ) : items == null ? (
         <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>
       ) : items.length === 0 ? (
-        <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>
+        <>
+          <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>
+          <div data-testid="developer-ct-empty-hint">{DEV_MSG.CT_EMPTY_HINT}</div>
+          <button
+            type="button"
+            data-testid="developer-ct-empty-new"
+            onClick={() => setSelected("new")}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "8px",
+            }}
+          >
+            {DEV_MSG.CT_NEW}
+          </button>
+        </>
       ) : (
       <SimpleCatalogTable
         tableTestId="developer-ct-table"

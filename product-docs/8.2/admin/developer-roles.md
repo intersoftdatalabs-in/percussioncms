@@ -51,7 +51,10 @@ on the role.
    role. Select a row to edit that role's description or home page.
 
 Non-Admin sessions receive **403** from the catalog API and the panel shows an
-error. An empty catalog is a valid **200** with no rows.
+error. An empty catalog is a valid **200** with no rows: the panel shows a
+named empty state (**No roles returned**) with an actionable hint (**No roles
+yet — use Create role to add one**) and a **Create role** button that opens
+the same inline create form as the catalog header.
 
 ## Readback
 

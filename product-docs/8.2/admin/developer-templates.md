@@ -25,7 +25,10 @@ into template source. Create and delete of modern templates stay on
 3. The catalog lists label, name, id, and description. Open a row to edit.
 
 If the catalog is empty, **Import XML** is still available so you can create the
-first template from a design document.
+first template from a design document. The empty state itself stays a neutral
+named message (**No templates returned**): this catalog has no New action
+(create stays on [Design templates](id:admin-design-templates)), so no
+create button is rendered there.
 
 ## Load failure and retry
 
