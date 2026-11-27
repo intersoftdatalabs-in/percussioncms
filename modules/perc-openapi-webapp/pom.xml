@@ -13,6 +13,52 @@
     <dependencies/>
     <build>
         <plugins>
+            <!--
+                Self-host swagger-ui-dist via npm (issue #7281): installs
+                Node (shared ~/.m2/frontend cache), runs npm ci, then copies
+                swagger-ui-bundle.js + swagger-ui.css into
+                target/generated-ui/swagger-ui/ so the /openapi viewer loads
+                zero third-party CDN requests. Mirrors the
+                modules/perc-common-ui-bundle frontend-maven-plugin wiring.
+            -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <configuration>
+                    <nodeVersion>v22.22.0</nodeVersion>
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <installDirectory>${user.home}/.m2/frontend</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>ci</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-sync-swagger-ui</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>run sync</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Generate OpenAPI spec from REST module annotations -->
             <plugin>
                 <groupId>com.percussion</groupId>
@@ -40,6 +86,14 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingExcludes>WEB-INF/lib/**</packagingExcludes>
+                    <webResources>
+                        <!-- npm-synced swagger-ui-dist bundles (see above) -->
+                        <resource>
+                            <directory>${project.build.directory}/generated-ui</directory>
+                            <targetPath>.</targetPath>
+                            <filtering>false</filtering>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
         </plugins>

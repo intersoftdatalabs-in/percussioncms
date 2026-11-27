@@ -1,0 +1,13 @@
+{
+  "name": "perc-openapi-webapp",
+  "version": "8.2.0",
+  "private": true,
+  "description": "Self-hosted Swagger UI assets for the Percussion CMS OpenAPI webapp (issue #7281).",
+  "license": "Apache-2.0",
+  "scripts": {
+    "sync": "node scripts/sync-swagger-ui.cjs"
+  },
+  "dependencies": {
+    "swagger-ui-dist": "5.36.0"
+  }
+}
