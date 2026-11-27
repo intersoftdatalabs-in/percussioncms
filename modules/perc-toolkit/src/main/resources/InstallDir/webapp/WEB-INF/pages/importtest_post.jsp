@@ -58,10 +58,21 @@
 	    return div.innerHTML;
 	}
 	  document.addEventListener("DOMContentLoaded", function(){
-	    document.getElementById("form").addEventListener("submit", function(event){
+	    var form = document.getElementById("form");
+	    if (!form) {
+	        return;
+	    }
+	    form.addEventListener("submit", function(event){
 	        event.preventDefault();
-	        dataString = request.getParameter("");
-			posturl = document.getElementById("post_url").value;
+	        // The FEED URL textarea is the request payload. (A pre-#7372
+	        // revision read the server-side JSP implicit `request` object
+	        // here, which throws `ReferenceError: request is not defined`
+	        // in the browser and left this handler inert — issue #7372.)
+	        var dataString = document.getElementById("body").value;
+	        // The dedicated post-URL override field is commented out of the
+	        // markup below, so POST to this form's own action instead of a
+	        // missing `#post_url` element (null.value — issue #7372).
+	        var posturl = form.getAttribute("action");
 
 	        fetch(posturl, {
 	        method: "POST",
@@ -72,6 +83,9 @@
 	            return response.text().then(function(text){
 	                document.getElementById("message_ajax").innerHTML = htmlEncode(text);
 	            });
+	        }).catch(function(err){
+	            document.getElementById("message_ajax").innerHTML =
+	                htmlEncode("Import request failed: " + err);
 	        });
 
 	        return false;
@@ -95,5 +109,6 @@
 		<textarea rows="2" cols="80" name="body" id="body"></textarea><br/>
 		<input type="submit"></input>
 	</csrf:form>
+	<div id="message_ajax"></div>
 </body>
 </html>
