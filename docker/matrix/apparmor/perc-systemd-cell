@@ -33,6 +33,9 @@
 
 profile perc-systemd-cell flags=(attach_disconnected, mediate_deleted) {
   #include <abstractions/base>
+  #include <abstractions/python>  # stdlib reads for cell-entrypoint.py
+  # (encodings/argparse/…); the stock base abstraction does not supply
+  # them (Codex P1, #7332).
 
   # Minimal capabilities for systemd-as-PID-1 inside an unprivileged cell.
   capability chown,
