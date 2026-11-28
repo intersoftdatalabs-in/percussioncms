@@ -299,6 +299,67 @@ describe("TipTapToolbar", () => {
     }
   });
 
+  it("edits table structure through every toolbar control (#7393)", () => {
+    const editor = makeEditor();
+    try {
+      const { rerender } = render(<TipTapToolbar editor={editor} name="text" />);
+      const refresh = (): void => {
+        // Production re-renders the toolbar on every editor transaction
+        // (TipTapFieldWidget bumps state); refresh the command states here.
+        rerender(<TipTapToolbar editor={editor} name="text" />);
+      };
+      const press = (action: string): void => {
+        fireEvent.click(screen.getByTestId(`tiptap-${action}-text`));
+        refresh();
+      };
+      const firstCell = (): void => {
+        for (let i = 0; i < 20; i += 1) {
+          editor.commands.goToPreviousCell();
+        }
+      };
+      const nextCell = (steps: number): void => {
+        for (let i = 0; i < steps; i += 1) {
+          editor.commands.goToNextCell();
+        }
+      };
+      press("table-insert");
+      expect(editor.getHTML()).toContain("<table");
+      expect((editor.getHTML().match(/<tr>/g) ?? []).length).toBe(3);
+      // Every structure control arms once the selection is in the table.
+      for (const action of [
+        "table-add-row",
+        "table-remove-row",
+        "table-add-col",
+        "table-remove-col",
+        "table-delete",
+      ]) {
+        expect(
+          (screen.getByTestId(`tiptap-${action}-text`) as HTMLButtonElement).disabled,
+        ).toBe(false);
+      }
+      press("table-add-row");
+      expect((editor.getHTML().match(/<tr>/g) ?? []).length).toBe(4);
+      press("table-add-col");
+      expect((editor.getHTML().match(/<th>/g) ?? []).length).toBe(4);
+      // Steer into the added header cell so remove-col drops that column.
+      firstCell();
+      nextCell(3);
+      press("table-remove-col");
+      expect((editor.getHTML().match(/<th>/g) ?? []).length).toBe(3);
+      // Steer into the first body cell so remove-row drops a body row and
+      // the header row survives.
+      firstCell();
+      nextCell(3);
+      press("table-remove-row");
+      expect((editor.getHTML().match(/<tr>/g) ?? []).length).toBe(3);
+      expect((editor.getHTML().match(/<th>/g) ?? []).length).toBe(3);
+      press("table-delete");
+      expect(editor.getHTML()).not.toContain("<table");
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("disables table row controls outside a table", () => {
     const editor = makeEditor();
     try {
