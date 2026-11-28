@@ -132,6 +132,28 @@ Compile the modern widget and materialize the install wire format on a
   every `styles` value is scalar
   (`Java code: PSSlotLayoutStylesConformance`).
 
+## 8. Sweep the fleet
+
+The pilot gates above prove one package. Before calling a conversion wave
+done, run the fleet-wide binding-order sweep over **every** `pages/` +
+`widgets/` manifest in the tree
+(`Java code: PSFleetBindingOrderConformance`,
+`Java code: PSFleetBindingOrderConformanceTest` in `modules/perc-packages`):
+
+1. `scan(packagesRoot)` reads and validates each
+   `component-package.json` and checks every template's bindings in
+   document order — 77 manifests / ~1,800 bindings at the last audit.
+2. **Hard defects must be fixed in the manifest in place:** unreadable or
+   invalid manifests, null binding entries, blank variables. The sweep
+   fails until they are gone.
+3. **Shadowing needs a recorded disposition, not a fix:** snippet
+   branch-reassignment duplicates (40 templates at the last audit) are the
+   Velocity reassignment idiom, not corruption. If the sweep reports a
+   duplicate set that differs from the recorded one, verify the snippet's
+   conditional branches in document order first, then update the
+   `RECORDED_SHADOWING` entry for that template only. Never delete a
+   record to green the build.
+
 ## Related
 
 - [Product page packages](id:developer-page-packages)
