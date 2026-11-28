@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import { isValidContentTypeName } from "../api/developer/contentTypesApi";
 import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
@@ -336,6 +336,10 @@ export function TemplateDetailPanel({
   const labelInflight = useRef(false);
   /** Pending caret after snippet insert (applied when textarea remounts/edits). */
   const pendingCaretRef = useRef<number | null>(null);
+  const labelEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const descriptionEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const labelWasEditingRef = useRef(false);
+  const descriptionWasEditingRef = useRef(false);
   /** Row indices with expanded long binding expressions (UI-SRC-02). */
   const [expandedExprRows, setExpandedExprRows] = useState<Set<number>>(
     () => new Set(),
@@ -421,6 +425,32 @@ export function TemplateDetailPanel({
       // jsdom / older hosts may not support setSelectionRange
     }
   }, [source, sourceEditing]);
+
+  // #7390: when an inline set-label / set-description editor closes (Escape,
+  // Cancel, or save), the input unmounts and focus would fall back to
+  // <body>. Return focus to the invoking edit button so keyboard and
+  // screen-reader users keep their place on the page. Layout effect (same
+  // as useDialogEscape) so focus lands before paint with no body flash.
+  // Mirrors slot #6733.
+  useLayoutEffect(() => {
+    if (labelWasEditingRef.current && !labelEditing) {
+      const btn = labelEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    labelWasEditingRef.current = labelEditing;
+  }, [labelEditing]);
+
+  useLayoutEffect(() => {
+    if (descriptionWasEditingRef.current && !descriptionEditing) {
+      const btn = descriptionEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    descriptionWasEditingRef.current = descriptionEditing;
+  }, [descriptionEditing]);
 
   const initialBindings = cloneBindings(detail?.bindings);
   const initialSlotKeys = new Set(
@@ -632,6 +662,14 @@ export function TemplateDetailPanel({
     setLabelError(null);
   }
 
+  // #7390: Escape cancels the label edit without writing, reusing the
+  // cancel guards above (busy/inflight stay, draft cleared, stored kept).
+  function handleLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelLabelEdit();
+    }
+  }
+
   async function handleLabelSave(): Promise<void> {
     if (
       !detail ||
@@ -760,6 +798,14 @@ export function TemplateDetailPanel({
     setDescriptionEditing(false);
     setDescriptionDraft("");
     setDescriptionError(null);
+  }
+
+  // #7390: Escape cancels the description edit without writing, reusing the
+  // cancel guards above (busy/inflight stay, draft cleared, stored kept).
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDescriptionEdit();
+    }
   }
 
   async function handleDescriptionSave(): Promise<void> {
@@ -1230,7 +1276,11 @@ export function TemplateDetailPanel({
                 </div>
               ) : null}
               {labelNotice ? (
-                <div data-testid="developer-tpl-set-label-notice" style={{ color: "#276749" }}>
+                <div
+                  role="status"
+                  data-testid="developer-tpl-set-label-notice"
+                  style={{ color: "#276749" }}
+                >
                   {labelNotice}
                 </div>
               ) : null}
@@ -1243,7 +1293,9 @@ export function TemplateDetailPanel({
                     style={inputStyle}
                     value={labelDraft}
                     disabled={labelBusy}
+                    autoFocus
                     onChange={(e) => setLabelDraft(e.target.value)}
+                    onKeyDown={handleLabelKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button
@@ -1284,6 +1336,7 @@ export function TemplateDetailPanel({
               ) : (
                 <button
                   type="button"
+                  ref={labelEditButtonRef}
                   data-testid="developer-tpl-set-label-edit"
                   aria-label={TPL_LABEL_MSG.ACTION}
                   disabled={busy || labelBusy || descriptionBusy}
@@ -1340,6 +1393,7 @@ export function TemplateDetailPanel({
               ) : null}
               {descriptionNotice ? (
                 <div
+                  role="status"
                   data-testid="developer-tpl-set-description-notice"
                   style={{ color: "#276749" }}
                 >
@@ -1355,7 +1409,9 @@ export function TemplateDetailPanel({
                     style={inputStyle}
                     value={descriptionDraft}
                     disabled={descriptionBusy}
+                    autoFocus
                     onChange={(e) => setDescriptionDraft(e.target.value)}
+                    onKeyDown={handleDescriptionKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button
@@ -1398,6 +1454,7 @@ export function TemplateDetailPanel({
               ) : (
                 <button
                   type="button"
+                  ref={descriptionEditButtonRef}
                   data-testid="developer-tpl-set-description-edit"
                   aria-label={TPL_DESC_MSG.ACTION}
                   disabled={busy || descriptionBusy}
