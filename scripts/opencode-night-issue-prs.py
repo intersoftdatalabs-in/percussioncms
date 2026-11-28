@@ -27,7 +27,11 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
   prior run's untracked report that has since landed on the base branch)
   are moved aside to `<worktree>/tmp/night-sync-backup/<UTC stamp>/`
   before checkout, so the sync restores the tracked version instead of
-  aborting with "untracked working tree files would be overwritten".
+  aborting with "untracked working tree files would be overwritten". A path
+  that exists but is no longer a registered worktree (orphaned husk, lost
+  `.git`) is moved aside to `<parent>/<name>-orphan-<UTC stamp>/` before
+  `worktree add` — unless live nested worktrees sit inside, in which case
+  the run fails loudly instead of touching them.
 - Stale-worktree cleanup (HARD GATE, on by default): runs
   `scripts/prune-stale-worktrees.py --apply --force
   --delete-local-branches` after sync AND after the run (even on failure),
@@ -273,13 +277,87 @@ def move_aside_untracked_checkout_conflicts(worktree: Path, sync_ref: str) -> li
     return moved
 
 
+def _nested_worktree_paths(repo_root: Path) -> list[Path] | None:
+    """Return registered worktree paths, or None when the inventory fails."""
+    try:
+        listed = subprocess.run(
+            ["git", "worktree", "list", "--porcelain"],
+            cwd=repo_root,
+            shell=False,
+            check=False,
+            timeout=60,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+    if listed.returncode != 0:
+        return None
+    paths: list[Path] = []
+    for line in listed.stdout.splitlines():
+        if line.startswith("worktree "):
+            paths.append(Path(line[len("worktree "):].strip()))
+    return paths
+
+
+def reclaim_orphaned_worktree_path(worktree: Path, repo_root: Path) -> Path | None:
+    """Move aside a path that exists but is not a registered git worktree.
+
+    A worktree directory can lose its `.git` registration (observed
+    2026-11-28: the night husk kept files but no `.git`, so every cycle fell
+    through to `git worktree add` and died with "already exists"). Moving the
+    husk aside lets `worktree add` recreate the worktree fresh instead of
+    stalling forever.
+
+    Refuses with `LauncherError` when a live nested worktree sits inside the
+    husk (e.g. an Erlang review checkout under `tmp/` for an open PR) or when
+    the worktree inventory itself fails — moving those aside could destroy
+    someone else's running work, so a human must intervene. Also raises
+    `LauncherError` when the move fails (e.g. files owned by another user);
+    the message says who must clean up. Returns the backup path, or None
+    when nothing was there to reclaim.
+    """
+    if not worktree.exists() or worktree_exists(worktree):
+        return None
+    inventory = _nested_worktree_paths(repo_root)
+    if inventory is None:
+        raise LauncherError(
+            f"worktree path {worktree} is not registered and the worktree "
+            "inventory failed; refusing to move it aside without knowing "
+            "what lives inside"
+        )
+    room = worktree.resolve()
+    nested = [p for p in inventory if room in p.resolve().parents]
+    if nested:
+        raise LauncherError(
+            f"worktree path {worktree} is not registered but contains live "
+            f"nested worktree(s) {[str(p) for p in nested]}; refusing to move "
+            "aside — relocate them with `git worktree move` first"
+        )
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup = worktree.parent / f"{worktree.name}-orphan-{stamp}"
+    try:
+        shutil.move(str(worktree), str(backup))
+    except (OSError, shutil.Error) as exc:
+        raise LauncherError(
+            f"could not move aside orphaned worktree path {worktree} "
+            f"(may contain files owned by another user): {exc}"
+        ) from exc
+    LOGGER.warning("moved aside orphaned worktree path %s -> %s", worktree, backup)
+    return backup
+
+
 def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from_local: bool = False) -> None:
     """Sync the worktree to the configured base branch ref.
 
     Always fetches the latest remote (when syncing from origin), then:
 
     - **First run** (worktree missing): `git worktree add -B <branch> <ref>`
-      creates the branch and the worktree atomically.
+      creates the branch and the worktree atomically. A path that exists
+      but is no longer a registered worktree (orphaned husk, lost `.git`)
+      is moved aside first — unless live nested worktrees sit inside, in
+      which case sync fails loudly instead of touching them; see
+      `reclaim_orphaned_worktree_path`.
     - **Subsequent runs** (worktree exists): `git checkout -B <branch>
       <ref>` switches the worktree back to the sync branch and hard-resets
       it. A bare `git reset --hard <ref>` is NOT enough: a previous run may
@@ -374,6 +452,33 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
         return
 
     worktree.parent.mkdir(parents=True, exist_ok=True)
+    if worktree.exists() and not worktree_exists(worktree):
+        # Orphaned husk: the path exists but git no longer knows it as a
+        # worktree (lost `.git`), so `worktree add` below would die with
+        # "already exists" every cycle. Reclaim it (refuses when live nested
+        # worktrees sit inside) and recreate fresh.
+        reclaimed = reclaim_orphaned_worktree_path(worktree, repo_root)
+        if reclaimed is not None:
+            LOGGER.info("reclaimed orphaned worktree path -> %s", reclaimed)
+            # The husk may have left a stale admin registration behind (lost
+            # `.git` but still listed); prune it so `worktree add` below does
+            # not fail with "already used by worktree". Best-effort: a prune
+            # failure still leaves `add` to raise the authoritative error.
+            pruned = subprocess.run(
+                ["git", "worktree", "prune"],
+                cwd=repo_root,
+                shell=False,
+                check=False,
+                timeout=60,
+                capture_output=True,
+                text=True,
+            )
+            if pruned.returncode != 0:
+                LOGGER.warning(
+                    "worktree prune exited %d: %s",
+                    pruned.returncode,
+                    (pruned.stderr or "").strip(),
+                )
     add_cmd = ["git", "worktree", "add", "-B", COMPONENT, str(worktree), sync_ref]
     LOGGER.info("adding worktree: %s", shlex.join(add_cmd))
     subprocess.run(

@@ -1166,3 +1166,93 @@ def test_move_aside_never_moves_files_outside_worktree(tmp_path):
     assert mod.move_aside_untracked_checkout_conflicts(wt, "main") == []
     assert (external / "data.txt").read_text() == "external data\n"
     assert not (wt / "tmp" / "night-sync-backup").exists()
+
+
+# --- Orphaned worktree husk (loop stall, observed 2026-11-28) --------------
+
+
+def _orphan_worktree(wt: Path, seed: Path) -> None:
+    """Simulate a husk: drop the `.git` registration file and prune metadata."""
+    (wt / ".git").unlink()
+    subprocess.run(
+        ["git", "-C", str(seed), "worktree", "prune"],
+        check=True, shell=False, timeout=30,
+    )
+    assert not mod_worktree_exists(wt)
+
+
+def mod_worktree_exists(wt: Path) -> bool:
+    mod = _load_module()
+    return mod.worktree_exists(wt)
+
+
+def test_ensure_worktree_reclaims_orphaned_husk(tmp_path):
+    """A path that exists but is no longer a worktree is moved aside and
+    recreated instead of failing `worktree add` with 'already exists'."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    (wt / "stale.txt").write_text("stale husk content\n")
+    _orphan_worktree(wt, seed)
+
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    assert mod.worktree_exists(wt)
+    assert (wt / "README.md").read_text() == "hi"
+    orphans = list(tmp_path.glob("wt-orphan-*"))
+    assert len(orphans) == 1, f"husk must be preserved aside, found: {orphans}"
+    assert (orphans[0] / "stale.txt").read_text() == "stale husk content\n"
+
+
+def test_reclaim_refuses_with_live_nested_worktree(tmp_path):
+    """A husk containing a live nested worktree must NOT be moved: loud
+    failure, husk and nested checkout both untouched."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    nested = wt / "nested-live"
+    subprocess.run(
+        ["git", "-C", str(seed), "worktree", "add", "--detach", str(nested), "main"],
+        check=True, shell=False, timeout=60,
+    )
+    (nested / "note.txt").write_text("live work\n")
+    _orphan_worktree(wt, seed)
+
+    with pytest.raises(mod.LauncherError, match="nested worktree"):
+        mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    assert not mod.worktree_exists(wt)
+    assert wt.is_dir()  # husk dir itself untouched
+    assert (nested / "note.txt").read_text() == "live work\n"
+    assert list(tmp_path.glob("wt-orphan-*")) == []
+    subprocess.run(
+        ["git", "-C", str(seed), "worktree", "remove", "--force", str(nested)],
+        check=True, shell=False, timeout=60,
+    )
+
+
+def test_ensure_worktree_recovers_with_stale_registration(tmp_path):
+    """Lost `.git` but admin registration still present: the launcher prunes
+    the stale entry itself instead of failing `worktree add`."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    (wt / "stale.txt").write_text("stale husk content\n")
+    (wt / ".git").unlink()  # lose registration WITHOUT pruning (cf. _orphan_worktree)
+    listed = subprocess.run(
+        ["git", "-C", str(seed), "worktree", "list", "--porcelain"],
+        check=True, shell=False, timeout=30, capture_output=True, text=True,
+    ).stdout
+    assert str(wt) in listed, "pre-condition: stale registration must still exist"
+
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    assert mod.worktree_exists(wt)
+    assert (wt / "README.md").read_text() == "hi"
+    assert len(list(tmp_path.glob("wt-orphan-*"))) == 1
