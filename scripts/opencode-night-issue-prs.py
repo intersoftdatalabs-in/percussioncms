@@ -23,7 +23,11 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
   worktrees are reused and switched back to the sync branch (a prior
   run may have left a feature branch checked out); uncommitted state is
   stashed with a labeled entry first, never discarded and never carried
-  onto the sync branch.
+  onto the sync branch. Untracked files the sync ref already tracks (a
+  prior run's untracked report that has since landed on the base branch)
+  are moved aside to `<worktree>/tmp/night-sync-backup/<UTC stamp>/`
+  before checkout, so the sync restores the tracked version instead of
+  aborting with "untracked working tree files would be overwritten".
 - Stale-worktree cleanup (HARD GATE, on by default): runs
   `scripts/prune-stale-worktrees.py --apply --force
   --delete-local-branches` after sync AND after the run (even on failure),
@@ -110,8 +114,10 @@ import logging
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -172,6 +178,101 @@ def worktree_exists(worktree: Path) -> bool:
     return (worktree / ".git").exists()
 
 
+def move_aside_untracked_checkout_conflicts(worktree: Path, sync_ref: str) -> list[str]:
+    """Move aside untracked files that `git checkout <sync_ref>` would refuse to overwrite.
+
+    A `git stash push` without `-u` leaves untracked files in place, so a
+    report generated untracked by a previous run (e.g.
+    `docs/ai-generated/code-reviews/pr-7384-erlang.md`) aborts every later
+    sync with "untracked working tree files would be overwritten by
+    checkout" once the base branch carries that same path — the launcher
+    then exits non-zero without doing any work, forever. Before checkout,
+    list untracked files, keep only the ones `sync_ref` already tracks, and
+    move those aside under `<worktree>/tmp/night-sync-backup/<UTC stamp>/`
+    (gitignored `tmp/`, so the backup never pollutes `git status`);
+    checkout then restores the authoritative tracked version. Untracked
+    files `sync_ref` does not track cannot block checkout and are left
+    alone. Nothing is deleted: the moved-aside copies stay on disk under
+    `tmp/` until the worktree is removed.
+
+    Best-effort: git failures warn and return what moved so far; per-file
+    errors are logged and skipped so one unreadable file cannot block the
+    sync. Returns the moved relative paths (POSIX form) for logging.
+    """
+    try:
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+            cwd=worktree,
+            shell=False,
+            check=False,
+            timeout=60,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        # ValueError covers undecodable filenames (text-mode decode errors).
+        LOGGER.warning("untracked-conflict scan skipped (ls-files failed): %s", exc)
+        return []
+    if untracked.returncode != 0:
+        LOGGER.warning(
+            "untracked-conflict scan skipped (ls-files exited %d): %s",
+            untracked.returncode,
+            (untracked.stderr or "").strip(),
+        )
+        return []
+    candidates = [p for p in untracked.stdout.split("\0") if p]
+    if not candidates:
+        return []
+    candidate_set = set(candidates)
+    try:
+        tracked = subprocess.run(
+            ["git", "ls-tree", "-r", "--name-only", "-z", sync_ref, "--", *candidates],
+            cwd=worktree,
+            shell=False,
+            check=False,
+            timeout=60,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        # ValueError covers undecodable filenames (text-mode decode errors):
+        # never let one odd name abort the sync (same stall class as #7384).
+        LOGGER.warning("untracked-conflict scan skipped (ls-tree failed): %s", exc)
+        return []
+    if tracked.returncode != 0:
+        LOGGER.warning(
+            "untracked-conflict scan skipped (ls-tree %s exited %d): %s",
+            sync_ref,
+            tracked.returncode,
+            (tracked.stderr or "").strip(),
+        )
+        return []
+    # Keep only paths we actually listed as untracked: through a symlinked
+    # directory `ls-tree` can return a descendant (newdir/data.txt) for an
+    # untracked symlink (newdir), and moving that would touch files outside
+    # the worktree. Anything outside the untracked set is not ours to move.
+    conflicts = [p for p in tracked.stdout.split("\0") if p in candidate_set]
+    if not conflicts:
+        return []
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_root = worktree / "tmp" / "night-sync-backup" / stamp
+    moved: list[str] = []
+    for rel in conflicts:
+        src = worktree / rel
+        if not src.is_file():
+            continue
+        dst = backup_root / rel
+        try:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(src), str(dst))
+        except OSError as exc:
+            LOGGER.warning("could not move aside checkout conflict %s: %s", rel, exc)
+            continue
+        LOGGER.warning("moved aside untracked checkout conflict %s -> %s", rel, dst)
+        moved.append(Path(rel).as_posix())
+    return moved
+
+
 def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from_local: bool = False) -> None:
     """Sync the worktree to the configured base branch ref.
 
@@ -189,7 +290,13 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
       branch that is currently checked out by a worktree.
 
     Uncommitted state is stashed with a labeled entry first — never
-    discarded, never carried onto the sync branch.
+    discarded, never carried onto the sync branch. Untracked files that the
+    sync ref already tracks (a previous run's untracked report that has since
+    landed on the base branch) are moved aside under
+    `<worktree>/tmp/night-sync-backup/<UTC stamp>/` before checkout, so the
+    sync restores the authoritative tracked version instead of aborting with
+    "untracked working tree files would be overwritten"; see
+    `move_aside_untracked_checkout_conflicts`.
 
     After either path, root and nested `AGENTS.local.md` files (gitignored,
     so never carried by git itself) are copied into the worktree one way;
@@ -250,6 +357,12 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
             )
         checkout_cmd = ["git", "checkout", "-B", COMPONENT, sync_ref]
         LOGGER.info("syncing worktree to %s: %s", sync_ref, shlex.join(checkout_cmd))
+        moved = move_aside_untracked_checkout_conflicts(worktree, sync_ref)
+        if moved:
+            LOGGER.info(
+                "moved %d untracked checkout conflict(s) aside before sync",
+                len(moved),
+            )
         subprocess.run(
             checkout_cmd,
             cwd=worktree,
