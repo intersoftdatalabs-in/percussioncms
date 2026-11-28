@@ -112,8 +112,8 @@ Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
 **Save description** writes the description only. Lock the template first.
 
 1. Open an existing template and choose **Lock**.
-2. Choose **Set template description**. The description on the page stays the stored value until save succeeds.
-3. Enter a new description, or leave it blank to clear the stored description. **Cancel** does not call the server. Saving the same description does not call the server.
+2. Choose **Set template description**. The input is focused on open. The description on the page stays the stored value until save succeeds.
+3. Enter a new description, or leave it blank to clear the stored description. **Cancel** (or **Escape**) closes the editor and does not call the server. Saving the same description does not call the server. When the editor closes (Escape, Cancel, or a successful save), focus returns to the **Set template description** button, and the save confirmation is announced via a live region.
 4. Choose **Save description**. The request is `PUT /services/templates/{idOrName}` with the description only. Name, label, bindings, slots, content-type associations, and source are omitted, so they stay. After a successful save, the detail and the catalog description show the new value. HTTP 400, 403, and 409 leave the previous description.
 
 **Save template** still saves the other fields on the form, including a description typed in the description box. **Save description** does not change those fields.
@@ -123,8 +123,8 @@ Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
 **Save label** writes the label only. Lock the template first.
 
 1. Open an existing template and choose **Lock**.
-2. Choose **Set template label**. The label on the page stays the stored value until save succeeds.
-3. Enter a new label. **Cancel** does not call the server. Saving the same label does not call the server.
+2. Choose **Set template label**. The input is focused on open. The label on the page stays the stored value until save succeeds.
+3. Enter a new label. **Cancel** (or **Escape**) closes the editor and does not call the server. Saving the same label does not call the server. When the editor closes (Escape, Cancel, or a successful save), focus returns to the **Set template label** button, and the save confirmation is announced via a live region.
 4. Choose **Save label**. The request is `PUT /services/templates/{idOrName}` with the label only. Name, description, bindings, slots, content-type associations, and source are omitted, so they stay. After a successful save, the detail and the catalog label show the new value. HTTP 400, 403, and 409 leave the previous label.
 5. A blank label clears the stored label and does not change the template name. The catalog returns the template name when the stored label is blank, so the page shows that name. The name itself is not cleared.
 

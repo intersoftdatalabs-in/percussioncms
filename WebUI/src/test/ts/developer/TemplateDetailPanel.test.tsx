@@ -1491,4 +1491,181 @@ describe("TemplateDetailPanel", () => {
     // Failed save restores the server membership instead of rendering unassigned.
     expect(targetCheck().checked).toBe(true);
   });
+
+  it("focuses the label input when the editor opens (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    expect(screen.getByTestId("developer-tpl-set-label-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the label edit without calling save (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-tpl-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-tpl-set-label-editor")).toBeNull();
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+      "Page",
+    );
+  });
+
+  it("focuses the description input when the editor opens (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-edit"));
+    expect(screen.getByTestId("developer-tpl-set-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the description edit without calling save (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-tpl-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-tpl-set-description-editor")).toBeNull();
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-tpl-set-description-text").getAttribute("data-tpl-description"),
+    ).toBe("Page template");
+  });
+
+  it("returns focus to the label edit button after Escape (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-tpl-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-tpl-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-tpl-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Cancel (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-cancel"));
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-tpl-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-tpl-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after save (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    updateTemplateDetailMock.mockResolvedValue({ ...sampleDetail, label: "note" });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-tpl-set-label-editor")).toBeNull();
+    });
+    expect(updateTemplateDetailMock).toHaveBeenCalledWith("perc.page", { label: "note" });
+    expect(screen.getByTestId("developer-tpl-set-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-tpl-set-label-notice")).toHaveAttribute("role", "status");
+  });
+
+  it("returns focus to the description edit button after Escape (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-tpl-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-tpl-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-tpl-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-cancel"));
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-tpl-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-tpl-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after save (#7390)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    updateTemplateDetailMock.mockResolvedValue({ ...sampleDetail, description: "note" });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-tpl-set-description-editor")).toBeNull();
+    });
+    expect(updateTemplateDetailMock).toHaveBeenCalledWith("perc.page", { description: "note" });
+    expect(screen.getByTestId("developer-tpl-set-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-tpl-set-description-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });
