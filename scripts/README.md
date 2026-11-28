@@ -71,6 +71,14 @@ vars actually reach the plugin and the bash tool.
   `report=<worktree>/scratch/night-report.md`, `max_parallel_work=1`
   (sequential; pilot 2 seats need distinct `PERC_QA_CELL_SUFFIX` per seat —
   see `night-phase-timer.py` and `docker/scripts/perc-devctl.py qa-up`).
+- **Worktree sync is stall-proof**: uncommitted tracked state is stashed
+  (labeled, never discarded) before the sync checkout. Untracked files the
+  sync ref already tracks (a prior run's untracked report that has since
+  landed on the base branch) are moved aside to
+  `<worktree>/tmp/night-sync-backup/<UTC stamp>/` — nothing is deleted —
+  so checkout restores the authoritative tracked version instead of
+  aborting every cycle with "untracked working tree files would be
+  overwritten". Untracked files the ref does not track are left alone.
 - **Operator overrides**: root `AGENTS.local.md` is gitignored, so git never
   carries it into the worktree — the launcher copies it one way
   (primary → worktree) on every sync and refreshes it when the primary

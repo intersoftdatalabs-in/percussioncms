@@ -1069,3 +1069,100 @@ def test_launcher_loader_agrees_with_docker_helper(tmp_path):
     helper = mod._load_maven_local_repo()
     for wt in (tmp_path / "wt", tmp_path / "wt with space"):
         assert helper.worktree_local_repository(wt) == mod.worktree_maven_repo(wt)
+
+
+# --- Untracked checkout conflicts (loop stall) ------------------------------
+
+
+def test_move_aside_empty_when_clean(tmp_path):
+    """No untracked files: helper is a no-op returning []."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert mod.move_aside_untracked_checkout_conflicts(wt, "main") == []
+    assert not (wt / "tmp" / "night-sync-backup").exists()
+
+
+def test_move_aside_leaves_non_conflicting_untracked_alone(tmp_path):
+    """Untracked files the sync ref does NOT track stay in place; sync succeeds."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    local_only = wt / "docs" / "ai-generated" / "code-reviews" / "pr-4242-erlang.md"
+    local_only.parent.mkdir(parents=True, exist_ok=True)
+    local_only.write_text("local only\n")
+    assert mod.move_aside_untracked_checkout_conflicts(wt, "main") == []
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert local_only.read_text() == "local only\n"
+    assert not (wt / "tmp" / "night-sync-backup").exists()
+
+
+def test_ensure_worktree_recovers_untracked_conflict_with_sync_ref(tmp_path):
+    """Regression (night-loop stall): an untracked worktree file that the sync
+    ref already tracks must be moved aside (never deleted) so checkout
+    restores the tracked version instead of aborting every cycle."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    rel = Path("docs") / "ai-generated" / "code-reviews" / "pr-9999-erlang.md"
+    (wt / rel).parent.mkdir(parents=True, exist_ok=True)
+    (wt / rel).write_text("stale local variant\n")
+
+    # The base branch gains the same path (e.g. another runner's merged PR).
+    (seed / rel).parent.mkdir(parents=True, exist_ok=True)
+    (seed / rel).write_text("authoritative tracked variant\n")
+    subprocess.run(["git", "-C", str(seed), "add", str(rel)], check=True, shell=False, timeout=10)
+    subprocess.run(
+        ["git", "-C", str(seed), "commit", "-m", "track pr-9999 review"],
+        check=True, shell=False, timeout=10,
+    )
+
+    # Previously: CalledProcessError ("untracked working tree files would be
+    # overwritten by checkout") on every cycle, forever.
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    assert (wt / rel).read_text() == "authoritative tracked variant\n"
+    backups = list((wt / "tmp" / "night-sync-backup").rglob("pr-9999-erlang.md"))
+    assert len(backups) == 1, f"stale copy must be preserved, found: {backups}"
+    assert backups[0].read_text() == "stale local variant\n"
+    # The backup lives under gitignored tmp/ so it never pollutes status.
+    status = subprocess.run(
+        ["git", "-C", str(wt), "status", "--porcelain"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout
+    assert "night-sync-backup" not in status
+
+
+def test_move_aside_never_moves_files_outside_worktree(tmp_path):
+    """Safety: an untracked symlink dir whose descendant the sync ref tracks
+    must not cause moves outside the worktree (ls-tree descendant filtering)."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    external = tmp_path / "external"
+    external.mkdir()
+    (external / "data.txt").write_text("external data\n")
+    link = wt / "newdir"
+    try:
+        link.symlink_to(external, target_is_directory=True)
+    except OSError:
+        pytest.skip("symlinks not permitted on this filesystem")
+
+    # Base branch gains newdir/data.txt while the worktree holds untracked symlink newdir.
+    (seed / "newdir").mkdir(exist_ok=True)
+    (seed / "newdir" / "data.txt").write_text("tracked data\n")
+    subprocess.run(["git", "-C", str(seed), "add", "newdir"], check=True, shell=False, timeout=10)
+    subprocess.run(
+        ["git", "-C", str(seed), "commit", "-m", "track newdir/data.txt"],
+        check=True, shell=False, timeout=10,
+    )
+
+    assert mod.move_aside_untracked_checkout_conflicts(wt, "main") == []
+    assert (external / "data.txt").read_text() == "external data\n"
+    assert not (wt / "tmp" / "night-sync-backup").exists()
