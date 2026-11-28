@@ -50,6 +50,17 @@
  * InstallerPayloadVendoredJsAuditTest). No new migration issue: nothing
  * third-party ships from this tree.
  *
+ * <p>Slice 5B re-sweep (#7376, 2026-11-27): inventory re-verified live on
+ * tip `ad5d50380f` - still exactly the 7 non-target .js files below (all
+ * first-party or guard tests; zero third-party), zero CDN <script src>
+ * loads in DTS webapp sources, zero .ts, zero lib-js/ trees, zero .js in
+ * the installer-adjacent `perc-distribution-tree` (non-target, owned by
+ * slice 5C #7377), and the installer leg likewise clean (6 pinned files;
+ * see InstallerPayloadVendoredJsAuditTest). Zero in-scope-tree changes
+ * since the slice-2 base `ddafe888b8` (only WebUI merges #7382/#7383
+ * landed). No new migration issue: nothing third-party ships from this
+ * tree.
+ *
  * <p>Inventory (path relative to delivery-tier-suite | kind | consumer):
  * <ul>
  * <li>p13n-ds/src-js/p13n/p13nMain.js - first-party - profile-editor boot

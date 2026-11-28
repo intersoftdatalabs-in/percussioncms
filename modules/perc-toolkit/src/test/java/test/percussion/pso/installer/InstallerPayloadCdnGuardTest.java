@@ -58,6 +58,11 @@ import org.junit.jupiter.api.Test;
  * inventory below is now empty and this test is the tripwire against
  * re-introduction. No migration lands in #7366 itself.
  *
+ * <p>Slice 5B re-sweep (#7376, 2026-11-27): zero-CDN state re-verified
+ * live on tip {@code ad5d50380f} - the inventory below is still empty,
+ * zero in-scope-tree changes since the slice-2 base {@code ddafe888b8}.
+ * No new migration issue.
+ *
  * <p>Explicitly out of scope (no double-count): the {@code .js} payload inventory itself is
  * owned by {@link InstallerPayloadVendoredJsAuditTest} (slice 2, #6069); DTS web resources by
  * #6071; the perc-packages widget payloads by {@code WidgetPayloadVendoredJsAuditTest}
